@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Service account credentials
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# Original logo file
+431521841_*.jpg
