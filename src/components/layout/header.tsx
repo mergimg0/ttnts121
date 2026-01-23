@@ -23,11 +23,11 @@ export function Header() {
             height={48}
             className="h-12 w-12 object-contain transition-transform group-hover:scale-105"
           />
-          <div className="hidden sm:block">
-            <span className="text-lg font-black tracking-tight text-black uppercase">
+          <div>
+            <span className="text-xs sm:text-lg font-black tracking-tight text-black uppercase">
               Take The Next Step
             </span>
-            <span className="ml-1 text-lg font-black text-[#2E3192]">121</span>
+            <span className="ml-1 text-xs sm:text-lg font-black text-[#2E3192]">121</span>
           </div>
         </Link>
 
