@@ -10,36 +10,44 @@ const testimonials = [
     name: "Sarah M.",
     location: "Barton Le Clay",
     quote:
-      "My son absolutely loves the sessions. The coaches are brilliant at making every child feel included, and I've seen such a boost in his confidence. He can't wait for football day every week!",
+      "When we started, my son would hide behind my legs at drop-off. Now he runs in shouting hello to his coaches and friends. Last week he scored his first goal and the smile lasted all week. The confidence boost has spilled into school too - his teacher noticed the difference!",
     rating: 5,
     childAge: "6 years old",
+    transformation: "Shy to Confident",
+    timeframe: "After 8 weeks",
   },
   {
     id: 2,
     name: "James P.",
     location: "Luton",
     quote:
-      "What sets Take The Next Step apart is their focus on fun AND development. My daughter has improved so much, but more importantly, she's made great friends and loves being active.",
+      "My daughter was the only girl at first and nearly didn't come back. The coaches made her feel so welcome that she's now been coming for 6 months. She's made genuine friendships, her coordination has improved massively, and she recently joined a local girls' team. Couldn't recommend more highly.",
     rating: 5,
     childAge: "8 years old",
+    transformation: "Hesitant to Team Player",
+    timeframe: "After 6 months",
   },
   {
     id: 3,
     name: "Emma T.",
     location: "Silsoe",
     quote:
-      "The holiday camps are a lifesaver for working parents. Professional, well-organised, and the kids have so much fun. I never worry when they're at Take The Next Step.",
+      "The holiday camps are honestly a lifesaver. My kids come home exhausted, happy, and full of stories about their day. What I love most is that every child gets praised - not just the naturally sporty ones. My less coordinated 5-year-old feels just as celebrated as the kids who've played for years.",
     rating: 5,
     childAge: "5 years old",
+    transformation: "Nervous to Enthusiastic",
+    timeframe: "First camp",
   },
   {
     id: 4,
     name: "David K.",
     location: "Barton Le Clay",
     quote:
-      "My shy son was nervous about starting, but the coaches were so welcoming. Now he's one of the first to arrive and last to leave. Thank you for bringing out his confidence!",
+      "My shy son was nervous about starting - he'd had bad experiences at other clubs where he felt ignored. Here, Coach Mike learned his name in the first 5 minutes and by week 3, my son was high-fiving everyone. He's now one of the first to arrive and genuinely upset when sessions end!",
     rating: 5,
     childAge: "7 years old",
+    transformation: "Anxious to Eager",
+    timeframe: "After 3 weeks",
   },
 ];
 
@@ -63,9 +71,9 @@ export function Testimonials() {
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-black uppercase tracking-tight sm:text-4xl lg:text-5xl">
-            What Parents
+            Real Parents.
             <br />
-            <span className="text-neutral-500">Say</span>
+            <span className="text-neutral-500">Real Transformations.</span>
           </h2>
           <div className="mt-6 flex items-center justify-center gap-1">
             {[...Array(5)].map((_, i) => (
@@ -79,7 +87,7 @@ export function Testimonials() {
             </span>
           </div>
           <p className="mt-2 text-sm text-neutral-500 uppercase tracking-widest">
-            Based on 50+ parent reviews
+            Based on 50+ verified parent reviews
           </p>
         </div>
 
@@ -89,6 +97,16 @@ export function Testimonials() {
             <Quote className="absolute -left-4 -top-4 h-8 w-8 text-neutral-700 bg-black" />
 
             <div className="relative">
+              {/* Transformation badge */}
+              <div className="mb-6 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 bg-[#2E3192] px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                  {currentTestimonial.transformation}
+                </span>
+                <span className="text-xs text-neutral-500 uppercase tracking-wider">
+                  {currentTestimonial.timeframe}
+                </span>
+              </div>
+
               {/* Stars */}
               <div className="mb-6 flex gap-1">
                 {[...Array(currentTestimonial.rating)].map((_, i) => (

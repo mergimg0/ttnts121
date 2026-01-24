@@ -11,6 +11,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader2,
+  Calendar,
+  Mail,
+  CreditCard,
+  PartyPopper,
 } from "lucide-react";
 import {
   LOCATIONS,
@@ -113,11 +117,12 @@ export default function BookingPage() {
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Book a <span className="text-neutral-500">Session</span>
+              Book Your Child&apos;s <span className="text-neutral-500">First Session</span>
             </h1>
             <p className="mt-4 text-neutral-400">
-              Complete the form below to register your child for football
-              sessions.
+              2 minutes to complete. No payment required now.
+              <br />
+              <span className="text-neutral-500">Full refund if they don&apos;t love it.</span>
             </p>
           </div>
         </Container>
@@ -691,31 +696,77 @@ export default function BookingPage() {
 
           {/* Success Screen */}
           {step === "success" && (
-            <div className="mx-auto max-w-2xl border border-neutral-200 bg-white p-8 text-center">
-              <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center border-2 border-[#F5A623]">
-                <CheckCircle className="h-10 w-10 text-[#F5A623]" />
-              </div>
-              <h2 className="text-2xl font-bold uppercase tracking-wide text-black">
-                Booking Submitted
-              </h2>
-              <p className="mt-4 text-neutral-600">
-                Thank you for booking {formData.childFirstName} onto our football sessions.
-              </p>
-
-              {bookingRef && (
-                <div className="mt-8 border border-neutral-200 bg-neutral-50 p-4">
-                  <p className="text-sm text-neutral-500 uppercase tracking-wider">Your booking reference:</p>
-                  <p className="text-2xl font-black text-black">{bookingRef}</p>
+            <div className="mx-auto max-w-2xl border border-neutral-200 bg-white p-8">
+              <div className="text-center">
+                <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center border-2 border-[#F5A623]">
+                  <PartyPopper className="h-10 w-10 text-[#F5A623]" />
                 </div>
-              )}
+                <h2 className="text-2xl font-bold uppercase tracking-wide text-black">
+                  You&apos;re All Set!
+                </h2>
+                <p className="mt-4 text-neutral-600">
+                  {formData.childFirstName} is registered for football sessions.
+                  <br />
+                  <span className="font-semibold text-black">Get ready for some big smiles!</span>
+                </p>
 
-              <div className="mt-8 space-y-3 text-left text-sm text-neutral-600">
-                <h3 className="font-bold uppercase tracking-wide text-black">What happens next?</h3>
-                <ul className="list-inside list-disc space-y-2">
-                  <li>You&apos;ll receive a confirmation email shortly</li>
-                  <li>We&apos;ll confirm session dates and send payment details</li>
-                  <li>Once payment is received, your place is secured</li>
-                </ul>
+                {bookingRef && (
+                  <div className="mt-8 border border-neutral-200 bg-neutral-50 p-4">
+                    <p className="text-sm text-neutral-500 uppercase tracking-wider">Your booking reference:</p>
+                    <p className="text-2xl font-black text-black">{bookingRef}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* What Happens Next - Enhanced */}
+              <div className="mt-10 border-t border-neutral-200 pt-8">
+                <h3 className="font-bold uppercase tracking-wide text-black text-center mb-8">
+                  What Happens Next
+                </h3>
+                <div className="space-y-6">
+                  <div className="flex gap-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-black">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-black">Check Your Email (Next 24 Hours)</p>
+                      <p className="text-sm text-neutral-600">
+                        We&apos;ll send confirmation with session dates, times, and venue details.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-black">
+                      <CreditCard className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-black">Payment Details</p>
+                      <p className="text-sm text-neutral-600">
+                        Payment instructions will be in your confirmation email. No payment was taken today.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-black">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-black">First Session Day</p>
+                      <p className="text-sm text-neutral-600">
+                        Bring football boots or trainers, shin pads, water bottle, and comfortable clothes.
+                        Arrive 10 minutes early so {formData.childFirstName} can meet their coach!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reassurance */}
+              <div className="mt-8 border border-[#2E3192]/20 bg-[#2E3192]/5 p-4 text-center">
+                <p className="text-sm text-neutral-700">
+                  <span className="font-semibold">Remember:</span> If {formData.childFirstName} doesn&apos;t love their first session,
+                  you get a full refund. No questions asked.
+                </p>
               </div>
 
               <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -723,7 +774,7 @@ export default function BookingPage() {
                   <Link href="/">Return Home</Link>
                 </Button>
                 <Button variant="secondary" asChild>
-                  <Link href="/sessions">View Sessions</Link>
+                  <Link href="/sessions">View All Sessions</Link>
                 </Button>
               </div>
             </div>

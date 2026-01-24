@@ -47,7 +47,7 @@ export const SESSION_TYPES = [
   {
     id: "after-school",
     name: "After School Club",
-    description: "Weekly sessions during term time, perfect for regular development.",
+    description: "Drop off stressed, pick up smiling. Perfect mid-week energy release that fits around work schedules.",
     duration: "1 hour",
     ageRange: "4-11",
     frequency: "Weekly during term time",
@@ -56,7 +56,7 @@ export const SESSION_TYPES = [
   {
     id: "half-term",
     name: "Half Term Camp",
-    description: "Multi-day camps during school half terms, packed with football fun.",
+    description: "A week of football, friendships, and fun. Childcare sorted while kids have the time of their lives.",
     duration: "Half or full day",
     ageRange: "4-11",
     frequency: "Half-term holidays",
@@ -65,7 +65,7 @@ export const SESSION_TYPES = [
   {
     id: "holiday",
     name: "Holiday Camp",
-    description: "Extended holiday camps during Easter and Summer breaks.",
+    description: "Summer sorted. Easter covered. Full days of football fun that kids count down to all year.",
     duration: "Full day",
     ageRange: "4-11",
     frequency: "School holidays",
@@ -79,25 +79,25 @@ export const AGE_GROUPS = [
     id: "mini-kickers",
     name: "Mini Kickers",
     ageRange: "4-5",
-    focus: "Fun introduction to football through games and basic coordination.",
+    focus: "First football memories! Gentle games, lots of encouragement, and celebrations for every kick.",
   },
   {
     id: "juniors",
     name: "Juniors",
     ageRange: "6-7",
-    focus: "Building fundamental skills while keeping the fun element central.",
+    focus: "Building real skills through fun games. Kids start understanding teamwork and grow in confidence.",
   },
   {
     id: "seniors",
     name: "Seniors",
     ageRange: "8-9",
-    focus: "Developing technique and introducing tactical awareness.",
+    focus: "Technique gets serious (but still fun!). Mini matches, tactical basics, and club-ready skills.",
   },
   {
     id: "advanced",
     name: "Advanced",
     ageRange: "10-11",
-    focus: "Advanced skills, game play, and preparing for club football.",
+    focus: "For kids who live and breathe football. Advanced skills, proper matches, and pathways to local clubs.",
   },
 ];
 

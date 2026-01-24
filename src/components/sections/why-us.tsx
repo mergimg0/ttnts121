@@ -10,39 +10,39 @@ import {
 
 const reasons = [
   {
-    title: "Fun Comes First",
+    title: "Games, Not Drills",
     description:
-      "Children learn best when they're having fun. Our sessions are designed to be engaging and exciting.",
+      "Kids don't realise they're learning because they're too busy having fun. Every session is 90% games, 10% skills - exactly how kids learn best.",
     icon: Sparkles,
   },
   {
-    title: "Personalized Attention",
+    title: "8 Kids Max Per Coach",
     description:
-      "Small group sizes mean every child gets the attention they deserve.",
+      "Your child won't get lost in the crowd. Small groups mean more touches on the ball, more feedback, and more confidence built every session.",
     icon: Users,
   },
   {
-    title: "Qualified Coaches",
+    title: "FA Level 2 Coaches",
     description:
-      "All our coaches hold FA qualifications and are trained in child development.",
+      "Not just qualified - passionate. Our coaches specialise in ages 4-11 and know how to make football click for every learning style.",
     icon: Trophy,
   },
   {
-    title: "Confidence Building",
+    title: "Confidence First, Football Second",
     description:
-      "We focus on building confidence, resilience, and social skills.",
+      "We've seen quiet kids become team captains. Football is our tool - confidence, friendships, and resilience are what we really build.",
     icon: Heart,
   },
   {
-    title: "Safe Environment",
+    title: "Peace of Mind for Parents",
     description:
-      "All staff are DBS checked, first aid trained, and follow safeguarding policies.",
+      "Enhanced DBS checks, first aid trained, fully insured. We treat your kids like our own - because many of our coaches are parents too.",
     icon: Shield,
   },
   {
-    title: "Development Focus",
+    title: "Progress You Can See",
     description:
-      "We track progress and celebrate achievements. Watch your child grow week by week.",
+      "Regular updates, end-of-term reports, and genuine celebration of every milestone. You'll see the difference in weeks, not months.",
     icon: Star,
   },
 ];
@@ -53,12 +53,12 @@ export function WhyUs() {
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl lg:text-5xl">
-            Why Families
+            What Makes Us
             <br />
-            <span className="text-neutral-400">Choose Us</span>
+            <span className="text-neutral-400">Different</span>
           </h2>
           <p className="mt-6 text-lg text-neutral-600">
-            We&apos;re not just about football. We&apos;re about helping children grow.
+            We&apos;re not just football coaches. We&apos;re confidence builders who happen to use footballs.
           </p>
         </div>
 

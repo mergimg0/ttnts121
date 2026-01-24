@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
-import { Shield, Award, FileCheck, Heart, ArrowRight } from "lucide-react";
+import { Shield, Award, FileCheck, Heart, ArrowRight, Star } from "lucide-react";
 
 export function Hero() {
   return (
@@ -32,50 +32,60 @@ export function Hero() {
             </span>
           </div>
 
-          {/* Main heading - Nike style bold */}
+          {/* Main heading - CRO Option B: Transformation-focused */}
           <h1 className="text-5xl font-black uppercase tracking-tight text-black sm:text-6xl lg:text-8xl">
-            Football Fun
+            Where Shy Kids
             <br />
-            <span className="text-[#2E3192]">That Builds</span>
+            <span className="text-[#2E3192]">Become</span>
             <br />
-            Confidence
+            Team Players
           </h1>
 
-          {/* Subheading */}
-          <p className="mx-auto mt-8 max-w-xl text-lg text-neutral-600 leading-relaxed">
-            Professional coaching for ages 4-11 in{" "}
+          {/* Subheading - Enhanced with specific value prop */}
+          <p className="mx-auto mt-8 max-w-2xl text-lg text-neutral-600 leading-relaxed">
+            Fun football coaching that builds confidence, not pressure.{" "}
+            <span className="font-semibold text-black">Ages 4-11</span> in{" "}
             <span className="font-semibold text-black">Luton</span>,{" "}
             <span className="font-semibold text-black">Barton Le Clay</span> &{" "}
             <span className="font-semibold text-black">Silsoe</span>.
-            Where kids learn, grow, and have a blast.
+            <br />
+            <span className="text-neutral-500">Small groups. Big smiles. Real progress you can see.</span>
           </p>
 
-          {/* CTA buttons */}
+          {/* CTA buttons - Enhanced with value messaging */}
           <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button size="lg" asChild>
               <Link href="/book">
-                Book a Session
+                Book Your Free Trial
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="secondary" asChild>
-              <Link href="/sessions">View Schedule</Link>
+              <Link href="/sessions">See Session Times & Prices</Link>
             </Button>
           </div>
 
-          {/* Social proof - clean stats */}
+          {/* Risk reversal message */}
+          <p className="mt-4 text-sm text-neutral-500">
+            No commitment required. Cancel anytime. Full refund if your child doesn&apos;t love it.
+          </p>
+
+          {/* Social proof - Enhanced stats with context */}
           <div className="mt-20 grid grid-cols-3 gap-8 border-t border-neutral-200 pt-12">
             <div className="text-center">
-              <p className="text-4xl font-black text-black sm:text-5xl">1000<span className="text-neutral-400">+</span></p>
-              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Sessions</p>
+              <p className="text-4xl font-black text-black sm:text-5xl">1,000<span className="text-neutral-400">+</span></p>
+              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Sessions Since 2022</p>
             </div>
             <div className="text-center">
-              <p className="text-4xl font-black sm:text-5xl"><span className="text-[#F5A623]">4.9</span></p>
-              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Rating</p>
+              <div className="flex items-center justify-center gap-1">
+                <p className="text-4xl font-black sm:text-5xl"><span className="text-[#F5A623]">4.9</span></p>
+                <Star className="h-6 w-6 fill-[#F5A623] text-[#F5A623]" />
+              </div>
+              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Google Reviews</p>
             </div>
             <div className="text-center">
               <p className="text-4xl font-black text-black sm:text-5xl">100<span className="text-neutral-400">%</span></p>
-              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Recommend</p>
+              <p className="mt-2 text-xs font-medium uppercase tracking-widest text-neutral-500">Would Recommend</p>
             </div>
           </div>
         </div>

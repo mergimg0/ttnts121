@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, ArrowRight } from "lucide-react";
+import { Phone, Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export function CTA() {
@@ -15,14 +15,30 @@ export function CTA() {
 
           <div className="relative mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Ready to
+              Try One Session.
               <br />
-              <span className="text-neutral-500">Get Started?</span>
+              <span className="text-neutral-500">See Why Kids Come Back.</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-400">
-              Give your child the gift of football fun, new friends, and growing
-              confidence. Book their first session today.
+              No joining fee. No long-term commitment. Just your child, a football,
+              and coaches who genuinely care.
             </p>
+
+            {/* Risk reversal bullets */}
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-8">
+              <span className="flex items-center gap-2 text-sm text-neutral-400">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                Pay as you go
+              </span>
+              <span className="flex items-center gap-2 text-sm text-neutral-400">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                Cancel anytime
+              </span>
+              <span className="flex items-center gap-2 text-sm text-neutral-400">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                Full refund guarantee
+              </span>
+            </div>
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
@@ -31,7 +47,7 @@ export function CTA() {
                 asChild
               >
                 <Link href="/book">
-                  Book a Session
+                  Book Your First Session
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -41,9 +57,13 @@ export function CTA() {
                 className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800 hover:border-neutral-600"
                 asChild
               >
-                <Link href="/contact">Contact Us</Link>
+                <Link href="/contact">Got Questions? Ask Us</Link>
               </Button>
             </div>
+
+            <p className="mt-4 text-sm text-neutral-500">
+              Most parents book within 2 days of visiting. Spots fill quickly.
+            </p>
 
             <div className="mt-16 flex flex-col items-center justify-center gap-6 border-t border-neutral-800 pt-10 sm:flex-row sm:gap-12">
               <a
