@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2, Plus, Check } from "lucide-react";
+import { FadeInUp } from "@/lib/motion";
+import { Calendar, Clock, MapPin, Users, ArrowRight, Loader2, Plus, Check } from "lucide-react";
 import { formatPrice, getDayName } from "@/lib/booking-utils";
 import { LOCATIONS } from "@/lib/constants";
 import { useCart } from "@/components/cart/cart-provider";
@@ -32,7 +33,6 @@ interface SessionData {
 export function SessionsOverview() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const { addItem, removeItem, isInCart } = useCart();
 
   useEffect(() => {
@@ -76,127 +76,114 @@ export function SessionsOverview() {
   };
 
   return (
-    <section className="py-32 sm:py-40 bg-[#FAFAFA]">
+    <section className="py-24 sm:py-32 bg-navy text-white">
       <Container>
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-xl"
-        >
-          <p className="text-[13px] font-medium tracking-[0.2em] uppercase text-neutral-400 mb-4">
-            Book a Session
-          </p>
-          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-semibold tracking-[-0.03em] text-[#1d1d1f] leading-[1.1]">
-            Find the perfect
-            <br />
-            <span className="text-neutral-400">session for your child.</span>
-          </h2>
-        </motion.div>
+        <FadeInUp>
+          <div className="mx-auto max-w-2xl text-center mb-12">
+            <h2 className="font-display text-3xl tracking-tight sm:text-4xl lg:text-5xl">
+              Upcoming Sessions
+            </h2>
+            <p className="mt-6 text-lg text-white/70">
+              Book your child&apos;s spot in one of our upcoming sessions.
+            </p>
+          </div>
+        </FadeInUp>
 
         {loading ? (
-          <div className="flex justify-center items-center py-32">
-            <Loader2 className="h-6 w-6 animate-spin text-neutral-300" />
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-sky" />
           </div>
         ) : sessions.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-32"
-          >
-            <p className="text-neutral-400 text-lg">
-              No sessions available right now.
+          <div className="text-center py-16">
+            <Calendar className="mx-auto h-12 w-12 text-white/30" />
+            <p className="mt-4 text-white/70">
+              No sessions available at the moment. Check back soon!
             </p>
-          </motion.div>
+          </div>
         ) : (
           <>
             {/* Sessions Grid */}
-            <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {sessions.map((session, index) => {
                 const inCart = isInCart(session.id);
-                const isHovered = hoveredId === session.id;
                 const isFull = session.availabilityStatus === "full";
 
                 return (
                   <motion.div
                     key={session.id}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{
-                      duration: 0.6,
-                      delay: index * 0.1,
-                      ease: [0.16, 1, 0.3, 1]
+                      duration: 0.4,
+                      delay: index * 0.08,
+                      ease: [0.25, 0.1, 0.25, 1]
                     }}
-                    onMouseEnter={() => setHoveredId(session.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    className="group relative"
                   >
                     <motion.div
-                      animate={{
-                        y: isHovered ? -4 : 0,
-                        boxShadow: isHovered
-                          ? "0 20px 40px -12px rgba(0,0,0,0.15)"
-                          : "0 4px 20px -4px rgba(0,0,0,0.06)"
-                      }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className={`relative bg-white rounded-2xl overflow-hidden ${
+                      whileHover={{ y: -2 }}
+                      transition={{ duration: 0.2 }}
+                      className={`relative bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden ${
                         isFull ? "opacity-60" : ""
                       }`}
                     >
                       {/* Card Content */}
-                      <div className="p-7">
-                        {/* Top Row: Day & Time */}
-                        <div className="flex items-center justify-between mb-6">
+                      <div className="p-5">
+                        {/* Top Row: Day Badge & Status */}
+                        <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
-                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F5F5F7] text-[13px] font-semibold text-[#1d1d1f]">
-                              {getDayName(session.dayOfWeek).slice(0, 2)}
+                            <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-sky/20 text-sky text-sm font-bold">
+                              {getDayName(session.dayOfWeek).slice(0, 3)}
                             </span>
-                            <span className="text-[15px] text-neutral-500">
-                              {session.startTime}
-                            </span>
+                            <div>
+                              <p className="text-sm font-medium text-white">
+                                {session.startTime} – {session.endTime}
+                              </p>
+                              <p className="text-xs text-white/50">
+                                {getDayName(session.dayOfWeek)}s
+                              </p>
+                            </div>
                           </div>
 
-                          {/* Status Indicator */}
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${
-                              isFull
-                                ? "bg-neutral-300"
-                                : session.availabilityStatus === "limited"
-                                  ? "bg-amber-400"
-                                  : "bg-emerald-400"
-                            }`} />
-                            <span className="text-[13px] text-neutral-400">
-                              {isFull
-                                ? "Full"
-                                : session.availabilityStatus === "limited"
-                                  ? `${session.spotsLeft} left`
-                                  : "Open"
-                              }
-                            </span>
-                          </div>
+                          {/* Status Badge */}
+                          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                            isFull
+                              ? "bg-white/10 text-white/50"
+                              : session.availabilityStatus === "limited"
+                                ? "bg-amber-500/20 text-amber-300"
+                                : "bg-emerald-500/20 text-emerald-300"
+                          }`}>
+                            {isFull
+                              ? "Full"
+                              : session.availabilityStatus === "limited"
+                                ? `${session.spotsLeft} left`
+                                : "Open"
+                            }
+                          </span>
                         </div>
 
                         {/* Session Name */}
-                        <h3 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1d1d1f] leading-tight mb-2">
+                        <h3 className="text-lg font-bold text-white mb-2">
                           {session.name}
                         </h3>
 
-                        {/* Location & Ages */}
-                        <p className="text-[15px] text-neutral-500 mb-1">
-                          {session.program ? getLocationName(session.program.location) : "TBA"}
-                        </p>
-                        <p className="text-[13px] text-neutral-400">
-                          Ages {session.ageMin}–{session.ageMax}
-                        </p>
+                        {/* Details */}
+                        <div className="flex items-center gap-4 text-sm text-white/60 mb-4">
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5" />
+                            {session.program ? getLocationName(session.program.location) : "TBA"}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" />
+                            Ages {session.ageMin}–{session.ageMax}
+                          </span>
+                        </div>
 
                         {/* Bottom Row: Price & Action */}
-                        <div className="flex items-end justify-between mt-8 pt-6 border-t border-neutral-100">
+                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
                           <div>
-                            <p className="text-[13px] text-neutral-400 mb-1">Per session</p>
-                            <p className="text-[28px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">
+                            <p className="text-xs text-white/50">Per session</p>
+                            <p className="text-xl font-bold text-white">
                               {formatPrice(session.price)}
                             </p>
                           </div>
@@ -206,54 +193,42 @@ export function SessionsOverview() {
                             onClick={() => !isFull && handleToggleCart(session)}
                             disabled={isFull}
                             whileTap={{ scale: 0.95 }}
-                            className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-colors ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-colors ${
                               isFull
-                                ? "bg-neutral-100 cursor-not-allowed"
+                                ? "bg-white/5 text-white/30 cursor-not-allowed"
                                 : inCart
-                                  ? "bg-[#1d1d1f] text-white"
-                                  : "bg-[#F5F5F7] hover:bg-[#E8E8ED] text-[#1d1d1f]"
+                                  ? "bg-emerald-500 text-white"
+                                  : "bg-white text-navy hover:bg-white/90"
                             }`}
                           >
                             <AnimatePresence mode="wait">
                               {inCart ? (
-                                <motion.div
-                                  key="check"
-                                  initial={{ scale: 0, rotate: -180 }}
-                                  animate={{ scale: 1, rotate: 0 }}
-                                  exit={{ scale: 0, rotate: 180 }}
-                                  transition={{ duration: 0.2 }}
+                                <motion.span
+                                  key="added"
+                                  initial={{ opacity: 0, scale: 0.8 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.8 }}
+                                  className="flex items-center gap-1.5"
                                 >
-                                  <Check className="w-5 h-5" strokeWidth={2.5} />
-                                </motion.div>
+                                  <Check className="w-4 h-4" />
+                                  Added
+                                </motion.span>
                               ) : (
-                                <motion.div
-                                  key="plus"
-                                  initial={{ scale: 0, rotate: 180 }}
-                                  animate={{ scale: 1, rotate: 0 }}
-                                  exit={{ scale: 0, rotate: -180 }}
-                                  transition={{ duration: 0.2 }}
+                                <motion.span
+                                  key="add"
+                                  initial={{ opacity: 0, scale: 0.8 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.8 }}
+                                  className="flex items-center gap-1.5"
                                 >
-                                  <Plus className="w-5 h-5" strokeWidth={2} />
-                                </motion.div>
+                                  <Plus className="w-4 h-4" />
+                                  Add
+                                </motion.span>
                               )}
                             </AnimatePresence>
                           </motion.button>
                         </div>
                       </div>
-
-                      {/* In Cart Indicator */}
-                      <AnimatePresence>
-                        {inCart && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="bg-[#1d1d1f] text-white px-7 py-3 text-center"
-                          >
-                            <p className="text-[13px] font-medium">Added to cart</p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </motion.div>
                   </motion.div>
                 );
@@ -261,21 +236,16 @@ export function SessionsOverview() {
             </div>
 
             {/* View All Link */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="mt-16 text-center"
-            >
-              <Link
-                href="/sessions"
-                className="group inline-flex items-center gap-2 text-[15px] font-medium text-[#06c] hover:text-[#06c]/80 transition-colors"
-              >
-                View all sessions
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </motion.div>
+            <FadeInUp>
+              <div className="mt-12 text-center">
+                <Button variant="secondary" size="lg" asChild>
+                  <Link href="/sessions">
+                    View All Sessions
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </FadeInUp>
           </>
         )}
       </Container>
