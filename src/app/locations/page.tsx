@@ -34,7 +34,7 @@ export default function LocationsPage() {
       {/* Locations Grid */}
       <section className="py-20 sm:py-28">
         <Container>
-          <div className="grid gap-px bg-neutral-200 lg:grid-cols-3">
+          <div className="grid gap-px bg-neutral-200 md:grid-cols-2 lg:grid-cols-3">
             {LOCATIONS.map((location, index) => (
               <div
                 key={location.id}

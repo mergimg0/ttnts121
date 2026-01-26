@@ -222,13 +222,13 @@ export default function SessionsPage() {
             )}
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             {/* Left: Sessions List */}
-            <div className="lg:col-span-1 space-y-3">
+            <div className="space-y-3">
               <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 mb-4">
-                Sessions
+                Available Sessions
               </h2>
-              <div className="space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto pr-2">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:max-h-[calc(100vh-280px)] lg:overflow-y-auto lg:pr-2">
                 {sessions.map((session) => (
                   <button
                     key={session.id}
@@ -282,8 +282,8 @@ export default function SessionsPage() {
 
             {/* Right: Calendar + Details */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Calendar View */}
-              <div className="bg-white rounded-xl border border-neutral-200 p-4">
+              {/* Calendar View - Hidden on mobile */}
+              <div className="hidden md:block bg-white rounded-xl border border-neutral-200 p-4">
                 <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 mb-4">
                   Weekly Schedule
                 </h2>

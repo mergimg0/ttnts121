@@ -116,13 +116,13 @@ export function SessionsOverview() {
             </p>
           </div>
         ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid gap-6 lg:grid-cols-3">
             {/* Left: Sessions List */}
-            <div className="lg:col-span-1 space-y-3">
+            <div className="space-y-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-4">
-                Sessions
+                Available Sessions
               </h3>
-              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:max-h-[400px] lg:overflow-y-auto lg:pr-2">
                 {sessions.map((session) => (
                   <button
                     key={session.id}
@@ -176,8 +176,8 @@ export function SessionsOverview() {
 
             {/* Right: Calendar + Details */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Calendar View */}
-              <div className="bg-white/10 rounded-xl border border-white/20 p-4">
+              {/* Calendar View - Hidden on mobile */}
+              <div className="hidden md:block bg-white/10 rounded-xl border border-white/20 p-4">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-4">
                   Weekly Schedule
                 </h3>

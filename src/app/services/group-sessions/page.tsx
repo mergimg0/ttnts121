@@ -147,7 +147,7 @@ export default function GroupSessionsPage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-16 grid max-w-4xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mx-auto mt-16 grid max-w-4xl gap-6 grid-cols-2 md:grid-cols-4">
             {AGE_GROUPS.map((group) => (
               <div
                 key={group.id}

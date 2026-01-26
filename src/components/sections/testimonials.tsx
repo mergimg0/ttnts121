@@ -157,16 +157,18 @@ export function Testimonials() {
             </button>
 
             {/* Dots */}
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`h-2 w-2 rounded-full transition-all ${
-                    index === currentIndex ? "bg-navy" : "bg-neutral-300"
-                  }`}
+                  className="p-3 -m-2 touch-manipulation"
                   aria-label={`Go to testimonial ${index + 1}`}
-                />
+                >
+                  <span className={`block h-2.5 w-2.5 rounded-full transition-all ${
+                    index === currentIndex ? "bg-navy" : "bg-neutral-300"
+                  }`} />
+                </button>
               ))}
             </div>
 
@@ -187,7 +189,7 @@ export function Testimonials() {
               What Makes Us Different
             </h3>
           </FadeInUp>
-          <StaggerChildren className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <StaggerChildren className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {reasons.map((reason) => (
               <StaggerItem key={reason.title}>
                 <div className="text-center p-4">

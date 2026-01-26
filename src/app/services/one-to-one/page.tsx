@@ -212,7 +212,7 @@ export default function OneToOnePage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-16 grid max-w-4xl gap-6 lg:grid-cols-3">
+          <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-3">
             {ONE_TO_ONE_PACKAGES.map((pkg) => (
               <div
                 key={pkg.id}

@@ -208,7 +208,7 @@ export default function HalfTermCampsPage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-16 grid max-w-4xl gap-6 lg:grid-cols-3">
+          <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-2 lg:grid-cols-3">
             {pricing.map((option) => (
               <div
                 key={option.name}
