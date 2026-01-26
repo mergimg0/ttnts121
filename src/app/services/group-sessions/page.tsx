@@ -110,7 +110,7 @@ export default function GroupSessionsPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Football
               <br />
-              <span className="text-neutral-400">Without The Faff</span>
+              <span className="text-neutral-400">Made Simple</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Weekly club feel without the weekly commitment.
@@ -138,9 +138,9 @@ export default function GroupSessionsPage() {
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
-              Find Their
+              Age
               <br />
-              <span className="text-neutral-400">Perfect Group</span>
+              <span className="text-neutral-400">Groups</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Sessions are split by age so every child plays with others at their level.

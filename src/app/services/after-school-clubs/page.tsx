@@ -115,9 +115,9 @@ export default function AfterSchoolClubsPage() {
               After School Clubs
             </p>
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Drop Off Stressed
+              Football
               <br />
-              <span className="text-neutral-500">Pick Up Smiling</span>
+              <span className="text-neutral-500">After School</span>
             </h1>
             <p className="mt-6 text-lg text-neutral-400">
               The perfect mid-week energy release.
@@ -348,9 +348,9 @@ export default function AfterSchoolClubsPage() {
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Make Wednesdays
+              Book A
               <br />
-              <span className="text-neutral-500">Their Favourite Day</span>
+              <span className="text-neutral-500">Spot</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-400">
               Book their spot now. Spaces are limited to keep groups small.

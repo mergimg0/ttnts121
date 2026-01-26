@@ -21,7 +21,7 @@ const reasons = [
   {
     title: "8 Kids Max Per Coach",
     description:
-      "Your child won't get lost in the crowd. Small groups mean more touches on the ball, more feedback, and more confidence built every session.",
+      "No one gets lost in the crowd. Small groups mean more touches on the ball, more feedback, and more confidence built every session.",
     icon: Users,
   },
   {
@@ -39,7 +39,7 @@ const reasons = [
   {
     title: "Peace of Mind for Parents",
     description:
-      "Enhanced DBS checks, first aid trained, fully insured. We treat your kids like our own - because many of our coaches are parents too.",
+      "Enhanced DBS checks, first aid trained, fully insured. We treat every player like our own - because many of our coaches are parents too.",
     icon: Shield,
   },
   {

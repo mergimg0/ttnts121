@@ -1,0 +1,93 @@
+---
+session: booking-system
+date: 2026-01-26
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Complete booking system for TTNTS121 kids football coaching website
+now: Execute Phase 5 (Waitlist), Phase 6 (Service integration), Phase 7 (Testing)
+
+test: npm run build && npm run dev
+
+context:
+  project: TTNTS121 - Kids football coaching website (Next.js 16, Firebase, Stripe)
+  design: Nike-style - black heroes, uppercase headings, sharp edges
+  brand: Take The Next Step 121 Coaching (Luton/Bedfordshire)
+
+done_this_session:
+  - task: Phase 1 - Firebase/Stripe foundation
+    files: [src/lib/firebase.ts, src/lib/firebase-admin.ts, src/lib/stripe.ts, src/types/booking.ts, src/lib/booking-utils.ts, firestore.rules]
+  - task: Phase 2 - Admin dashboard with auth
+    files: [src/app/admin/**, src/components/admin/**, src/app/api/admin/**]
+  - task: Phase 3 - Public sessions page with list/calendar views
+    files: [src/app/sessions/page.tsx, src/app/api/sessions/route.ts, src/app/api/sessions/[id]/route.ts]
+  - task: Phase 3 - Shopping cart with localStorage persistence
+    files: [src/components/cart/cart-provider.tsx, src/components/cart/cart-sidebar.tsx]
+  - task: Phase 3/4 - Checkout flow with Stripe integration
+    files: [src/app/checkout/page.tsx, src/app/checkout/success/page.tsx, src/app/api/checkout/route.ts]
+
+blockers: []
+
+questions:
+  - NEXT_PUBLIC_FIREBASE_API_KEY is empty in .env.local - needs to be set for client-side Firebase auth
+
+decisions:
+  - shopping_cart: Used localStorage with 24hr expiry for cart persistence
+  - session_structure: Programs contain Sessions (hierarchical)
+  - checkout: Multi-session cart with single child details per checkout
+
+findings:
+  - stripe_version: API version must be 2025-12-15.clover (not basil)
+  - firebase_build: Need placeholder API key to prevent build errors
+  - button_variants: Use "primary" not "default" for Button component
+
+worked:
+  - CartProvider context with localStorage sync
+  - toDate() utility for Firestore timestamp handling
+  - Sticky controls bar for session filters
+
+failed:
+  - Button variant "default" doesn't exist - use "primary"
+  - Firebase initializes during build - need placeholder key
+
+completed_phases:
+  - Phase 1: Firebase + Stripe foundation
+  - Phase 2: Admin dashboard (Programs, Sessions, Bookings, Waitlist CRUD)
+  - Phase 3: Public sessions browsing with cart
+  - Phase 4: Checkout flow and Stripe integration (partial - emails pending)
+
+remaining_phases:
+  - Phase 5: Waitlist functionality (public-facing)
+  - Phase 6: Service pages session integration
+  - Phase 7: Error handling, mobile responsiveness, E2E testing
+
+next:
+  - Create comprehensive task list for remaining phases
+  - Implement Phase 5 waitlist public form and notifications
+  - Integrate sessions into individual service pages
+  - Add booking confirmation emails (Resend/SendGrid)
+  - Mobile responsiveness testing
+  - E2E testing with Playwright
+
+files:
+  created:
+    - src/lib/firebase.ts
+    - src/lib/firebase-admin.ts
+    - src/lib/stripe.ts
+    - src/types/booking.ts
+    - src/lib/booking-utils.ts
+    - src/components/admin/**
+    - src/app/admin/**
+    - src/app/api/admin/**
+    - src/components/cart/**
+    - src/app/sessions/page.tsx
+    - src/app/checkout/**
+    - src/app/api/checkout/route.ts
+    - src/app/api/sessions/**
+    - src/app/api/programs/route.ts
+    - firestore.rules
+  modified:
+    - src/app/layout.tsx (added CartProvider)
+    - src/components/layout/header.tsx (added CartButton)
+    - src/lib/constants.ts (added SERVICE_TYPES alias)

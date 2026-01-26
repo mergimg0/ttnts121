@@ -27,9 +27,9 @@ export default function ServicesPage() {
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Our Services
+              What We
               <br />
-              <span className="text-neutral-500">Your Choice</span>
+              <span className="text-neutral-500">Offer</span>
             </h1>
             <p className="mt-6 text-lg text-neutral-400">
               From private 1:1 coaching to action-packed birthday parties.

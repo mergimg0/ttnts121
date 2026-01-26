@@ -49,9 +49,9 @@ export const SERVICES = [
     id: "one-to-one",
     name: "1:1 Coaching",
     slug: "one-to-one",
-    shortDescription: "Private sessions tailored to your child's development",
+    shortDescription: "Private sessions with dedicated attention",
     description:
-      "Personalised coaching focused entirely on your child. Perfect for building confidence, developing specific skills, or preparing for trials.",
+      "Personalised coaching with 100% focus on one player. Perfect for building confidence, developing specific skills, or preparing for trials.",
     priceDisplay: "From £35/hour",
     icon: "user",
     features: [
@@ -115,7 +115,7 @@ export const SERVICES = [
     slug: "after-school-clubs",
     shortDescription: "Weekly football clubs at local schools",
     description:
-      "Drop off stressed, pick up smiling. Perfect mid-week energy release that fits around work schedules.",
+      "The perfect mid-week energy release that fits around work schedules.",
     priceDisplay: "£6/session",
     icon: "school",
     features: [
@@ -191,7 +191,7 @@ export const SESSION_TYPES = [
   {
     id: "after-school",
     name: "After School Club",
-    description: "Drop off stressed, pick up smiling. Perfect mid-week energy release that fits around work schedules.",
+    description: "The perfect mid-week energy release that fits around work schedules.",
     duration: "1 hour",
     ageRange: "4-11",
     frequency: "Weekly during term time",
@@ -221,7 +221,7 @@ export const SESSION_TYPES = [
   {
     id: "one-to-one",
     name: "1:1 Coaching",
-    description: "Private coaching sessions tailored to your child's specific development needs.",
+    description: "Private coaching sessions with dedicated attention and a customised plan.",
     duration: "1 hour",
     ageRange: "4-11",
     frequency: "Flexible scheduling",

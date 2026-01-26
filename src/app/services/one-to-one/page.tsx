@@ -120,9 +120,9 @@ export default function OneToOnePage() {
               Private Coaching
             </p>
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
-              All Eyes On
+              Private 1:1
               <br />
-              <span className="text-neutral-500">Your Child</span>
+              <span className="text-neutral-500">Coaching</span>
             </h1>
             <p className="mt-6 text-lg text-neutral-400">
               Personalised coaching that adapts to how your child learns.
@@ -160,9 +160,9 @@ export default function OneToOnePage() {
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
-              Why 1:1
+              The 1:1
               <br />
-              <span className="text-neutral-400">Changes Everything</span>
+              <span className="text-neutral-400">Difference</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Group sessions are great for fun. Private sessions are where
@@ -333,9 +333,9 @@ export default function OneToOnePage() {
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Let&apos;s Start
+              Ready To
               <br />
-              <span className="text-neutral-500">Their Journey</span>
+              <span className="text-neutral-500">Get Started?</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-400">
               One session is all it takes to see the difference. Book today.

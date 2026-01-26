@@ -1,0 +1,222 @@
+---
+session: booking-system
+date: 2026-01-26
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Complete booking system for TTNTS121 kids football coaching website
+now: Execute Phase 7 (Testing, mobile responsiveness, error handling)
+
+test: npm run build && npm run dev
+
+context:
+  project: TTNTS121 - Kids football coaching website (Next.js 16, Firebase, Stripe)
+  design: Nike-style - black heroes, uppercase headings, sharp edges
+  brand: Take The Next Step 121 Coaching (Luton/Bedfordshire)
+
+done_this_session:
+  - task: Phase 5 - Waitlist functionality (public-facing)
+    files: [src/app/api/waitlist/route.ts, src/components/waitlist/waitlist-form.tsx]
+  - task: Phase 5 - Waitlist email notifications
+    files: [src/lib/email.ts, src/lib/email-templates.ts, src/app/api/admin/waitlist/[id]/notify/route.ts]
+  - task: Phase 4 - Booking confirmation emails
+    files: [src/app/api/webhooks/stripe/route.ts (updated with sendBookingConfirmationEmail)]
+  - task: Phase 6 - Service pages session integration
+    files: [src/components/sessions/session-list.tsx]
+  - task: Updated after-school-clubs, group-sessions, half-term-camps, one-to-one pages
+    files: [src/app/services/*/page.tsx]
+  - task: Phase 6 - Birthday parties inquiry form
+    files: [src/components/forms/birthday-inquiry-form.tsx, src/app/services/birthday-parties/page.tsx]
+
+blockers: []
+
+questions:
+  - NEXT_PUBLIC_FIREBASE_API_KEY needs real Firebase project credentials
+  - RESEND_API_KEY needs to be set for production emails
+
+decisions:
+  - email_service: Used Resend API directly (no npm dependency) with dev logging fallback
+  - session_list_component: Reusable component for all service pages
+  - birthday_parties: Inquiry form instead of direct booking (custom pricing)
+
+findings:
+  - AGE_GROUPS constant uses ageRange not value property
+  - Email templates use inline CSS for compatibility
+
+worked:
+  - Reusable SessionList component for service pages
+  - WaitlistForm modal with position feedback
+  - Email templates with Nike-style design
+
+failed: []
+
+completed_phases:
+  - Phase 1: Firebase + Stripe foundation
+  - Phase 2: Admin dashboard (Programs, Sessions, Bookings, Waitlist CRUD)
+  - Phase 3: Public sessions browsing with cart
+  - Phase 4: Checkout flow, Stripe integration, booking confirmation emails
+  - Phase 5: Waitlist functionality (public form, API, email notifications)
+  - Phase 6: Service pages session integration (all 5 service pages updated)
+
+remaining_phases:
+  - Phase 7: Error handling, mobile responsiveness, E2E testing
+
+# MEGA TODO LIST - Phase 7 Remaining Tasks
+
+remaining_tasks:
+  phase_7_form_validation:
+    task: "[Phase 7.1] Form validation and error states"
+    priority: high
+    description: |
+      Add comprehensive form validation:
+      - Checkout form field validation (email, phone, required fields)
+      - Waitlist form validation
+      - Birthday inquiry form validation
+      - Visual error states (red borders, error messages)
+      - Prevent double-submission
+    files:
+      - src/app/checkout/page.tsx
+      - src/components/waitlist/waitlist-form.tsx
+      - src/components/forms/birthday-inquiry-form.tsx
+
+  phase_7_loading_states:
+    task: "[Phase 7.2] Loading states and skeletons"
+    priority: medium
+    description: |
+      Add loading states throughout:
+      - Session list skeleton loaders
+      - Admin dashboard skeleton loaders
+      - Checkout processing state
+      - Cart loading state
+      - Button loading spinners
+    files:
+      - src/app/sessions/page.tsx
+      - src/components/sessions/session-list.tsx
+      - src/app/admin/*/page.tsx
+
+  phase_7_mobile_sessions:
+    task: "[Phase 7.3] Mobile responsiveness - sessions page"
+    priority: high
+    description: |
+      Make sessions page work well on mobile:
+      - Filters as slide-out drawer (not inline)
+      - Calendar view: weekly instead of monthly on mobile
+      - Session cards: stack layout
+      - View toggle: icon-only on mobile
+    files:
+      - src/app/sessions/page.tsx
+
+  phase_7_mobile_checkout:
+    task: "[Phase 7.4] Mobile responsiveness - checkout"
+    priority: high
+    description: |
+      Optimize checkout for mobile:
+      - Single column form layout
+      - Sticky cart summary (collapsible)
+      - Touch-friendly inputs
+      - Progress indicator visible
+    files:
+      - src/app/checkout/page.tsx
+
+  phase_7_mobile_admin:
+    task: "[Phase 7.5] Mobile responsiveness - admin dashboard"
+    priority: low
+    description: |
+      Admin works on tablet+:
+      - Collapsible sidebar
+      - Responsive tables (horizontal scroll or card view)
+      - Touch-friendly buttons
+    files:
+      - src/app/admin/layout.tsx
+      - src/components/admin/sidebar.tsx
+
+  phase_7_e2e_browse:
+    task: "[Phase 7.6] E2E test - browse and add to cart"
+    priority: medium
+    description: |
+      Playwright test for browsing flow:
+      - Visit /sessions
+      - Filter by location
+      - Add session to cart
+      - Verify cart count updates
+      - Remove from cart
+    test_file: e2e/browse-cart.spec.ts
+
+  phase_7_e2e_checkout:
+    task: "[Phase 7.7] E2E test - checkout flow"
+    priority: medium
+    description: |
+      Playwright test for checkout (test mode Stripe):
+      - Add session to cart
+      - Go to checkout
+      - Fill form
+      - Submit (mock Stripe in test)
+      - Verify success page
+    test_file: e2e/checkout.spec.ts
+
+  phase_7_e2e_admin:
+    task: "[Phase 7.8] E2E test - admin CRUD"
+    priority: low
+    description: |
+      Playwright test for admin operations:
+      - Login to admin
+      - Create program
+      - Create session
+      - View bookings
+      - Manage waitlist
+    test_file: e2e/admin-crud.spec.ts
+
+  phase_4_reminder_email:
+    task: "[Phase 4.2] Session reminder email"
+    priority: low
+    description: |
+      Send reminder email 24 hours before session:
+      - Create cron job or scheduled function
+      - Query bookings for tomorrow's sessions
+      - Send reminder email with sessionReminderEmail template
+      - Include: what to bring, location, time
+    files:
+      - src/app/api/cron/reminders/route.ts (new)
+      - Use Vercel Cron or similar
+
+  error_handling:
+    task: "[Phase 7] Error handling and edge cases"
+    priority: high
+    description: |
+      Handle errors gracefully:
+      - Payment failure handling (show error, allow retry)
+      - Session sold out during checkout (show message, suggest alternatives)
+      - Network error states (retry buttons)
+      - Empty states (no sessions match filters)
+      - Firebase connection errors
+    files:
+      - src/app/checkout/page.tsx
+      - src/app/sessions/page.tsx
+      - src/components/sessions/session-list.tsx
+
+next:
+  - Implement form validation (Phase 7.1)
+  - Add loading skeletons (Phase 7.2)
+  - Mobile responsiveness testing (Phase 7.3-7.5)
+  - Set up Playwright for E2E tests (Phase 7.6-7.8)
+  - Create session reminder cron job (Phase 4.2)
+  - Test complete flow with real Firebase/Stripe credentials
+
+files:
+  created:
+    - src/lib/email.ts
+    - src/lib/email-templates.ts
+    - src/app/api/waitlist/route.ts
+    - src/components/waitlist/waitlist-form.tsx
+    - src/components/sessions/session-list.tsx
+    - src/components/forms/birthday-inquiry-form.tsx
+  modified:
+    - src/app/sessions/page.tsx (added waitlist modal)
+    - src/app/api/admin/waitlist/[id]/notify/route.ts (added email)
+    - src/app/api/webhooks/stripe/route.ts (added confirmation email)
+    - src/app/services/after-school-clubs/page.tsx (added SessionList)
+    - src/app/services/group-sessions/page.tsx (added SessionList)
+    - src/app/services/half-term-camps/page.tsx (added SessionList)
+    - src/app/services/one-to-one/page.tsx (added SessionList)
+    - src/app/services/birthday-parties/page.tsx (added BirthdayInquiryForm)

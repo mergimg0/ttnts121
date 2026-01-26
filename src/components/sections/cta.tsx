@@ -18,7 +18,7 @@ export function CTA() {
                 Try One Session
               </h2>
               <p className="mt-6 text-lg text-white/70">
-                No joining fee. No long-term commitment. Just your child, a football,
+                No joining fee. No long-term commitment. Just football
                 and coaches who genuinely care.
               </p>
 
