@@ -88,7 +88,7 @@ export default function BirthdayPartiesPage() {
       <section className="bg-navy py-20 sm:py-28">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-green">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
               Birthday Parties
             </p>
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
