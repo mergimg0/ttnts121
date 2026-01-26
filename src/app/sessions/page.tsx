@@ -13,13 +13,15 @@ import {
   Check,
   Bell,
   ChevronRight,
+  ChevronDown,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
 import { Session } from "@/types/booking";
 import { formatPrice, getDayName } from "@/lib/booking-utils";
-import { LOCATIONS, SERVICE_TYPES } from "@/lib/constants";
+import { LOCATIONS } from "@/lib/constants";
 
 interface SessionWithProgram extends Session {
   program: {
@@ -37,10 +39,7 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<SessionWithProgram[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<SessionWithProgram | null>(null);
-  const [filters, setFilters] = useState({
-    location: "",
-    serviceType: "",
-  });
+  const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
   const [waitlistSession, setWaitlistSession] = useState<SessionWithProgram | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,16 +47,12 @@ export default function SessionsPage() {
 
   useEffect(() => {
     fetchSessions();
-  }, [filters]);
+  }, []);
 
   const fetchSessions = async () => {
     setError(null);
     try {
-      const params = new URLSearchParams();
-      if (filters.location) params.set("location", filters.location);
-      if (filters.serviceType) params.set("serviceType", filters.serviceType);
-
-      const response = await fetch(`/api/sessions?${params.toString()}`);
+      const response = await fetch("/api/sessions");
       const data = await response.json();
       if (data.success) {
         setSessions(data.data);
@@ -114,7 +109,9 @@ export default function SessionsPage() {
     return "Available";
   };
 
-  const activeFiltersCount = [filters.location, filters.serviceType].filter(Boolean).length;
+  const toggleExpandSession = (sessionId: string) => {
+    setExpandedSessionId(expandedSessionId === sessionId ? null : sessionId);
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -137,52 +134,12 @@ export default function SessionsPage() {
         </div>
       </section>
 
-      {/* Filters Bar */}
+      {/* Session count bar */}
       <div className="sticky top-20 z-40 bg-white border-b border-neutral-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            <div className="flex-1 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs text-neutral-500 mb-1.5">Location</label>
-                <select
-                  value={filters.location}
-                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                  className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:border-navy focus:outline-none"
-                >
-                  <option value="">All Locations</option>
-                  {LOCATIONS.map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-neutral-500 mb-1.5">Service Type</label>
-                <select
-                  value={filters.serviceType}
-                  onChange={(e) => setFilters({ ...filters, serviceType: e.target.value })}
-                  className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:border-navy focus:outline-none"
-                >
-                  <option value="">All Types</option>
-                  {SERVICE_TYPES.map((type) => (
-                    <option key={type.id} value={type.id}>{type.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="flex items-center justify-between sm:justify-end gap-4">
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={() => setFilters({ location: "", serviceType: "" })}
-                  className="text-sm text-neutral-500 hover:text-navy"
-                >
-                  Clear filters
-                </button>
-              )}
-              <p className="text-sm text-neutral-400">
-                {sessions.length} session{sessions.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+          <p className="text-sm text-neutral-500">
+            {sessions.length} session{sessions.length !== 1 ? "s" : ""} available
+          </p>
         </div>
       </div>
 
@@ -205,96 +162,143 @@ export default function SessionsPage() {
         ) : sessions.length === 0 ? (
           <div className="text-center py-16">
             <Calendar className="mx-auto h-10 w-10 text-neutral-300" />
-            <p className="mt-4 text-neutral-500">No sessions found</p>
-            {activeFiltersCount > 0 && (
-              <button
-                onClick={() => setFilters({ location: "", serviceType: "" })}
-                className="mt-2 text-sm text-navy hover:underline"
-              >
-                Clear filters
-              </button>
-            )}
+            <p className="mt-4 text-neutral-500">No sessions available</p>
           </div>
         ) : (
           <>
-            {/* Mobile: Self-contained session cards */}
-            <div className="md:hidden space-y-3">
+            {/* Mobile: Compact expandable cards */}
+            <div className="md:hidden space-y-2">
               {sessions.map((session) => {
                 const inCart = isInCart(session.id);
                 const isFull = session.availabilityStatus === "full";
+                const isExpanded = expandedSessionId === session.id;
 
                 return (
                   <div
                     key={session.id}
-                    className={`bg-white rounded-xl border border-neutral-200 p-5 ${isFull ? "opacity-60" : ""}`}
+                    className={`bg-white rounded-xl border border-neutral-200 overflow-hidden ${isFull && !isExpanded ? "opacity-60" : ""}`}
                   >
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div>
-                        <h3 className="font-semibold text-foreground">{session.name}</h3>
-                        {session.program && (
-                          <p className="text-sm text-neutral-500 mt-0.5">{session.program.name}</p>
+                    {/* Compact header - always visible */}
+                    <button
+                      onClick={() => toggleExpandSession(session.id)}
+                      className="w-full text-left p-4 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{session.name}</p>
+                        <p className="text-sm text-neutral-500 mt-0.5">
+                          {getDayName(session.dayOfWeek)} · {session.startTime} · {formatPrice(session.price)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {inCart && (
+                          <span className="text-xs text-neutral-500 flex items-center gap-1">
+                            <Check className="h-3 w-3" />
+                          </span>
                         )}
+                        <ChevronDown className={`h-5 w-5 text-neutral-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
                       </div>
-                      <p className="text-lg font-semibold text-navy">{formatPrice(session.price)}</p>
-                    </div>
+                    </button>
 
-                    <div className="grid grid-cols-2 gap-3 text-sm text-neutral-600 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-neutral-400" />
-                        <span>{getDayName(session.dayOfWeek)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-neutral-400" />
-                        <span>{session.startTime} – {session.endTime}</span>
-                      </div>
-                      {session.program && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-neutral-400" />
-                          <span className="truncate">{getLocationName(session.program.location)}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-neutral-400" />
-                        <span>Ages {session.ageMin}–{session.ageMax}</span>
-                      </div>
-                    </div>
+                    {/* Expanded content */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 border-t border-neutral-100">
+                            {/* Session details */}
+                            <div className="py-4 space-y-3">
+                              {session.program && (
+                                <p className="text-sm text-neutral-600">{session.program.name}</p>
+                              )}
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="flex items-center gap-2 text-neutral-600">
+                                  <Clock className="h-4 w-4 text-neutral-400" />
+                                  <span>{session.startTime} – {session.endTime}</span>
+                                </div>
+                                {session.program && (
+                                  <div className="flex items-center gap-2 text-neutral-600">
+                                    <MapPin className="h-4 w-4 text-neutral-400" />
+                                    <span className="truncate">{getLocationName(session.program.location)}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-2 text-neutral-600">
+                                  <Users className="h-4 w-4 text-neutral-400" />
+                                  <span>Ages {session.ageMin}–{session.ageMax}</span>
+                                </div>
+                                <p className={`text-sm ${
+                                  isFull ? "text-neutral-400" : session.availabilityStatus === "limited" ? "text-amber-600" : "text-neutral-500"
+                                }`}>
+                                  {getStatusText(session)}
+                                </p>
+                              </div>
+                            </div>
 
-                    <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
-                      <p className={`text-sm ${
-                        isFull ? "text-neutral-400" : session.availabilityStatus === "limited" ? "text-amber-600" : "text-neutral-500"
-                      }`}>
-                        {getStatusText(session)}
-                      </p>
-                      {isFull && session.waitlistEnabled ? (
-                        <Button
-                          onClick={() => setWaitlistSession(session)}
-                          variant="secondary"
-                          size="sm"
-                        >
-                          <Bell className="mr-1.5 h-4 w-4" />
-                          Waitlist
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleAddToCart(session)}
-                          disabled={isFull}
-                          variant={inCart ? "secondary" : "primary"}
-                          size="sm"
-                        >
-                          {inCart ? (
-                            <>
-                              <Check className="mr-1.5 h-4 w-4" />
-                              Added
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingCart className="mr-1.5 h-4 w-4" />
-                              Add
-                            </>
-                          )}
-                        </Button>
+                            {/* Mini calendar showing this session's day */}
+                            <div className="bg-neutral-50 rounded-lg p-3 mb-4">
+                              <p className="text-xs text-neutral-400 mb-2">Weekly Schedule</p>
+                              <div className="grid grid-cols-7 gap-1">
+                                {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                                  const hasSession = sessionsByDay[day]?.some(s => s.id === session.id);
+                                  const dayHasSessions = sessionsByDay[day]?.length > 0;
+                                  return (
+                                    <div
+                                      key={day}
+                                      className={`text-center py-2 rounded text-xs ${
+                                        hasSession
+                                          ? "bg-navy text-white font-medium"
+                                          : dayHasSessions
+                                            ? "bg-neutral-200 text-neutral-600"
+                                            : "text-neutral-300"
+                                      }`}
+                                    >
+                                      {getDayName(day).slice(0, 1)}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Action button */}
+                            <div className="flex gap-2">
+                              {isFull && session.waitlistEnabled ? (
+                                <Button
+                                  onClick={() => setWaitlistSession(session)}
+                                  variant="secondary"
+                                  className="flex-1"
+                                >
+                                  <Bell className="mr-2 h-4 w-4" />
+                                  Join Waitlist
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() => handleAddToCart(session)}
+                                  disabled={isFull}
+                                  variant={inCart ? "secondary" : "primary"}
+                                  className="flex-1"
+                                >
+                                  {inCart ? (
+                                    <>
+                                      <Check className="mr-2 h-4 w-4" />
+                                      Added to Cart
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ShoppingCart className="mr-2 h-4 w-4" />
+                                      Add to Cart
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
                       )}
-                    </div>
+                    </AnimatePresence>
                   </div>
                 );
               })}

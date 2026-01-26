@@ -217,18 +217,21 @@ export function Header() {
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="lg:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
-          aria-label="Toggle menu"
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6 text-foreground" />
-          ) : (
-            <Menu className="h-6 w-6 text-foreground" />
-          )}
-        </button>
+        {/* Mobile: Cart + Menu Button */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <CartButton />
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <X className="h-6 w-6 text-foreground" />
+            ) : (
+              <Menu className="h-6 w-6 text-foreground" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
