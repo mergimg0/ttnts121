@@ -1,4 +1,7 @@
+"use client";
+
 import { Container } from "@/components/layout/container";
+import { FadeInUp, StaggerChildren, StaggerItem } from "@/lib/motion";
 import {
   Heart,
   Trophy,
@@ -49,37 +52,37 @@ const reasons = [
 
 export function WhyUs() {
   return (
-    <section className="py-20 sm:py-28">
+    <section className="py-24 sm:py-32 bg-background">
       <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl lg:text-5xl">
-            What Makes Us
-            <br />
-            <span className="text-neutral-400">Different</span>
-          </h2>
-          <p className="mt-6 text-lg text-neutral-600">
-            We&apos;re not just football coaches. We&apos;re confidence builders who happen to use footballs.
-          </p>
-        </div>
+        <FadeInUp>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              What Makes Us Different
+            </h2>
+            <p className="mt-6 text-lg text-foreground-muted">
+              We&apos;re not just football coaches. We&apos;re confidence builders who happen to use footballs.
+            </p>
+          </div>
+        </FadeInUp>
 
-        <div className="mx-auto mt-16 grid max-w-5xl gap-px bg-neutral-200 sm:grid-cols-2 lg:grid-cols-3">
+        <StaggerChildren className="mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {reasons.map((reason) => (
-            <div
-              key={reason.title}
-              className="group bg-white p-8 transition-colors hover:bg-neutral-50"
-            >
-              <div className="mb-6 inline-flex h-12 w-12 items-center justify-center border-2 border-black">
-                <reason.icon className="h-5 w-5 text-black" />
+            <StaggerItem key={reason.title}>
+              <div className="group h-full bg-white p-6 rounded-2xl border border-neutral-100 hover:shadow-lg transition-shadow">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-sky/10">
+                  <reason.icon className="h-6 w-6 text-navy" />
+                </div>
+
+                <h3 className="text-lg font-bold text-foreground">
+                  {reason.title}
+                </h3>
+                <p className="mt-2 text-sm text-foreground-muted leading-relaxed">
+                  {reason.description}
+                </p>
               </div>
-              <h3 className="text-lg font-bold uppercase tracking-wide text-black">
-                {reason.title}
-              </h3>
-              <p className="mt-3 text-sm text-neutral-600 leading-relaxed">
-                {reason.description}
-              </p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerChildren>
       </Container>
     </section>
   );

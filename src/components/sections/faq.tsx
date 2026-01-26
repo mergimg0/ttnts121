@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Container } from "@/components/layout/container";
+import { FadeInUp, StaggerChildren, StaggerItem } from "@/lib/motion";
 import { ChevronDown } from "lucide-react";
 
 const faqs = [
@@ -45,49 +47,62 @@ export function FAQ() {
   };
 
   return (
-    <section className="py-20 sm:py-28 bg-neutral-50">
+    <section className="py-24 sm:py-32 bg-background-alt">
       <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl lg:text-5xl">
-            Questions?
-            <br />
-            <span className="text-neutral-400">We&apos;ve Got Answers</span>
-          </h2>
-          <p className="mt-6 text-lg text-neutral-600">
-            Everything parents ask us before booking. Still curious?{" "}
-            <a href="/contact" className="text-[#2E3192] hover:underline">
-              Just ask.
-            </a>
-          </p>
-        </div>
+        <FadeInUp>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              Questions? We&apos;ve Got Answers
+            </h2>
+            <p className="mt-6 text-lg text-foreground-muted">
+              Everything parents ask us before booking.{" "}
+              <a href="/contact" className="text-navy hover:underline">
+                Still curious? Just ask.
+              </a>
+            </p>
+          </div>
+        </FadeInUp>
 
-        <div className="mx-auto mt-16 max-w-3xl divide-y divide-neutral-200">
+        <StaggerChildren className="mx-auto mt-16 max-w-3xl divide-y divide-neutral-200 rounded-2xl overflow-hidden">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-white">
+            <StaggerItem key={index} className="bg-white content-auto">
               <button
                 onClick={() => toggleFaq(index)}
                 className="flex w-full items-center justify-between gap-4 p-6 text-left transition-colors hover:bg-neutral-50"
                 aria-expanded={openIndex === index}
               >
-                <span className="font-bold text-black">
+                <span className="font-bold text-foreground">
                   {faq.question}
                 </span>
-                <ChevronDown
-                  className={`h-5 w-5 flex-shrink-0 text-neutral-400 transition-transform ${
-                    openIndex === index ? "rotate-180" : ""
-                  }`}
-                />
+                <motion.div
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-shrink-0"
+                >
+                  <ChevronDown className="h-5 w-5 text-foreground-muted" />
+                </motion.div>
               </button>
-              {openIndex === index && (
-                <div className="px-6 pb-6">
-                  <p className="text-neutral-600 leading-relaxed">
-                    {faq.answer}
-                  </p>
-                </div>
-              )}
-            </div>
+
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-6">
+                      <p className="text-foreground-muted leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerChildren>
       </Container>
     </section>
   );

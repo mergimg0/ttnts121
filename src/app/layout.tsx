@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Archivo_Black, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { SITE_CONFIG } from "@/lib/constants";
+import { CartProvider } from "@/components/cart/cart-provider";
 
-const inter = Inter({
+const archivoBlack = Archivo_Black({
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-display",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -57,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${archivoBlack.variable} ${dmSans.variable}`}>
       <head>
         {/* Schema.org JSON-LD */}
         <script
@@ -104,9 +112,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-white font-sans antialiased">
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );

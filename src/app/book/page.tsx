@@ -22,6 +22,8 @@ import {
   AGE_GROUPS,
   PAYMENT_OPTIONS,
   SITE_CONFIG,
+  ONE_TO_ONE_PACKAGES,
+  PARTY_OPTIONS,
 } from "@/lib/constants";
 
 type Step = "session" | "child" | "parent" | "payment" | "confirm" | "success";
@@ -36,6 +38,16 @@ export default function BookingPage() {
     sessionType: "",
     location: "",
     ageGroup: "",
+    // 1:1 Coaching specific
+    oneToOnePackage: "",
+    preferredTimes: "",
+    coachingGoals: "",
+    // Birthday Party specific
+    partyDate: "",
+    partyVenueType: "",
+    partyChildrenCount: "",
+    partyAgeRange: "",
+    partySpecialRequests: "",
     // Child
     childFirstName: "",
     childLastName: "",
@@ -237,33 +249,230 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                {/* Age Group */}
-                <div>
-                  <label className="mb-4 block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                    Age Group *
-                  </label>
-                  <div className="grid gap-3 sm:grid-cols-4">
-                    {AGE_GROUPS.map((group) => (
-                      <button
-                        key={group.id}
-                        type="button"
-                        onClick={() => updateFormData("ageGroup", group.id)}
-                        className={`border-2 p-4 text-center transition-all ${
-                          formData.ageGroup === group.id
-                            ? "border-black bg-black text-white"
-                            : "border-neutral-200 hover:border-neutral-400"
-                        }`}
-                      >
-                        <p className="font-bold uppercase tracking-wide">
-                          {group.name}
-                        </p>
-                        <p className={`text-sm ${formData.ageGroup === group.id ? "text-neutral-300" : "text-neutral-500"}`}>
-                          Ages {group.ageRange}
-                        </p>
-                      </button>
-                    ))}
+                {/* Age Group - Hidden for birthday parties */}
+                {formData.sessionType !== "birthday-party" && (
+                  <div>
+                    <label className="mb-4 block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                      Age Group *
+                    </label>
+                    <div className="grid gap-3 sm:grid-cols-4">
+                      {AGE_GROUPS.map((group) => (
+                        <button
+                          key={group.id}
+                          type="button"
+                          onClick={() => updateFormData("ageGroup", group.id)}
+                          className={`border-2 p-4 text-center transition-all ${
+                            formData.ageGroup === group.id
+                              ? "border-black bg-black text-white"
+                              : "border-neutral-200 hover:border-neutral-400"
+                          }`}
+                        >
+                          <p className="font-bold uppercase tracking-wide">
+                            {group.name}
+                          </p>
+                          <p className={`text-sm ${formData.ageGroup === group.id ? "text-neutral-300" : "text-neutral-500"}`}>
+                            Ages {group.ageRange}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* 1:1 Coaching Additional Fields */}
+                {formData.sessionType === "one-to-one" && (
+                  <>
+                    <div className="border-t border-neutral-200 pt-6">
+                      <label className="mb-4 block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Choose Your Package *
+                      </label>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {ONE_TO_ONE_PACKAGES.map((pkg) => (
+                          <button
+                            key={pkg.id}
+                            type="button"
+                            onClick={() => updateFormData("oneToOnePackage", pkg.id)}
+                            className={`relative border-2 p-4 text-left transition-all ${
+                              formData.oneToOnePackage === pkg.id
+                                ? "border-black bg-black text-white"
+                                : "border-neutral-200 hover:border-neutral-400"
+                            }`}
+                          >
+                            {pkg.popular && (
+                              <span className="absolute -top-2 right-2 bg-brand-green px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+                                Popular
+                              </span>
+                            )}
+                            <p className="font-bold uppercase tracking-wide">
+                              {pkg.name}
+                            </p>
+                            <p className={`text-2xl font-black mt-1 ${formData.oneToOnePackage === pkg.id ? "text-white" : "text-black"}`}>
+                              £{pkg.totalPrice}
+                            </p>
+                            <p className={`mt-1 text-sm ${formData.oneToOnePackage === pkg.id ? "text-neutral-300" : "text-neutral-500"}`}>
+                              {pkg.sessions} session{pkg.sessions > 1 ? "s" : ""} • £{pkg.pricePerSession}/each
+                            </p>
+                            {pkg.savings && (
+                              <p className={`mt-1 text-sm font-semibold ${formData.oneToOnePackage === pkg.id ? "text-green-300" : "text-brand-green"}`}>
+                                Save £{pkg.savings}
+                              </p>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="preferredTimes"
+                        className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                      >
+                        Preferred Times
+                      </label>
+                      <Input
+                        id="preferredTimes"
+                        value={formData.preferredTimes}
+                        onChange={(e) => updateFormData("preferredTimes", e.target.value)}
+                        className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                        placeholder="e.g., Weekday evenings, Saturday mornings"
+                      />
+                      <p className="mt-2 text-xs text-neutral-500">
+                        We&apos;ll do our best to match your availability.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="coachingGoals"
+                        className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                      >
+                        What would you like to focus on?
+                      </label>
+                      <Textarea
+                        id="coachingGoals"
+                        value={formData.coachingGoals}
+                        onChange={(e) => updateFormData("coachingGoals", e.target.value)}
+                        rows={3}
+                        className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                        placeholder="e.g., Build confidence, improve ball control, prepare for club trials..."
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Birthday Party Additional Fields */}
+                {formData.sessionType === "birthday-party" && (
+                  <>
+                    <div className="border-t border-neutral-200 pt-6">
+                      <label
+                        htmlFor="partyDate"
+                        className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                      >
+                        Preferred Party Date *
+                      </label>
+                      <Input
+                        id="partyDate"
+                        type="date"
+                        value={formData.partyDate}
+                        onChange={(e) => updateFormData("partyDate", e.target.value)}
+                        className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                      />
+                      <p className="mt-2 text-xs text-neutral-500">
+                        We&apos;ll confirm availability within 24 hours.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="mb-4 block text-xs font-bold uppercase tracking-wider text-neutral-500">
+                        Venue Preference *
+                      </label>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {PARTY_OPTIONS.venueTypes.map((venue) => (
+                          <button
+                            key={venue.id}
+                            type="button"
+                            onClick={() => updateFormData("partyVenueType", venue.id)}
+                            className={`border-2 p-4 text-left transition-all ${
+                              formData.partyVenueType === venue.id
+                                ? "border-black bg-black text-white"
+                                : "border-neutral-200 hover:border-neutral-400"
+                            }`}
+                          >
+                            <p className="font-bold uppercase tracking-wide">
+                              {venue.name}
+                            </p>
+                            <p className={`mt-1 text-sm ${formData.partyVenueType === venue.id ? "text-neutral-300" : "text-neutral-500"}`}>
+                              {venue.description}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label
+                          htmlFor="partyChildrenCount"
+                          className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                        >
+                          Number of Children *
+                        </label>
+                        <Input
+                          id="partyChildrenCount"
+                          type="number"
+                          min={PARTY_OPTIONS.minChildren}
+                          max={PARTY_OPTIONS.maxChildren}
+                          value={formData.partyChildrenCount}
+                          onChange={(e) => updateFormData("partyChildrenCount", e.target.value)}
+                          className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                          placeholder={`${PARTY_OPTIONS.minChildren}-${PARTY_OPTIONS.maxChildren}`}
+                        />
+                        <p className="mt-2 text-xs text-neutral-500">
+                          {PARTY_OPTIONS.minChildren}-{PARTY_OPTIONS.maxChildren} children
+                        </p>
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="partyAgeRange"
+                          className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                        >
+                          Age Range of Children *
+                        </label>
+                        <Input
+                          id="partyAgeRange"
+                          value={formData.partyAgeRange}
+                          onChange={(e) => updateFormData("partyAgeRange", e.target.value)}
+                          className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                          placeholder="e.g., 6-8 years"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="partySpecialRequests"
+                        className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                      >
+                        Special Requests / Party Theme
+                      </label>
+                      <Textarea
+                        id="partySpecialRequests"
+                        value={formData.partySpecialRequests}
+                        onChange={(e) => updateFormData("partySpecialRequests", e.target.value)}
+                        rows={3}
+                        className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                        placeholder="Any special requests, party theme ideas, or things we should know..."
+                      />
+                    </div>
+
+                    <div className="border border-neutral-200 bg-neutral-50 p-4">
+                      <p className="text-sm text-neutral-600">
+                        <strong>Note:</strong> Birthday party pricing is customised based on your requirements.
+                        We&apos;ll contact you within 24 hours to discuss details and provide a quote.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
@@ -564,6 +773,59 @@ export default function BookingPage() {
                         )?.name || "-"}
                       </dd>
                     </div>
+
+                    {/* 1:1 Coaching specific summary */}
+                    {formData.sessionType === "one-to-one" && formData.oneToOnePackage && (
+                      <div className="flex justify-between border-b border-neutral-200 pb-2">
+                        <dt className="text-neutral-600">Package:</dt>
+                        <dd className="font-bold text-black">
+                          {ONE_TO_ONE_PACKAGES.find(
+                            (p) => p.id === formData.oneToOnePackage
+                          )?.name || "-"}{" "}
+                          (£{ONE_TO_ONE_PACKAGES.find(
+                            (p) => p.id === formData.oneToOnePackage
+                          )?.totalPrice})
+                        </dd>
+                      </div>
+                    )}
+
+                    {/* Birthday Party specific summary */}
+                    {formData.sessionType === "birthday-party" && (
+                      <>
+                        {formData.partyDate && (
+                          <div className="flex justify-between border-b border-neutral-200 pb-2">
+                            <dt className="text-neutral-600">Party Date:</dt>
+                            <dd className="font-bold text-black">
+                              {new Date(formData.partyDate).toLocaleDateString("en-GB", {
+                                weekday: "long",
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </dd>
+                          </div>
+                        )}
+                        {formData.partyVenueType && (
+                          <div className="flex justify-between border-b border-neutral-200 pb-2">
+                            <dt className="text-neutral-600">Venue:</dt>
+                            <dd className="font-bold text-black">
+                              {PARTY_OPTIONS.venueTypes.find(
+                                (v) => v.id === formData.partyVenueType
+                              )?.name || "-"}
+                            </dd>
+                          </div>
+                        )}
+                        {formData.partyChildrenCount && (
+                          <div className="flex justify-between border-b border-neutral-200 pb-2">
+                            <dt className="text-neutral-600">Children:</dt>
+                            <dd className="font-bold text-black">
+                              {formData.partyChildrenCount} (ages {formData.partyAgeRange})
+                            </dd>
+                          </div>
+                        )}
+                      </>
+                    )}
+
                     <div className="flex justify-between border-b border-neutral-200 pb-2">
                       <dt className="text-neutral-600">Location:</dt>
                       <dd className="font-bold text-black">
@@ -571,13 +833,17 @@ export default function BookingPage() {
                           ?.name || "-"}
                       </dd>
                     </div>
-                    <div className="flex justify-between border-b border-neutral-200 pb-2">
-                      <dt className="text-neutral-600">Age Group:</dt>
-                      <dd className="font-bold text-black">
-                        {AGE_GROUPS.find((a) => a.id === formData.ageGroup)
-                          ?.name || "-"}
-                      </dd>
-                    </div>
+
+                    {formData.sessionType !== "birthday-party" && (
+                      <div className="flex justify-between border-b border-neutral-200 pb-2">
+                        <dt className="text-neutral-600">Age Group:</dt>
+                        <dd className="font-bold text-black">
+                          {AGE_GROUPS.find((a) => a.id === formData.ageGroup)
+                            ?.name || "-"}
+                        </dd>
+                      </div>
+                    )}
+
                     <div className="flex justify-between border-b border-neutral-200 pb-2">
                       <dt className="text-neutral-600">Child:</dt>
                       <dd className="font-bold text-black">
@@ -593,9 +859,11 @@ export default function BookingPage() {
                     <div className="flex justify-between">
                       <dt className="text-neutral-600">Payment:</dt>
                       <dd className="font-bold text-black">
-                        {PAYMENT_OPTIONS.find(
-                          (p) => p.id === formData.paymentMethod
-                        )?.name || "-"}
+                        {formData.sessionType === "birthday-party"
+                          ? "Quote to follow"
+                          : PAYMENT_OPTIONS.find(
+                              (p) => p.id === formData.paymentMethod
+                            )?.name || "-"}
                       </dd>
                     </div>
                   </dl>
@@ -774,7 +1042,7 @@ export default function BookingPage() {
                   <Link href="/">Return Home</Link>
                 </Button>
                 <Button variant="secondary" asChild>
-                  <Link href="/sessions">View All Sessions</Link>
+                  <Link href="/services">View All Services</Link>
                 </Button>
               </div>
             </div>

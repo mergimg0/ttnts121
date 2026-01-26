@@ -1,29 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --accent: #0a0a0a;
-  --accent-light: #404040;
-  --muted: #737373;
-  /* Brand colors from logo */
+  /* Warm backgrounds - subtle cream for approachability */
+  --background: #FEFCF9;
+  --background-alt: #F8F6F3;
+
+  /* Text colors */
+  --foreground: #1A1A1A;
+  --foreground-muted: #5A5A5A;
+
+  /* Brand colors from logo - refined */
   --brand-navy: #2E3192;
+  --brand-navy-deep: #1E2160;
   --brand-blue: #00AEEF;
-  --gold: #F5A623;
+  --brand-blue-muted: #0095D0;
+  --sky-light: #E8F7FC;
+
+  /* Accent - subtle warmth */
+  --accent-warm: #F5A623;
+  --accent-warm-muted: #E09410;
+
+  /* Neutrals */
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F5F5F5;
+  --neutral-200: #E5E5E5;
+  --neutral-300: #D4D4D4;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-alt: var(--background-alt);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --color-foreground-muted: var(--foreground-muted);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+
+  /* Brand utilities */
+  --color-navy: var(--brand-navy);
+  --color-navy-deep: var(--brand-navy-deep);
+  --color-sky: var(--brand-blue);
+  --color-sky-muted: var(--brand-blue-muted);
+  --color-sky-light: var(--sky-light);
+  --color-gold: var(--accent-warm);
+  --color-gold-muted: var(--accent-warm-muted);
+
+  /* Legacy compat */
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-blue: var(--brand-blue);
+  --color-grass: var(--brand-blue);
+  --color-grass-dark: var(--brand-blue-muted);
+  --color-energy: var(--accent-warm);
+  --color-sunshine: var(--accent-warm-muted);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  line-height: 1.7;
 }
 
-/* Custom scrollbar - minimal */
+/* Custom scrollbar - subtle navy */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -34,17 +73,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: var(--neutral-300);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a3a3a3;
+  background: var(--brand-navy);
 }
 
-/* Focus styles - bold black */
+/* Focus styles - navy */
 *:focus-visible {
-  outline: 2px solid #0a0a0a;
+  outline: 2px solid var(--brand-blue);
   outline-offset: 2px;
 }
 
@@ -53,15 +92,29 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Selection color - inverted */
+/* Selection - subtle sky */
 ::selection {
-  background-color: #0a0a0a;
-  color: #ffffff;
+  background-color: var(--sky-light);
+  color: var(--brand-navy);
 }
 
-/* Nike-style bold text utility */
+/* Display font utilities */
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.heading-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
 .text-bold-display {
-  font-weight: 800;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 0.95;
 }
@@ -79,7 +132,7 @@ html {
   left: 0;
   width: 0;
   height: 2px;
-  background: currentColor;
+  background: var(--brand-navy);
   transition: width 0.3s ease;
 }
 
@@ -87,17 +140,25 @@ html {
   width: 100%;
 }
 
-/* Dynamic hover scale */
+/* Subtle hover lift */
 .hover-lift {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.08);
 }
 
-/* Subtle gradient overlay for depth */
-.gradient-fade {
-  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
+/* Content visibility for performance */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

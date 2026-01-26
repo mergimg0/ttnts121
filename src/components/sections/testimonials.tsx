@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Container } from "@/components/layout/container";
-import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
+import { FadeInUp, StaggerChildren, StaggerItem } from "@/lib/motion";
+import { ChevronLeft, ChevronRight, Star, Quote, Heart, Trophy, Users, Sparkles, Shield } from "lucide-react";
 
 const testimonials = [
   {
@@ -13,41 +15,61 @@ const testimonials = [
       "When we started, my son would hide behind my legs at drop-off. Now he runs in shouting hello to his coaches and friends. Last week he scored his first goal and the smile lasted all week. The confidence boost has spilled into school too - his teacher noticed the difference!",
     rating: 5,
     childAge: "6 years old",
-    transformation: "Shy to Confident",
-    timeframe: "After 8 weeks",
   },
   {
     id: 2,
     name: "James P.",
     location: "Luton",
     quote:
-      "My daughter was the only girl at first and nearly didn't come back. The coaches made her feel so welcome that she's now been coming for 6 months. She's made genuine friendships, her coordination has improved massively, and she recently joined a local girls' team. Couldn't recommend more highly.",
+      "My daughter was the only girl at first and nearly didn't come back. The coaches made her feel so welcome that she's now been coming for 6 months. She's made genuine friendships, her coordination has improved massively, and she recently joined a local girls' team.",
     rating: 5,
     childAge: "8 years old",
-    transformation: "Hesitant to Team Player",
-    timeframe: "After 6 months",
   },
   {
     id: 3,
     name: "Emma T.",
     location: "Silsoe",
     quote:
-      "The holiday camps are honestly a lifesaver. My kids come home exhausted, happy, and full of stories about their day. What I love most is that every child gets praised - not just the naturally sporty ones. My less coordinated 5-year-old feels just as celebrated as the kids who've played for years.",
+      "The holiday camps are honestly a lifesaver. My kids come home exhausted, happy, and full of stories about their day. What I love most is that every child gets praised - not just the naturally sporty ones.",
     rating: 5,
     childAge: "5 years old",
-    transformation: "Nervous to Enthusiastic",
-    timeframe: "First camp",
   },
   {
     id: 4,
     name: "David K.",
     location: "Barton Le Clay",
     quote:
-      "My shy son was nervous about starting - he'd had bad experiences at other clubs where he felt ignored. Here, Coach Mike learned his name in the first 5 minutes and by week 3, my son was high-fiving everyone. He's now one of the first to arrive and genuinely upset when sessions end!",
+      "My shy son was nervous about starting - he'd had bad experiences at other clubs where he felt ignored. Here, Coach Mike learned his name in the first 5 minutes and by week 3, my son was high-fiving everyone.",
     rating: 5,
     childAge: "7 years old",
-    transformation: "Anxious to Eager",
-    timeframe: "After 3 weeks",
+  },
+];
+
+const reasons = [
+  {
+    title: "Games, Not Drills",
+    description: "90% games, 10% skills - exactly how kids learn best.",
+    icon: Sparkles,
+  },
+  {
+    title: "8 Kids Max Per Coach",
+    description: "More touches, more feedback, more confidence.",
+    icon: Users,
+  },
+  {
+    title: "FA Level 2 Coaches",
+    description: "Specialists in ages 4-11 who know how to make football click.",
+    icon: Trophy,
+  },
+  {
+    title: "Confidence First",
+    description: "Football is our tool - confidence is what we build.",
+    icon: Heart,
+  },
+  {
+    title: "Peace of Mind",
+    description: "DBS checked, first aid trained, fully insured.",
+    icon: Shield,
   },
 ];
 
@@ -67,92 +89,81 @@ export function Testimonials() {
   const currentTestimonial = testimonials[currentIndex];
 
   return (
-    <section className="py-20 sm:py-28 bg-black text-white">
+    <section className="py-24 sm:py-32 bg-background-alt">
       <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-black uppercase tracking-tight sm:text-4xl lg:text-5xl">
-            Real Parents.
-            <br />
-            <span className="text-neutral-500">Real Transformations.</span>
-          </h2>
-          <div className="mt-6 flex items-center justify-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className="h-5 w-5 fill-[#F5A623] text-[#F5A623]"
-              />
-            ))}
-            <span className="ml-3 text-lg font-bold">
-              4.9
-            </span>
+        <FadeInUp>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              What Parents Say
+            </h2>
+            <p className="mt-4 text-sm text-foreground-muted">
+              Based on 50+ verified parent reviews
+            </p>
           </div>
-          <p className="mt-2 text-sm text-neutral-500 uppercase tracking-widest">
-            Based on 50+ verified parent reviews
-          </p>
-        </div>
+        </FadeInUp>
 
         <div className="relative mx-auto mt-16 max-w-3xl">
-          {/* Quote */}
-          <div className="relative border border-neutral-800 p-8 sm:p-12">
-            <Quote className="absolute -left-4 -top-4 h-8 w-8 text-neutral-700 bg-black" />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Quote */}
+              <div className="relative border border-neutral-200 p-8 sm:p-12 rounded-2xl bg-white">
+                <Quote className="absolute -left-4 -top-4 h-8 w-8 text-navy/20 bg-background-alt rounded-full p-1" />
 
-            <div className="relative">
-              {/* Transformation badge */}
-              <div className="mb-6 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-2 bg-[#2E3192] px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                  {currentTestimonial.transformation}
-                </span>
-                <span className="text-xs text-neutral-500 uppercase tracking-wider">
-                  {currentTestimonial.timeframe}
-                </span>
+                <div className="relative">
+                  {/* Stars */}
+                  <div className="mb-6 flex gap-1">
+                    {[...Array(currentTestimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-gold text-gold"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Quote text */}
+                  <p className="text-xl sm:text-2xl font-light leading-relaxed text-foreground-muted">
+                    &ldquo;{currentTestimonial.quote}&rdquo;
+                  </p>
+
+                  {/* Author */}
+                  <div className="mt-8 pt-6 border-t border-neutral-200">
+                    <p className="font-bold text-foreground">
+                      {currentTestimonial.name}
+                    </p>
+                    <p className="mt-1 text-sm text-foreground-muted">
+                      {currentTestimonial.location} · Child aged{" "}
+                      {currentTestimonial.childAge}
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              {/* Stars */}
-              <div className="mb-6 flex gap-1">
-                {[...Array(currentTestimonial.rating)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-4 w-4 fill-[#F5A623] text-[#F5A623]"
-                  />
-                ))}
-              </div>
-
-              {/* Quote text */}
-              <p className="text-xl sm:text-2xl font-light leading-relaxed text-neutral-300">
-                &ldquo;{currentTestimonial.quote}&rdquo;
-              </p>
-
-              {/* Author */}
-              <div className="mt-8 pt-6 border-t border-neutral-800">
-                <p className="font-bold uppercase tracking-wider">
-                  {currentTestimonial.name}
-                </p>
-                <p className="mt-1 text-sm text-neutral-500">
-                  {currentTestimonial.location} &mdash; Child aged{" "}
-                  {currentTestimonial.childAge}
-                </p>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
 
           {/* Navigation */}
           <div className="mt-8 flex items-center justify-center gap-6">
             <button
               onClick={prev}
-              className="border border-neutral-700 p-3 transition-colors hover:bg-white hover:text-black hover:border-white"
+              className="border border-neutral-200 p-3 rounded-full transition-colors hover:bg-navy hover:text-white hover:border-navy"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
 
             {/* Dots */}
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               {testimonials.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
-                  className={`h-2 w-2 transition-colors ${
-                    index === currentIndex ? "bg-white" : "bg-neutral-700"
+                  className={`h-2 w-2 rounded-full transition-all ${
+                    index === currentIndex ? "bg-navy" : "bg-neutral-300"
                   }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
@@ -161,7 +172,7 @@ export function Testimonials() {
 
             <button
               onClick={next}
-              className="border border-neutral-700 p-3 transition-colors hover:bg-white hover:text-black hover:border-white"
+              className="border border-neutral-200 p-3 rounded-full transition-colors hover:bg-navy hover:text-white hover:border-navy"
               aria-label="Next testimonial"
             >
               <ChevronRight className="h-5 w-5" />
@@ -169,16 +180,26 @@ export function Testimonials() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <a
-            href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
-          >
-            See all reviews on Google &rarr;
-          </a>
+        {/* What Makes Us Different */}
+        <div className="mt-20 pt-16 border-t border-neutral-200">
+          <FadeInUp>
+            <h3 className="text-center text-xl font-bold text-foreground mb-10">
+              What Makes Us Different
+            </h3>
+          </FadeInUp>
+          <StaggerChildren className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {reasons.map((reason) => (
+              <StaggerItem key={reason.title}>
+                <div className="text-center p-4">
+                  <div className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-navy/10">
+                    <reason.icon className="h-5 w-5 text-navy" />
+                  </div>
+                  <h4 className="text-sm font-bold text-foreground">{reason.title}</h4>
+                  <p className="mt-1 text-xs text-foreground-muted">{reason.description}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </StaggerChildren>
         </div>
       </Container>
     </section>
