@@ -3,19 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Loader2,
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  Filter,
-  ShoppingCart,
-  Check,
-  Bell,
-  X,
-  ChevronRight,
-} from "lucide-react";
+import { Loader2, Plus, Check, Bell, ChevronDown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
 import { WaitlistForm } from "@/components/waitlist/waitlist-form";
@@ -42,11 +30,10 @@ export default function SessionsPage() {
   const [filters, setFilters] = useState({
     location: "",
     serviceType: "",
-    ageGroup: "",
   });
-  const [showFilters, setShowFilters] = useState(false);
   const [waitlistSession, setWaitlistSession] = useState<SessionWithProgram | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const { addItem, removeItem, isInCart } = useCart();
 
@@ -65,22 +52,18 @@ export default function SessionsPage() {
       const data = await response.json();
       if (data.success) {
         setSessions(data.data);
-        // Auto-select first session if none selected
-        if (data.data.length > 0 && !selectedSession) {
-          setSelectedSession(data.data[0]);
-        }
       } else {
-        setError("Failed to load sessions. Please try again.");
+        setError("Failed to load sessions.");
       }
     } catch (err) {
       console.error("Error fetching sessions:", err);
-      setError("Unable to load sessions. Please check your connection and try again.");
+      setError("Unable to load sessions.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToCart = (session: SessionWithProgram) => {
+  const handleToggleCart = (session: SessionWithProgram) => {
     if (isInCart(session.id)) {
       removeItem(session.id);
     } else {
@@ -99,17 +82,6 @@ export default function SessionsPage() {
     }
   };
 
-  // Group sessions by day for calendar view
-  const sessionsByDay = sessions.reduce(
-    (acc, session) => {
-      const day = session.dayOfWeek;
-      if (!acc[day]) acc[day] = [];
-      acc[day].push(session);
-      return acc;
-    },
-    {} as Record<number, SessionWithProgram[]>
-  );
-
   const getLocationName = (id: string) => {
     return LOCATIONS.find((l) => l.id === id)?.name || id;
   };
@@ -117,351 +89,298 @@ export default function SessionsPage() {
   const activeFiltersCount = [filters.location, filters.serviceType].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Hero */}
-      <section className="bg-navy py-12 sm:py-16">
+      <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-2xl"
           >
-            <h1 className="font-display text-3xl tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Book a Session
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-white/70">
-              Browse sessions and add them to your cart
+            <p className="text-[13px] font-medium tracking-[0.2em] uppercase text-neutral-400 mb-4">
+              Sessions
             </p>
+            <h1 className="text-[clamp(2.5rem,6vw,4rem)] font-semibold tracking-[-0.03em] text-[#1d1d1f] leading-[1.05]">
+              Choose a session
+              <br />
+              <span className="text-neutral-400">that fits your schedule.</span>
+            </h1>
           </motion.div>
         </div>
       </section>
 
-      {/* Filters Bar - Always Visible */}
-      <div className="sticky top-20 z-40 bg-white border-b border-neutral-200 shadow-sm">
+      {/* Filters */}
+      <div className="sticky top-20 z-40 bg-[#FAFAFA]/80 backdrop-blur-xl border-b border-neutral-200/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-            <div className="flex-1 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-medium text-neutral-500 mb-1.5">
-                  Location
-                </label>
-                <select
-                  value={filters.location}
-                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                  className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:border-navy focus:ring-1 focus:ring-navy"
-                >
-                  <option value="">All Locations</option>
-                  {LOCATIONS.map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-neutral-500 mb-1.5">
-                  Service Type
-                </label>
-                <select
-                  value={filters.serviceType}
-                  onChange={(e) => setFilters({ ...filters, serviceType: e.target.value })}
-                  className="w-full border border-neutral-200 rounded-lg px-3 py-2 text-sm focus:border-navy focus:ring-1 focus:ring-navy"
-                >
-                  <option value="">All Types</option>
-                  {SERVICE_TYPES.map((type) => (
-                    <option key={type.id} value={type.id}>{type.name}</option>
-                  ))}
-                </select>
-              </div>
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Location Filter */}
+            <div className="relative">
+              <select
+                value={filters.location}
+                onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                className="appearance-none bg-white border border-neutral-200 rounded-full px-5 py-2.5 pr-10 text-[14px] text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-[#1d1d1f]/10 focus:border-neutral-300 transition-all cursor-pointer hover:border-neutral-300"
+              >
+                <option value="">All Locations</option>
+                {LOCATIONS.map((loc) => (
+                  <option key={loc.id} value={loc.id}>{loc.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
             </div>
-            <div className="flex items-center justify-between sm:justify-end gap-4">
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={() => setFilters({ location: "", serviceType: "", ageGroup: "" })}
-                  className="text-sm text-neutral-500 hover:text-navy underline"
-                >
-                  Clear filters
-                </button>
-              )}
-              <p className="text-sm text-neutral-600">
-                {sessions.length} session{sessions.length !== 1 ? "s" : ""}
-              </p>
+
+            {/* Service Type Filter */}
+            <div className="relative">
+              <select
+                value={filters.serviceType}
+                onChange={(e) => setFilters({ ...filters, serviceType: e.target.value })}
+                className="appearance-none bg-white border border-neutral-200 rounded-full px-5 py-2.5 pr-10 text-[14px] text-[#1d1d1f] focus:outline-none focus:ring-2 focus:ring-[#1d1d1f]/10 focus:border-neutral-300 transition-all cursor-pointer hover:border-neutral-300"
+              >
+                <option value="">All Types</option>
+                {SERVICE_TYPES.map((type) => (
+                  <option key={type.id} value={type.id}>{type.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
             </div>
+
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={() => setFilters({ location: "", serviceType: "" })}
+                className="text-[14px] text-neutral-500 hover:text-[#1d1d1f] transition-colors underline underline-offset-4"
+              >
+                Clear all
+              </button>
+            )}
+
+            <span className="ml-auto text-[14px] text-neutral-400">
+              {sessions.length} session{sessions.length !== 1 ? "s" : ""}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Main Content - Side by Side Layout */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-navy" />
+          <div className="flex justify-center items-center py-32">
+            <Loader2 className="h-6 w-6 animate-spin text-neutral-300" />
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <div className="mx-auto h-12 w-12 text-red-400 text-4xl">⚠️</div>
-            <h3 className="mt-4 font-bold text-black">Something went wrong</h3>
-            <p className="mt-2 text-neutral-500">{error}</p>
-            <Button onClick={() => { setLoading(true); fetchSessions(); }} className="mt-6">
-              Try Again
-            </Button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-32"
+          >
+            <p className="text-neutral-500 text-lg mb-4">{error}</p>
+            <button
+              onClick={() => { setLoading(true); fetchSessions(); }}
+              className="text-[#06c] hover:text-[#06c]/80 text-[15px] font-medium"
+            >
+              Try again
+            </button>
+          </motion.div>
         ) : sessions.length === 0 ? (
-          <div className="text-center py-12">
-            <Calendar className="mx-auto h-12 w-12 text-neutral-300" />
-            <h3 className="mt-4 font-bold text-black">No sessions found</h3>
-            <p className="mt-2 text-neutral-500">
-              {activeFiltersCount > 0 ? "Try adjusting your filters" : "Check back soon for available sessions"}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-32"
+          >
+            <p className="text-neutral-400 text-lg mb-2">No sessions found</p>
+            <p className="text-neutral-400 text-[15px]">
+              {activeFiltersCount > 0 ? "Try adjusting your filters" : "Check back soon"}
             </p>
             {activeFiltersCount > 0 && (
               <button
-                onClick={() => setFilters({ location: "", serviceType: "", ageGroup: "" })}
-                className="mt-4 text-sm font-medium text-navy underline"
+                onClick={() => setFilters({ location: "", serviceType: "" })}
+                className="mt-4 text-[#06c] hover:text-[#06c]/80 text-[15px] font-medium"
               >
-                Clear all filters
+                Clear filters
               </button>
             )}
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left: Sessions List */}
-            <div className="space-y-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 mb-4">
-                Available Sessions
-              </h2>
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 lg:max-h-[calc(100vh-280px)] lg:overflow-y-auto lg:pr-2">
-                {sessions.map((session) => (
-                  <button
-                    key={session.id}
-                    onClick={() => setSelectedSession(session)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all ${
-                      selectedSession?.id === session.id
-                        ? "bg-navy text-white border-navy shadow-lg"
-                        : "bg-white border-neutral-200 hover:border-navy/30 hover:shadow"
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {sessions.map((session, index) => {
+              const inCart = isInCart(session.id);
+              const isHovered = hoveredId === session.id;
+              const isFull = session.availabilityStatus === "full";
+
+              return (
+                <motion.div
+                  key={session.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.05,
+                    ease: [0.16, 1, 0.3, 1]
+                  }}
+                  onMouseEnter={() => setHoveredId(session.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className="group"
+                >
+                  <motion.div
+                    animate={{
+                      y: isHovered ? -4 : 0,
+                      boxShadow: isHovered
+                        ? "0 20px 40px -12px rgba(0,0,0,0.15)"
+                        : "0 4px 20px -4px rgba(0,0,0,0.06)"
+                    }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className={`relative bg-white rounded-2xl overflow-hidden ${
+                      isFull ? "opacity-60" : ""
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-bold text-sm truncate ${
-                          selectedSession?.id === session.id ? "text-white" : "text-foreground"
-                        }`}>
-                          {session.name}
-                        </p>
-                        <p className={`text-xs mt-1 ${
-                          selectedSession?.id === session.id ? "text-white/70" : "text-neutral-500"
-                        }`}>
-                          {getDayName(session.dayOfWeek)} · {session.startTime}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className={`text-sm font-bold ${
-                          selectedSession?.id === session.id ? "text-white" : "text-navy"
-                        }`}>
-                          {formatPrice(session.price)}
-                        </span>
-                        <span
-                          className={`px-1.5 py-0.5 text-[10px] font-bold uppercase rounded ${
-                            session.availabilityStatus === "full"
-                              ? "bg-red-100 text-red-700"
+                    {/* Card Content */}
+                    <div className="p-7">
+                      {/* Top Row: Day & Time */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#F5F5F7] text-[13px] font-semibold text-[#1d1d1f]">
+                            {getDayName(session.dayOfWeek).slice(0, 2)}
+                          </span>
+                          <div>
+                            <p className="text-[15px] text-[#1d1d1f] font-medium">
+                              {session.startTime} – {session.endTime}
+                            </p>
+                            <p className="text-[13px] text-neutral-400">
+                              {getDayName(session.dayOfWeek)}s
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Status Indicator */}
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${
+                            isFull
+                              ? "bg-neutral-300"
                               : session.availabilityStatus === "limited"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-green-100 text-green-700"
-                          }`}
-                        >
-                          {session.availabilityStatus === "full"
-                            ? "Full"
-                            : session.availabilityStatus === "limited"
-                              ? `${session.spotsLeft} left`
-                              : "Open"}
-                        </span>
+                                ? "bg-amber-400"
+                                : "bg-emerald-400"
+                          }`} />
+                          <span className="text-[13px] text-neutral-400">
+                            {isFull
+                              ? "Full"
+                              : session.availabilityStatus === "limited"
+                                ? `${session.spotsLeft} left`
+                                : "Open"
+                            }
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            {/* Right: Calendar + Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Calendar View - Hidden on mobile */}
-              <div className="hidden md:block bg-white rounded-xl border border-neutral-200 p-4">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 mb-4">
-                  Weekly Schedule
-                </h2>
-                <div className="grid grid-cols-7 gap-1">
-                  {/* Day Headers */}
-                  {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                    <div
-                      key={day}
-                      className="text-center py-2 text-xs font-bold uppercase text-neutral-400"
-                    >
-                      {getDayName(day).slice(0, 3)}
-                    </div>
-                  ))}
+                      {/* Session Name */}
+                      <h3 className="text-[22px] font-semibold tracking-[-0.02em] text-[#1d1d1f] leading-tight mb-3">
+                        {session.name}
+                      </h3>
 
-                  {/* Day Content */}
-                  {[0, 1, 2, 3, 4, 5, 6].map((day) => (
-                    <div
-                      key={`content-${day}`}
-                      className="min-h-[100px] bg-neutral-50 rounded-lg p-1"
-                    >
-                      {sessionsByDay[day]?.map((session) => (
-                        <button
-                          key={session.id}
-                          onClick={() => setSelectedSession(session)}
-                          className={`w-full mb-1 p-1.5 text-left text-[10px] rounded transition-all ${
-                            selectedSession?.id === session.id
-                              ? "bg-navy text-white"
-                              : isInCart(session.id)
-                                ? "bg-green-100 text-green-800 border border-green-200"
-                                : session.availabilityStatus === "full"
-                                  ? "bg-neutral-100 text-neutral-400"
-                                  : "bg-white border border-neutral-200 hover:border-navy/30"
-                          }`}
-                        >
-                          <p className="font-bold truncate">{session.name}</p>
-                          <p className="opacity-70">{session.startTime}</p>
-                        </button>
-                      ))}
-                      {!sessionsByDay[day]?.length && (
-                        <p className="text-[10px] text-neutral-300 text-center mt-8">—</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+                      {/* Details */}
+                      <div className="space-y-1 mb-6">
+                        <p className="text-[15px] text-neutral-500">
+                          {session.program ? getLocationName(session.program.location) : "TBA"}
+                        </p>
+                        <p className="text-[13px] text-neutral-400">
+                          Ages {session.ageMin}–{session.ageMax} years
+                        </p>
+                      </div>
 
-              {/* Session Details Panel */}
-              <AnimatePresence mode="wait">
-                {selectedSession && (
-                  <motion.div
-                    key={selectedSession.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="bg-white rounded-xl border border-neutral-200 p-6"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <span
-                          className={`inline-block px-2 py-0.5 text-xs font-bold uppercase rounded mb-2 ${
-                            selectedSession.availabilityStatus === "full"
-                              ? "bg-red-100 text-red-700"
-                              : selectedSession.availabilityStatus === "limited"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-green-100 text-green-700"
-                          }`}
-                        >
-                          {selectedSession.availabilityStatus === "full"
-                            ? "Full - Waitlist Available"
-                            : selectedSession.availabilityStatus === "limited"
-                              ? `Only ${selectedSession.spotsLeft} spots left`
-                              : "Available"}
-                        </span>
-                        <h3 className="text-xl font-bold text-foreground">
-                          {selectedSession.name}
-                        </h3>
-                        {selectedSession.program && (
-                          <p className="text-sm text-neutral-500 mt-1">
-                            {selectedSession.program.name}
+                      {/* Bottom Row: Price & Action */}
+                      <div className="flex items-end justify-between pt-6 border-t border-neutral-100">
+                        <div>
+                          <p className="text-[13px] text-neutral-400 mb-1">Per session</p>
+                          <p className="text-[28px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">
+                            {formatPrice(session.price)}
                           </p>
+                        </div>
+
+                        {/* Action Buttons */}
+                        {isFull && session.waitlistEnabled ? (
+                          <button
+                            onClick={() => setWaitlistSession(session)}
+                            className="flex items-center gap-2 px-5 py-3 bg-[#F5F5F7] hover:bg-[#E8E8ED] rounded-full text-[14px] font-medium text-[#1d1d1f] transition-colors"
+                          >
+                            <Bell className="w-4 h-4" />
+                            Notify me
+                          </button>
+                        ) : (
+                          <motion.button
+                            onClick={() => !isFull && handleToggleCart(session)}
+                            disabled={isFull}
+                            whileTap={{ scale: 0.95 }}
+                            className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-colors ${
+                              isFull
+                                ? "bg-neutral-100 cursor-not-allowed"
+                                : inCart
+                                  ? "bg-[#1d1d1f] text-white"
+                                  : "bg-[#F5F5F7] hover:bg-[#E8E8ED] text-[#1d1d1f]"
+                            }`}
+                          >
+                            <AnimatePresence mode="wait">
+                              {inCart ? (
+                                <motion.div
+                                  key="check"
+                                  initial={{ scale: 0, rotate: -180 }}
+                                  animate={{ scale: 1, rotate: 0 }}
+                                  exit={{ scale: 0, rotate: 180 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <Check className="w-5 h-5" strokeWidth={2.5} />
+                                </motion.div>
+                              ) : (
+                                <motion.div
+                                  key="plus"
+                                  initial={{ scale: 0, rotate: 180 }}
+                                  animate={{ scale: 1, rotate: 0 }}
+                                  exit={{ scale: 0, rotate: -180 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <Plus className="w-5 h-5" strokeWidth={2} />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.button>
                         )}
                       </div>
-                      <p className="text-2xl font-bold text-navy">
-                        {formatPrice(selectedSession.price)}
-                      </p>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="h-10 w-10 rounded-lg bg-sky/10 flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-navy" />
-                        </div>
-                        <div>
-                          <p className="text-neutral-500">Day</p>
-                          <p className="font-bold">{getDayName(selectedSession.dayOfWeek)}s</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="h-10 w-10 rounded-lg bg-sky/10 flex items-center justify-center">
-                          <Clock className="h-5 w-5 text-navy" />
-                        </div>
-                        <div>
-                          <p className="text-neutral-500">Time</p>
-                          <p className="font-bold">{selectedSession.startTime} - {selectedSession.endTime}</p>
-                        </div>
-                      </div>
-                      {selectedSession.program && (
-                        <div className="flex items-center gap-3 text-sm">
-                          <div className="h-10 w-10 rounded-lg bg-sky/10 flex items-center justify-center">
-                            <MapPin className="h-5 w-5 text-navy" />
-                          </div>
-                          <div>
-                            <p className="text-neutral-500">Location</p>
-                            <p className="font-bold">{getLocationName(selectedSession.program.location)}</p>
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="h-10 w-10 rounded-lg bg-sky/10 flex items-center justify-center">
-                          <Users className="h-5 w-5 text-navy" />
-                        </div>
-                        <div>
-                          <p className="text-neutral-500">Ages</p>
-                          <p className="font-bold">{selectedSession.ageMin} - {selectedSession.ageMax} years</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedSession.description && (
-                      <p className="mt-6 text-sm text-neutral-600 leading-relaxed">
-                        {selectedSession.description}
-                      </p>
-                    )}
-
-                    <div className="mt-6 flex gap-3">
-                      {selectedSession.availabilityStatus === "full" && selectedSession.waitlistEnabled ? (
-                        <Button
-                          onClick={() => setWaitlistSession(selectedSession)}
-                          variant="secondary"
-                          size="lg"
-                          className="flex-1"
+                    {/* In Cart Indicator */}
+                    <AnimatePresence>
+                      {inCart && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-[#1d1d1f] text-white px-7 py-3 text-center"
                         >
-                          <Bell className="mr-2 h-4 w-4" />
-                          Join Waitlist
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handleAddToCart(selectedSession)}
-                          disabled={selectedSession.availabilityStatus === "full"}
-                          variant={isInCart(selectedSession.id) ? "secondary" : "primary"}
-                          size="lg"
-                          className="flex-1"
-                        >
-                          {isInCart(selectedSession.id) ? (
-                            <>
-                              <Check className="mr-2 h-4 w-4" />
-                              Added to Cart
-                            </>
-                          ) : (
-                            <>
-                              <ShoppingCart className="mr-2 h-4 w-4" />
-                              Add to Cart
-                            </>
-                          )}
-                        </Button>
+                          <p className="text-[13px] font-medium">Added to cart</p>
+                        </motion.div>
                       )}
-                      <Button asChild variant="outline" size="lg">
-                        <Link href="/checkout">
-                          Checkout
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
+                    </AnimatePresence>
                   </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                </motion.div>
+              );
+            })}
           </div>
+        )}
+
+        {/* Checkout CTA */}
+        {!loading && sessions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-16 text-center"
+          >
+            <Link
+              href="/checkout"
+              className="group inline-flex items-center gap-2 text-[15px] font-medium text-[#06c] hover:text-[#06c]/80 transition-colors"
+            >
+              Continue to checkout
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
         )}
       </div>
 
