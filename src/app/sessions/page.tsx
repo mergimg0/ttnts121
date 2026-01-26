@@ -40,6 +40,7 @@ export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<SessionWithProgram | null>(null);
   const [expandedSessionId, setExpandedSessionId] = useState<string | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [waitlistSession, setWaitlistSession] = useState<SessionWithProgram | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -166,69 +167,118 @@ export default function SessionsPage() {
           </div>
         ) : (
           <>
-            {/* Mobile: Compact expandable cards */}
-            <div className="md:hidden space-y-2">
-              {sessions.map((session) => {
-                const inCart = isInCart(session.id);
-                const isFull = session.availabilityStatus === "full";
-                const isExpanded = expandedSessionId === session.id;
+            {/* Mobile: Day selector + session cards */}
+            <div className="md:hidden">
+              {/* Interactive day selector */}
+              <div className="bg-white rounded-xl border border-neutral-200 p-4 mb-4">
+                <p className="text-xs text-neutral-400 mb-3">Select a day</p>
+                <div className="grid grid-cols-7 gap-1">
+                  {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                    const daySessionCount = sessionsByDay[day]?.length || 0;
+                    const isSelected = selectedDay === day;
+                    const hasSessions = daySessionCount > 0;
 
-                return (
-                  <div
-                    key={session.id}
-                    className={`bg-white rounded-xl border border-neutral-200 overflow-hidden ${isFull && !isExpanded ? "opacity-60" : ""}`}
-                  >
-                    {/* Compact header - always visible */}
-                    <button
-                      onClick={() => toggleExpandSession(session.id)}
-                      className="w-full text-left p-4 flex items-center justify-between gap-3"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">{session.name}</p>
-                        <p className="text-sm text-neutral-500 mt-0.5">
-                          {getDayName(session.dayOfWeek)} · {session.startTime} · {formatPrice(session.price)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {inCart && (
-                          <span className="text-xs text-neutral-500 flex items-center gap-1">
-                            <Check className="h-3 w-3" />
+                    return (
+                      <button
+                        key={day}
+                        onClick={() => setSelectedDay(isSelected ? null : day)}
+                        disabled={!hasSessions}
+                        className={`text-center py-3 rounded-lg text-sm transition-all ${
+                          isSelected
+                            ? "bg-navy text-white font-medium"
+                            : hasSessions
+                              ? "bg-neutral-100 text-foreground hover:bg-neutral-200"
+                              : "text-neutral-300 cursor-not-allowed"
+                        }`}
+                      >
+                        <span className="block text-xs">{getDayName(day).slice(0, 3)}</span>
+                        {hasSessions && (
+                          <span className={`block text-[10px] mt-0.5 ${isSelected ? "text-white/70" : "text-neutral-500"}`}>
+                            {daySessionCount}
                           </span>
                         )}
-                        <ChevronDown className={`h-5 w-5 text-neutral-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                      </div>
-                    </button>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedDay !== null && (
+                  <button
+                    onClick={() => setSelectedDay(null)}
+                    className="mt-3 text-xs text-neutral-500 hover:text-navy"
+                  >
+                    Show all sessions
+                  </button>
+                )}
+              </div>
 
-                    {/* Expanded content */}
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-4 pb-4 border-t border-neutral-100">
-                            {/* Session details */}
-                            <div className="py-4 space-y-3">
-                              {session.program && (
-                                <p className="text-sm text-neutral-600">{session.program.name}</p>
-                              )}
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="flex items-center gap-2 text-neutral-600">
-                                  <Clock className="h-4 w-4 text-neutral-400" />
-                                  <span>{session.startTime} – {session.endTime}</span>
-                                </div>
+              {/* Session cards - filtered by selected day */}
+              <div className="space-y-2">
+                {(selectedDay !== null ? sessionsByDay[selectedDay] || [] : sessions).map((session) => {
+                  const inCart = isInCart(session.id);
+                  const isFull = session.availabilityStatus === "full";
+                  const isExpanded = expandedSessionId === session.id;
+
+                  return (
+                    <div
+                      key={session.id}
+                      className={`bg-white rounded-xl border border-neutral-200 overflow-hidden ${isFull && !isExpanded ? "opacity-60" : ""}`}
+                    >
+                      {/* Compact header - always visible */}
+                      <button
+                        onClick={() => toggleExpandSession(session.id)}
+                        className="w-full text-left p-4 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">{session.name}</p>
+                          <p className="text-sm text-neutral-500 mt-0.5">
+                            {selectedDay === null && `${getDayName(session.dayOfWeek)} · `}{session.startTime} · {formatPrice(session.price)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {inCart && (
+                            <span className="text-xs text-neutral-500 flex items-center gap-1">
+                              <Check className="h-3 w-3" />
+                            </span>
+                          )}
+                          <ChevronDown className={`h-5 w-5 text-neutral-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                        </div>
+                      </button>
+
+                      {/* Expanded content */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="px-4 pb-4 border-t border-neutral-100">
+                              {/* Session details */}
+                              <div className="py-4 space-y-3">
                                 {session.program && (
-                                  <div className="flex items-center gap-2 text-neutral-600">
-                                    <MapPin className="h-4 w-4 text-neutral-400" />
-                                    <span className="truncate">{getLocationName(session.program.location)}</span>
-                                  </div>
+                                  <p className="text-sm text-neutral-600">{session.program.name}</p>
                                 )}
-                                <div className="flex items-center gap-2 text-neutral-600">
-                                  <Users className="h-4 w-4 text-neutral-400" />
-                                  <span>Ages {session.ageMin}–{session.ageMax}</span>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div className="flex items-center gap-2 text-neutral-600">
+                                    <Calendar className="h-4 w-4 text-neutral-400" />
+                                    <span>{getDayName(session.dayOfWeek)}s</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-neutral-600">
+                                    <Clock className="h-4 w-4 text-neutral-400" />
+                                    <span>{session.startTime} – {session.endTime}</span>
+                                  </div>
+                                  {session.program && (
+                                    <div className="flex items-center gap-2 text-neutral-600">
+                                      <MapPin className="h-4 w-4 text-neutral-400" />
+                                      <span className="truncate">{getLocationName(session.program.location)}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-2 text-neutral-600">
+                                    <Users className="h-4 w-4 text-neutral-400" />
+                                    <span>Ages {session.ageMin}–{session.ageMax}</span>
+                                  </div>
                                 </div>
                                 <p className={`text-sm ${
                                   isFull ? "text-neutral-400" : session.availabilityStatus === "limited" ? "text-amber-600" : "text-neutral-500"
@@ -236,72 +286,53 @@ export default function SessionsPage() {
                                   {getStatusText(session)}
                                 </p>
                               </div>
-                            </div>
 
-                            {/* Mini calendar showing this session's day */}
-                            <div className="bg-neutral-50 rounded-lg p-3 mb-4">
-                              <p className="text-xs text-neutral-400 mb-2">Weekly Schedule</p>
-                              <div className="grid grid-cols-7 gap-1">
-                                {[0, 1, 2, 3, 4, 5, 6].map((day) => {
-                                  const hasSession = sessionsByDay[day]?.some(s => s.id === session.id);
-                                  const dayHasSessions = sessionsByDay[day]?.length > 0;
-                                  return (
-                                    <div
-                                      key={day}
-                                      className={`text-center py-2 rounded text-xs ${
-                                        hasSession
-                                          ? "bg-navy text-white font-medium"
-                                          : dayHasSessions
-                                            ? "bg-neutral-200 text-neutral-600"
-                                            : "text-neutral-300"
-                                      }`}
-                                    >
-                                      {getDayName(day).slice(0, 1)}
-                                    </div>
-                                  );
-                                })}
+                              {/* Action button */}
+                              <div className="flex gap-2">
+                                {isFull && session.waitlistEnabled ? (
+                                  <Button
+                                    onClick={() => setWaitlistSession(session)}
+                                    variant="secondary"
+                                    className="flex-1"
+                                  >
+                                    <Bell className="mr-2 h-4 w-4" />
+                                    Join Waitlist
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    onClick={() => handleAddToCart(session)}
+                                    disabled={isFull}
+                                    variant={inCart ? "secondary" : "primary"}
+                                    className="flex-1"
+                                  >
+                                    {inCart ? (
+                                      <>
+                                        <Check className="mr-2 h-4 w-4" />
+                                        Added to Cart
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ShoppingCart className="mr-2 h-4 w-4" />
+                                        Add to Cart
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
                               </div>
                             </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
 
-                            {/* Action button */}
-                            <div className="flex gap-2">
-                              {isFull && session.waitlistEnabled ? (
-                                <Button
-                                  onClick={() => setWaitlistSession(session)}
-                                  variant="secondary"
-                                  className="flex-1"
-                                >
-                                  <Bell className="mr-2 h-4 w-4" />
-                                  Join Waitlist
-                                </Button>
-                              ) : (
-                                <Button
-                                  onClick={() => handleAddToCart(session)}
-                                  disabled={isFull}
-                                  variant={inCart ? "secondary" : "primary"}
-                                  className="flex-1"
-                                >
-                                  {inCart ? (
-                                    <>
-                                      <Check className="mr-2 h-4 w-4" />
-                                      Added to Cart
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ShoppingCart className="mr-2 h-4 w-4" />
-                                      Add to Cart
-                                    </>
-                                  )}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                {selectedDay !== null && (!sessionsByDay[selectedDay] || sessionsByDay[selectedDay].length === 0) && (
+                  <div className="text-center py-8">
+                    <p className="text-neutral-500">No sessions on {getDayName(selectedDay)}</p>
                   </div>
-                );
-              })}
+                )}
+              </div>
             </div>
 
             {/* Desktop: 3-column layout with calendar */}

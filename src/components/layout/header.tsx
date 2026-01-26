@@ -74,7 +74,7 @@ export function Header() {
             className="h-10 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-105"
             priority
           />
-          <span className="font-bold text-sm sm:text-base lg:hidden text-foreground leading-tight">
+          <span className="font-bold text-base sm:text-lg lg:hidden text-foreground leading-tight">
             Take The Next Step
             <span className="text-sky"> 121</span>
           </span>
