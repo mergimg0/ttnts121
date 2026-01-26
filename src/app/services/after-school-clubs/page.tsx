@@ -108,7 +108,7 @@ export default function AfterSchoolClubsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-black py-20 sm:py-28">
+      <section className="bg-navy py-20 sm:py-28">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-green">
@@ -344,7 +344,7 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-black py-20 sm:py-28">
+      <section className="bg-navy py-20 sm:py-28">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">

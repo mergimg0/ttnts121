@@ -23,7 +23,7 @@ export default function ServicesPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-black py-20 sm:py-28">
+      <section className="bg-navy py-20 sm:py-28">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -160,7 +160,7 @@ export default function ServicesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-black py-20 sm:py-28">
+      <section className="bg-navy py-20 sm:py-28">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
