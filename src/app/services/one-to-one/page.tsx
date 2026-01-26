@@ -122,9 +122,9 @@ export default function OneToOnePage() {
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
               Private 1:1
               <br />
-              <span className="text-neutral-500">Coaching</span>
+              <span className="text-sky">Coaching</span>
             </h1>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Personalised coaching that adapts to how your child learns.
               <br />
               Build confidence. Develop skills. Progress faster.
@@ -143,7 +143,7 @@ export default function OneToOnePage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>
@@ -335,9 +335,9 @@ export default function OneToOnePage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
               Ready To
               <br />
-              <span className="text-neutral-500">Get Started?</span>
+              <span className="text-sky">Get Started?</span>
             </h2>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               One session is all it takes to see the difference. Book today.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -354,7 +354,7 @@ export default function OneToOnePage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>

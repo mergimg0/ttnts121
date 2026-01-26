@@ -60,9 +60,9 @@ export default function GroupSessionsPage() {
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
               Just Turn Up
               <br />
-              <span className="text-neutral-500">& Play</span>
+              <span className="text-sky">& Play</span>
             </h1>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               No commitment. No pressure. Just football fun with friends.
               <br />
               From just £6 per session.
@@ -224,9 +224,9 @@ export default function GroupSessionsPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
               Ready To
               <br />
-              <span className="text-neutral-500">Join In?</span>
+              <span className="text-sky">Join In?</span>
             </h2>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Book a session, turn up, and let them play. It really is that simple.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -243,7 +243,7 @@ export default function GroupSessionsPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>

@@ -94,9 +94,9 @@ export default function BirthdayPartiesPage() {
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
               The Party
               <br />
-              <span className="text-neutral-500">They&apos;ll Remember</span>
+              <span className="text-sky">They&apos;ll Remember</span>
             </h1>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Professional football party they&apos;ll talk about for years.
               <br />
               You handle the cake. We&apos;ll handle the fun.
@@ -115,7 +115,7 @@ export default function BirthdayPartiesPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <Link href="/contact?subject=birthday-party">
@@ -359,9 +359,9 @@ export default function BirthdayPartiesPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
               Prefer To
               <br />
-              <span className="text-neutral-500">Talk?</span>
+              <span className="text-sky">Talk?</span>
             </h2>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Every party is unique. Call us to discuss dates, numbers, and what would make
               your child&apos;s day extra special.
             </p>
@@ -379,7 +379,7 @@ export default function BirthdayPartiesPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <Link href="/contact?subject=birthday-party">

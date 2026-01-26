@@ -117,9 +117,9 @@ export default function AfterSchoolClubsPage() {
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
               Football
               <br />
-              <span className="text-neutral-500">After School</span>
+              <span className="text-sky">After School</span>
             </h1>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               The perfect mid-week energy release.
               <br />
               Weekly football that fits around work.
@@ -138,7 +138,7 @@ export default function AfterSchoolClubsPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>
@@ -350,9 +350,9 @@ export default function AfterSchoolClubsPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
               Book A
               <br />
-              <span className="text-neutral-500">Spot</span>
+              <span className="text-sky">Spot</span>
             </h2>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Book their spot now. Spaces are limited to keep groups small.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -369,7 +369,7 @@ export default function AfterSchoolClubsPage() {
               <Button
                 size="lg"
                 variant="secondary"
-                className="border-neutral-700 bg-transparent text-white hover:bg-neutral-800"
+                className="border-white/30 bg-transparent text-white hover:bg-white/10"
                 asChild
               >
                 <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>

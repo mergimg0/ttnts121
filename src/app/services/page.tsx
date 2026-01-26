@@ -29,9 +29,9 @@ export default function ServicesPage() {
             <h1 className="text-4xl font-black uppercase tracking-tight text-white sm:text-5xl lg:text-6xl">
               What We
               <br />
-              <span className="text-neutral-500">Offer</span>
+              <span className="text-sky">Offer</span>
             </h1>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               From private 1:1 coaching to action-packed birthday parties.
               <br />
               Every session designed to build confidence through football.
@@ -166,9 +166,9 @@ export default function ServicesPage() {
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
               Ready To Start?
               <br />
-              <span className="text-neutral-500">Book Today</span>
+              <span className="text-sky">Book Today</span>
             </h2>
-            <p className="mt-6 text-lg text-neutral-400">
+            <p className="mt-6 text-lg text-white/70">
               Join hundreds of happy families across Bedfordshire.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
