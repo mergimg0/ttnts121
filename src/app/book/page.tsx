@@ -73,7 +73,7 @@ export default function BookingPage() {
 
   const steps: { id: Step; label: string }[] = [
     { id: "session", label: "Session" },
-    { id: "child", label: "Child" },
+    { id: "child", label: "Player" },
     { id: "parent", label: "Parent" },
     { id: "payment", label: "Payment" },
     { id: "confirm", label: "Confirm" },
@@ -129,7 +129,7 @@ export default function BookingPage() {
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Book Your Child&apos;s <span className="text-neutral-500">First Session</span>
+              Book Your <span className="text-neutral-500">First Session</span>
             </h1>
             <p className="mt-4 text-neutral-400">
               2 minutes to complete. No payment required now.
@@ -481,10 +481,10 @@ export default function BookingPage() {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-xl font-bold uppercase tracking-wide text-black">
-                    Child&apos;s Details
+                    Player Details
                   </h2>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Tell us about your child so we can provide the best
+                    Tell us a bit about them so we can provide the best
                     experience.
                   </p>
                 </div>
@@ -845,7 +845,7 @@ export default function BookingPage() {
                     )}
 
                     <div className="flex justify-between border-b border-neutral-200 pb-2">
-                      <dt className="text-neutral-600">Child:</dt>
+                      <dt className="text-neutral-600">Player:</dt>
                       <dd className="font-bold text-black">
                         {formData.childFirstName} {formData.childLastName}
                       </dd>

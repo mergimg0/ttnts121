@@ -156,7 +156,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                     </Link>
                   </Button>
                   <p className="text-xs text-center text-neutral-500">
-                    You&apos;ll enter child details at checkout
+                    You&apos;ll enter details at checkout
                   </p>
                 </div>
               )}

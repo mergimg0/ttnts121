@@ -134,7 +134,7 @@ export default function CheckoutPage() {
             Your cart is empty
           </h1>
           <p className="mt-2 text-neutral-600">
-            Browse our sessions to find the perfect fit for your child
+            Browse our sessions to find the perfect fit
           </p>
           <Button asChild className="mt-6">
             <Link href="/sessions">Browse Sessions</Link>
@@ -199,10 +199,10 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              {/* Child Details */}
+              {/* Player Details */}
               <div className="border border-neutral-200 bg-white p-6">
                 <h2 className="font-bold uppercase tracking-wide text-black mb-4">
-                  Child Details
+                  Player Details
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div data-error={!!getFieldError(fieldErrors, "childFirstName")}>
@@ -382,7 +382,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
-                      Relationship to Child
+                      Relationship
                     </label>
                     <Input
                       value={formData.emergencyContactRelationship}

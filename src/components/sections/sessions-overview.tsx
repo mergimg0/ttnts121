@@ -106,7 +106,7 @@ export function SessionsOverview() {
               Upcoming Sessions
             </h2>
             <p className="mt-6 text-lg text-white/70">
-              Book your child&apos;s spot in one of our upcoming sessions.
+              Book a spot in one of our upcoming sessions.
             </p>
           </div>
         </FadeInUp>
