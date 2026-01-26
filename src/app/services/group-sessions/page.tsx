@@ -9,6 +9,8 @@ import {
   Calendar,
   MapPin,
   Clock,
+  CheckCircle,
+  Heart,
 } from "lucide-react";
 import { LOCATIONS, AGE_GROUPS, SITE_CONFIG } from "@/lib/constants";
 
@@ -17,6 +19,33 @@ export const metadata: Metadata = {
   description:
     "Join our drop-in group football sessions for children ages 4-11. Make friends, build teamwork skills, and enjoy football in a fun, welcoming environment. Just £6 per session.",
 };
+
+const benefits = [
+  {
+    title: "No Commitment",
+    description:
+      "Pay as you go. Come when it suits you. Miss a week? No problem. No subscriptions, no contracts.",
+    icon: Calendar,
+  },
+  {
+    title: "Make Friends",
+    description:
+      "Football is better with mates. Our sessions are where kids find their football family.",
+    icon: Heart,
+  },
+  {
+    title: "All Welcome",
+    description:
+      "Never played? Shy? Anxious? Doesn't matter. Every child finds their place here.",
+    icon: Users,
+  },
+  {
+    title: "Fun First",
+    description:
+      "No pressure to perform. No league tables. Just games, laughter, and that feeling of being part of something.",
+    icon: CheckCircle,
+  },
+];
 
 export default function GroupSessionsPage() {
   return (
@@ -70,6 +99,36 @@ export default function GroupSessionsPage() {
               <Users className="h-5 w-5 text-brand-green" />
               <span className="font-semibold">Ages 4-11</span>
             </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* Benefits */}
+      <section className="py-20 sm:py-28">
+        <Container>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
+              Football
+              <br />
+              <span className="text-neutral-400">Made Simple</span>
+            </h2>
+            <p className="mt-6 text-lg text-neutral-600">
+              Weekly club feel without the weekly commitment.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-16 grid max-w-4xl gap-px bg-neutral-200 sm:grid-cols-2">
+            {benefits.map((benefit) => (
+              <div key={benefit.title} className="bg-white p-8">
+                <div className="mb-6 inline-flex h-12 w-12 items-center justify-center border-2 border-black">
+                  <benefit.icon className="h-5 w-5 text-black" />
+                </div>
+                <h3 className="text-lg font-bold uppercase tracking-wide text-black">
+                  {benefit.title}
+                </h3>
+                <p className="mt-3 text-neutral-600">{benefit.description}</p>
+              </div>
+            ))}
           </div>
         </Container>
       </section>
