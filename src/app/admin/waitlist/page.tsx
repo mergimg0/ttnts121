@@ -7,6 +7,7 @@ import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { AdminEmptyState } from "@/components/admin/ui/admin-empty-state";
 import { AdminBadge } from "@/components/admin/ui/admin-badge";
+import { ResponsiveTable, MobileCard, MobileCardRow } from "@/components/admin/mobile-table";
 import { Loader2, Users, Mail, Trash2, CheckCircle } from "lucide-react";
 import { WaitlistEntry, Session, Program } from "@/types/booking";
 
@@ -145,28 +146,28 @@ export default function WaitlistPage() {
       />
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <AdminCard>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+      <div className="grid gap-2 grid-cols-3">
+        <AdminCard className="p-3 lg:p-6">
+          <p className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Waiting
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
+          <p className="mt-0.5 lg:mt-1 text-lg lg:text-2xl font-semibold tabular-nums text-neutral-900">
             {pendingEntries.length}
           </p>
         </AdminCard>
-        <AdminCard>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+        <AdminCard className="p-3 lg:p-6">
+          <p className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Notified
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-600">
+          <p className="mt-0.5 lg:mt-1 text-lg lg:text-2xl font-semibold tabular-nums text-amber-600">
             {notifiedEntries.length}
           </p>
         </AdminCard>
-        <AdminCard>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+        <AdminCard className="p-3 lg:p-6">
+          <p className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Converted
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-emerald-600">
+          <p className="mt-0.5 lg:mt-1 text-lg lg:text-2xl font-semibold tabular-nums text-emerald-600">
             {convertedEntries.length}
           </p>
         </AdminCard>
@@ -180,126 +181,201 @@ export default function WaitlistPage() {
           description="When sessions are full, parents can join the waitlist"
         />
       ) : (
-        <AdminCard hover={false} padding={false}>
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-neutral-100">
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Child
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Parent
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Session
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Added
-                </th>
-                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-50">
-              {entries.map((entry) => {
-                const session = sessions[entry.sessionId];
-                const program = session ? programs[session.programId] : null;
+        <ResponsiveTable
+          mobileView={
+            entries.map((entry) => {
+              const session = sessions[entry.sessionId];
+              const program = session ? programs[session.programId] : null;
 
-                return (
-                  <tr key={entry.id} className="group hover:bg-neutral-50/50 transition-colors">
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="text-sm font-medium text-neutral-900">
-                          {entry.childFirstName} {entry.childLastName}
-                        </p>
-                        <p className="text-[13px] text-neutral-500">
-                          {entry.ageGroup}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="text-sm text-neutral-600">
-                          {entry.parentFirstName} {entry.parentLastName}
-                        </p>
-                        <p className="text-[13px] text-neutral-500">
-                          {entry.parentEmail}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div>
-                        <p className="text-sm text-neutral-600">
-                          {session?.name || "Unknown"}
-                        </p>
-                        <p className="text-[13px] text-neutral-500">
-                          {program?.name || ""}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <AdminBadge
-                        variant={
-                          entry.status === "waiting"
-                            ? "info"
-                            : entry.status === "notified"
-                              ? "warning"
-                              : "success"
-                        }
+              return (
+                <MobileCard key={entry.id}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-neutral-900">
+                        {entry.childFirstName} {entry.childLastName}
+                      </p>
+                      <p className="text-[12px] text-neutral-500">{entry.ageGroup}</p>
+                    </div>
+                    <AdminBadge
+                      variant={
+                        entry.status === "waiting"
+                          ? "info"
+                          : entry.status === "notified"
+                            ? "warning"
+                            : "success"
+                      }
+                    >
+                      {entry.status}
+                    </AdminBadge>
+                  </div>
+                  <MobileCardRow label="Parent">
+                    <span className="text-[12px]">{entry.parentEmail}</span>
+                  </MobileCardRow>
+                  <MobileCardRow label="Session">
+                    {session?.name || "Unknown"}
+                  </MobileCardRow>
+                  <MobileCardRow label="Added">
+                    {formatDate(entry.createdAt)}
+                  </MobileCardRow>
+                  <div className="pt-2 border-t border-neutral-100 flex gap-2">
+                    {entry.status === "waiting" && (
+                      <button
+                        onClick={() => handleNotify(entry)}
+                        disabled={processing === entry.id}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[12px] font-medium text-sky-600 hover:bg-sky-50 rounded-lg transition-colors disabled:opacity-50"
                       >
-                        {entry.status}
-                      </AdminBadge>
-                    </td>
-                    <td className="px-4 py-4 text-[13px] text-neutral-500">
-                      {formatDate(entry.createdAt)}
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        {entry.status === "waiting" && (
+                        {processing === entry.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Mail className="h-3.5 w-3.5" />
+                        )}
+                        Notify
+                      </button>
+                    )}
+                    {entry.status === "notified" && (
+                      <span className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[12px] font-medium text-emerald-600">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Notified
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleRemove(entry.id)}
+                      disabled={processing === entry.id}
+                      className="p-1.5 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {processing === entry.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </MobileCard>
+              );
+            })
+          }
+        >
+          <AdminCard hover={false} padding={false}>
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-neutral-100">
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Child
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Parent
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Session
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Added
+                  </th>
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-50">
+                {entries.map((entry) => {
+                  const session = sessions[entry.sessionId];
+                  const program = session ? programs[session.programId] : null;
+
+                  return (
+                    <tr key={entry.id} className="group hover:bg-neutral-50/50 transition-colors">
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="text-sm font-medium text-neutral-900">
+                            {entry.childFirstName} {entry.childLastName}
+                          </p>
+                          <p className="text-[13px] text-neutral-500">
+                            {entry.ageGroup}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="text-sm text-neutral-600">
+                            {entry.parentFirstName} {entry.parentLastName}
+                          </p>
+                          <p className="text-[13px] text-neutral-500">
+                            {entry.parentEmail}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div>
+                          <p className="text-sm text-neutral-600">
+                            {session?.name || "Unknown"}
+                          </p>
+                          <p className="text-[13px] text-neutral-500">
+                            {program?.name || ""}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <AdminBadge
+                          variant={
+                            entry.status === "waiting"
+                              ? "info"
+                              : entry.status === "notified"
+                                ? "warning"
+                                : "success"
+                          }
+                        >
+                          {entry.status}
+                        </AdminBadge>
+                      </td>
+                      <td className="px-4 py-4 text-[13px] text-neutral-500">
+                        {formatDate(entry.createdAt)}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {entry.status === "waiting" && (
+                            <button
+                              onClick={() => handleNotify(entry)}
+                              disabled={processing === entry.id}
+                              className="p-2 text-neutral-400 hover:text-sky-600 transition-colors rounded-lg hover:bg-sky-50 disabled:opacity-50"
+                              title="Send notification email"
+                            >
+                              {processing === entry.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Mail className="h-4 w-4" />
+                              )}
+                            </button>
+                          )}
+                          {entry.status === "notified" && (
+                            <span
+                              className="p-2 text-emerald-500"
+                              title="Already notified"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </span>
+                          )}
                           <button
-                            onClick={() => handleNotify(entry)}
+                            onClick={() => handleRemove(entry.id)}
                             disabled={processing === entry.id}
-                            className="p-2 text-neutral-400 hover:text-sky-600 transition-colors rounded-lg hover:bg-sky-50 disabled:opacity-50"
-                            title="Send notification email"
+                            className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
                           >
                             {processing === entry.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <Mail className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             )}
                           </button>
-                        )}
-                        {entry.status === "notified" && (
-                          <span
-                            className="p-2 text-emerald-500"
-                            title="Already notified"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </span>
-                        )}
-                        <button
-                          onClick={() => handleRemove(entry.id)}
-                          disabled={processing === entry.id}
-                          className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
-                        >
-                          {processing === entry.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </AdminCard>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </AdminCard>
+        </ResponsiveTable>
       )}
     </div>
   );

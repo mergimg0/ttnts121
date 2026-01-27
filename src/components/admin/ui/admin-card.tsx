@@ -17,12 +17,12 @@ export function AdminCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl bg-white",
+        "group relative overflow-hidden rounded-xl lg:rounded-2xl bg-white",
         "border border-neutral-200/60",
         "shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
         hover && "hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)]",
         "transition-all duration-300 ease-out",
-        padding && "p-6",
+        padding && "p-4 lg:p-6",
         className
       )}
     >
@@ -44,10 +44,10 @@ export function AdminCardStatic({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-white",
+        "rounded-xl lg:rounded-2xl bg-white",
         "border border-neutral-200/60",
         "shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
-        padding && "p-6",
+        padding && "p-4 lg:p-6",
         className
       )}
     >

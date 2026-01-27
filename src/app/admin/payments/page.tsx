@@ -75,9 +75,9 @@ export default function PaymentsPage() {
         </div>
 
         {/* Revenue Cards Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-36 bg-neutral-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-24 lg:h-36 bg-neutral-100 rounded-xl lg:rounded-2xl animate-pulse" />
           ))}
         </div>
 
@@ -104,7 +104,7 @@ export default function PaymentsPage() {
         </p>
         <button
           onClick={() => fetchData()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-navy text-white text-sm font-medium hover:bg-navy-deep transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
           Try Again
@@ -149,7 +149,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Revenue Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4">
         <RevenueCard
           title="Today"
           value={formatPrice(data.revenue.today)}

@@ -7,6 +7,8 @@ import { TableSkeleton } from "@/components/ui/skeleton";
 import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { AdminEmptyState } from "@/components/admin/ui/admin-empty-state";
 import { AdminTable, AdminTableHead, AdminTableHeader, AdminTableBody, AdminTableRow, AdminTableCell } from "@/components/admin/ui/admin-table";
+import { ResponsiveTable, MobileCard, MobileCardRow } from "@/components/admin/mobile-table";
+import { AdminBadge } from "@/components/admin/ui/admin-badge";
 import { Edit, Trash2, Calendar, Users, Loader2 } from "lucide-react";
 import { Session, Program } from "@/types/booking";
 import { formatPrice, formatTime, getDayName } from "@/lib/booking-utils";
@@ -105,54 +107,32 @@ export default function SessionsPage() {
           }
         />
       ) : (
-        <AdminTable>
-          <AdminTableHead>
-            <tr>
-              <AdminTableHeader>Session</AdminTableHeader>
-              <AdminTableHeader>Program</AdminTableHeader>
-              <AdminTableHeader>Schedule</AdminTableHeader>
-              <AdminTableHeader>Capacity</AdminTableHeader>
-              <AdminTableHeader>Price</AdminTableHeader>
-              <AdminTableHeader className="text-right">Actions</AdminTableHeader>
-            </tr>
-          </AdminTableHead>
-          <AdminTableBody>
-            {sessions.map((session) => {
+        <ResponsiveTable
+          mobileView={
+            sessions.map((session) => {
               const program = programs[session.programId];
               const capacityPercent = Math.round(
                 (session.enrolled / session.capacity) * 100
               );
 
               return (
-                <AdminTableRow key={session.id}>
-                  <AdminTableCell>
+                <MobileCard key={session.id}>
+                  <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-medium text-neutral-900">{session.name}</p>
-                      <p className="text-[13px] text-neutral-500">
+                      <p className="font-medium text-neutral-900">{session.name}</p>
+                      <p className="text-[12px] text-neutral-500">
                         Ages {session.ageMin}-{session.ageMax}
                       </p>
                     </div>
-                  </AdminTableCell>
-                  <AdminTableCell>
-                    <p className="text-sm text-neutral-600">
-                      {program?.name || "Unknown"}
-                    </p>
-                  </AdminTableCell>
-                  <AdminTableCell>
-                    <p className="text-sm text-neutral-900">
-                      {getDayName(session.dayOfWeek)}
-                    </p>
-                    <p className="text-[13px] text-neutral-500">
-                      {formatTime(session.startTime)} - {formatTime(session.endTime)}
-                    </p>
-                  </AdminTableCell>
-                  <AdminTableCell>
+                    <AdminBadge variant="info">{program?.name || "Unknown"}</AdminBadge>
+                  </div>
+                  <MobileCardRow label="Schedule">
+                    {getDayName(session.dayOfWeek)}, {formatTime(session.startTime)}
+                  </MobileCardRow>
+                  <MobileCardRow label="Capacity">
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-neutral-400" />
-                      <span className="text-sm tabular-nums">
-                        {session.enrolled}/{session.capacity}
-                      </span>
-                      <div className="w-16 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                      <span className="tabular-nums">{session.enrolled}/{session.capacity}</span>
+                      <div className="w-10 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             capacityPercent >= 90
@@ -165,38 +145,127 @@ export default function SessionsPage() {
                         />
                       </div>
                     </div>
-                  </AdminTableCell>
-                  <AdminTableCell>
-                    <span className="text-sm font-semibold tabular-nums text-neutral-900">
-                      {formatPrice(session.price)}
-                    </span>
-                  </AdminTableCell>
-                  <AdminTableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link
-                        href={`/admin/sessions/${session.id}`}
-                        className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors rounded-lg hover:bg-neutral-100"
-                      >
-                        <Edit className="h-4 w-4" />
+                  </MobileCardRow>
+                  <MobileCardRow label="Price">
+                    <span className="font-semibold">{formatPrice(session.price)}</span>
+                  </MobileCardRow>
+                  <div className="pt-2 border-t border-neutral-100 flex gap-2">
+                    <Button variant="adminSecondary" size="sm" asChild className="flex-1 h-8">
+                      <Link href={`/admin/sessions/${session.id}`}>
+                        <Edit className="h-3.5 w-3.5 mr-1" />
+                        Edit
                       </Link>
-                      <button
-                        onClick={() => handleDelete(session.id)}
-                        disabled={deleting === session.id}
-                        className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
-                      >
-                        {deleting === session.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </AdminTableCell>
-                </AdminTableRow>
+                    </Button>
+                    <button
+                      onClick={() => handleDelete(session.id)}
+                      disabled={deleting === session.id}
+                      className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
+                    >
+                      {deleting === session.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </MobileCard>
               );
-            })}
-          </AdminTableBody>
-        </AdminTable>
+            })
+          }
+        >
+          <AdminTable>
+            <AdminTableHead>
+              <tr>
+                <AdminTableHeader>Session</AdminTableHeader>
+                <AdminTableHeader>Program</AdminTableHeader>
+                <AdminTableHeader>Schedule</AdminTableHeader>
+                <AdminTableHeader>Capacity</AdminTableHeader>
+                <AdminTableHeader>Price</AdminTableHeader>
+                <AdminTableHeader className="text-right">Actions</AdminTableHeader>
+              </tr>
+            </AdminTableHead>
+            <AdminTableBody>
+              {sessions.map((session) => {
+                const program = programs[session.programId];
+                const capacityPercent = Math.round(
+                  (session.enrolled / session.capacity) * 100
+                );
+
+                return (
+                  <AdminTableRow key={session.id}>
+                    <AdminTableCell>
+                      <div>
+                        <p className="text-sm font-medium text-neutral-900">{session.name}</p>
+                        <p className="text-[13px] text-neutral-500">
+                          Ages {session.ageMin}-{session.ageMax}
+                        </p>
+                      </div>
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <p className="text-sm text-neutral-600">
+                        {program?.name || "Unknown"}
+                      </p>
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <p className="text-sm text-neutral-900">
+                        {getDayName(session.dayOfWeek)}
+                      </p>
+                      <p className="text-[13px] text-neutral-500">
+                        {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                      </p>
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-neutral-400" />
+                        <span className="text-sm tabular-nums">
+                          {session.enrolled}/{session.capacity}
+                        </span>
+                        <div className="w-16 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${
+                              capacityPercent >= 90
+                                ? "bg-red-500"
+                                : capacityPercent >= 70
+                                  ? "bg-amber-500"
+                                  : "bg-emerald-500"
+                            }`}
+                            style={{ width: `${capacityPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </AdminTableCell>
+                    <AdminTableCell>
+                      <span className="text-sm font-semibold tabular-nums text-neutral-900">
+                        {formatPrice(session.price)}
+                      </span>
+                    </AdminTableCell>
+                    <AdminTableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/admin/sessions/${session.id}`}
+                          className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors rounded-lg hover:bg-neutral-100"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(session.id)}
+                          disabled={deleting === session.id}
+                          className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
+                        >
+                          {deleting === session.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </AdminTableCell>
+                  </AdminTableRow>
+                );
+              })}
+            </AdminTableBody>
+          </AdminTable>
+        </ResponsiveTable>
       )}
     </div>
   );

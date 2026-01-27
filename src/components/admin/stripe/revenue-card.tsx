@@ -26,7 +26,7 @@ export function RevenueCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl bg-white p-6",
+        "group relative overflow-hidden rounded-xl lg:rounded-2xl bg-white p-3 lg:p-6",
         "border border-neutral-200/60",
         "shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
         "hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)]",
@@ -39,28 +39,28 @@ export function RevenueCard({
 
       <div className="relative">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[13px] font-medium text-neutral-500 tracking-wide">
+        <div className="flex items-center justify-between mb-2 lg:mb-4">
+          <span className="text-[11px] lg:text-[13px] font-medium text-neutral-500 tracking-wide">
             {title}
           </span>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-neutral-50 group-hover:bg-sky-50 transition-colors">
-            <Icon className="h-[18px] w-[18px] text-neutral-400 group-hover:text-sky-500 transition-colors" />
+          <div className="flex h-6 w-6 lg:h-9 lg:w-9 items-center justify-center rounded-lg lg:rounded-xl bg-neutral-50 group-hover:bg-sky-50 transition-colors">
+            <Icon className="h-3.5 w-3.5 lg:h-[18px] lg:w-[18px] text-neutral-400 group-hover:text-sky-500 transition-colors" />
           </div>
         </div>
 
         {/* Value */}
-        <div className="mb-1">
-          <span className="text-[32px] font-semibold tracking-tight text-neutral-900 tabular-nums">
+        <div className="mb-0.5 lg:mb-1">
+          <span className="text-lg lg:text-[32px] font-semibold tracking-tight text-neutral-900 tabular-nums">
             {value}
           </span>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 lg:gap-2">
           {change && (
             <span
               className={cn(
-                "inline-flex items-center text-[13px] font-medium tabular-nums",
+                "inline-flex items-center text-[11px] lg:text-[13px] font-medium tabular-nums",
                 change.positive ? "text-emerald-600" : "text-red-500"
               )}
             >
@@ -68,7 +68,7 @@ export function RevenueCard({
             </span>
           )}
           {subtitle && (
-            <span className="text-[13px] text-neutral-400">
+            <span className="text-[10px] lg:text-[13px] text-neutral-400">
               {subtitle}
             </span>
           )}

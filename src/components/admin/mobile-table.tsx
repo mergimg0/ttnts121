@@ -12,7 +12,7 @@ export function MobileCard({ children, className }: MobileCardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-neutral-200/60 bg-white p-4 space-y-3",
+        "rounded-xl border border-neutral-200/60 bg-white p-3 space-y-2",
         "shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
         className
       )}

@@ -14,6 +14,7 @@ import {
   Settings,
   Menu,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -103,7 +104,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-neutral-900 text-white shadow-sm"
+                  ? "bg-navy text-white shadow-sm"
                   : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
               )}
             >
@@ -112,6 +113,18 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             </Link>
           );
         })}
+
+        {/* Back to Site - Mobile Only */}
+        <div className="lg:hidden pt-4 mt-4 border-t border-neutral-100">
+          <Link
+            href="/"
+            onClick={onClose}
+            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 transition-all duration-200"
+          >
+            <ArrowLeft className="h-[18px] w-[18px]" />
+            Back to Site
+          </Link>
+        </div>
       </nav>
 
       {/* Footer */}

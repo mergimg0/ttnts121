@@ -107,7 +107,7 @@ export default function BookingsPage() {
             onClick={() => setFilter(status)}
             className={`px-4 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
               filter === status
-                ? "bg-neutral-900 text-white shadow-sm"
+                ? "bg-navy text-white shadow-sm"
                 : "bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300"
             }`}
           >
