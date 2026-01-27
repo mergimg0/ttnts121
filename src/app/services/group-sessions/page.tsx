@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
-import { SessionList } from "@/components/sessions/session-list";
 import {
   ArrowRight,
   Users,
@@ -12,7 +11,7 @@ import {
   CheckCircle,
   Heart,
 } from "lucide-react";
-import { LOCATIONS, AGE_GROUPS, SITE_CONFIG } from "@/lib/constants";
+import { LOCATIONS, AGE_GROUPS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Group Sessions | Drop-In Football Fun",
@@ -51,7 +50,7 @@ export default function GroupSessionsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
@@ -104,13 +103,13 @@ export default function GroupSessionsPage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Football
               <br />
-              <span className="text-neutral-400">Made Simple</span>
+              <span className="text-navy">Made Simple</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Weekly club feel without the weekly commitment.
@@ -134,13 +133,13 @@ export default function GroupSessionsPage() {
       </section>
 
       {/* Age Groups */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Age
               <br />
-              <span className="text-neutral-400">Groups</span>
+              <span className="text-navy">Groups</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Sessions are split by age so every child plays with others at their level.
@@ -171,26 +170,14 @@ export default function GroupSessionsPage() {
         </Container>
       </section>
 
-      {/* Available Sessions */}
-      <section className="py-20 sm:py-28">
-        <Container>
-          <SessionList
-            serviceType="group-session"
-            title="Available Sessions"
-            subtitle="Find and book your drop-in session"
-            maxSessions={6}
-          />
-        </Container>
-      </section>
-
       {/* Locations */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Where We
               <br />
-              <span className="text-neutral-400">Run Sessions</span>
+              <span className="text-navy">Run Sessions</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Multiple locations across Bedfordshire. Find one near you.
@@ -204,7 +191,7 @@ export default function GroupSessionsPage() {
                 href={`/locations#${location.id}`}
                 className="group border border-neutral-200 bg-white p-6 text-center transition-all hover:border-black hover:shadow-lg"
               >
-                <MapPin className="mx-auto h-8 w-8 text-neutral-400 transition-colors group-hover:text-black" />
+                <MapPin className="mx-auto h-8 w-8 text-navy transition-colors group-hover:text-black" />
                 <h3 className="mt-4 font-bold uppercase tracking-wide text-black">
                   {location.name}
                 </h3>
@@ -217,43 +204,6 @@ export default function GroupSessionsPage() {
         </Container>
       </section>
 
-      {/* CTA */}
-      <section className="bg-navy py-20 sm:py-28">
-        <Container>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Ready To
-              <br />
-              <span className="text-sky">Join In?</span>
-            </h2>
-            <p className="mt-6 text-lg text-white/70">
-              Book a session, turn up, and let them play. It really is that simple.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="bg-white text-black hover:bg-neutral-200 rounded-none uppercase tracking-wider font-semibold"
-                asChild
-              >
-                <Link href="/book?service=group-sessions">
-                  Book Group Session
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="border-white/30 bg-transparent text-white hover:bg-white/10"
-                asChild
-              >
-                <a href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}>
-                  Questions? Call Us
-                </a>
-              </Button>
-            </div>
-          </div>
-        </Container>
-      </section>
     </>
   );
 }

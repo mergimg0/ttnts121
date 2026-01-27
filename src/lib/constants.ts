@@ -306,6 +306,7 @@ export const ABOUT_NAV = [
   { href: "/about", label: "About Us" },
   { href: "/locations", label: "Locations" },
   { href: "/schools", label: "Schools" },
+  { href: "/gallery", label: "Gallery" },
 ];
 
 // Services navigation items (for dropdown)

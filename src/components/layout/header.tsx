@@ -65,23 +65,23 @@ export function Header() {
     >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-2 lg:gap-3 group min-w-0">
           <Image
             src="/logo.png"
             alt="Take The Next Step 121 Coaching"
             width={180}
             height={60}
-            className="h-10 sm:h-14 lg:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+            className="h-10 sm:h-12 lg:h-14 w-auto object-contain transition-transform group-hover:scale-105 flex-shrink-0"
             priority
           />
-          <span className="font-bold text-base sm:text-lg lg:hidden text-foreground leading-tight">
+          <span className="font-bold text-sm sm:text-base lg:text-lg text-foreground leading-tight whitespace-nowrap">
             Take The Next Step
             <span className="text-sky"> 121</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex lg:items-center lg:gap-6">
+        <nav className="hidden lg:flex lg:items-center lg:gap-4 xl:gap-6">
           {/* Home link */}
           <Link
             href="/"
@@ -207,22 +207,30 @@ export function Header() {
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden items-center gap-6 lg:flex">
+        <div className="hidden items-center gap-3 xl:gap-6 lg:flex">
           <a
             href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}
             className="flex items-center gap-2 text-sm font-medium text-foreground-muted hover:text-foreground transition-colors"
+            title={SITE_CONFIG.phone}
           >
-            <Phone className="h-4 w-4" />
-            {SITE_CONFIG.phone}
+            <Phone className="h-4 w-4 flex-shrink-0" />
+            <span className="hidden xl:inline">{SITE_CONFIG.phone}</span>
           </a>
           <CartButton />
-          <Button asChild>
+          <Button asChild size="sm" className="lg:text-xs xl:text-sm">
             <Link href="/sessions">Book Now</Link>
           </Button>
         </div>
 
-        {/* Mobile: Cart + Menu Button */}
-        <div className="flex items-center gap-2 lg:hidden">
+        {/* Mobile: Phone + Cart + Menu Button */}
+        <div className="flex items-center gap-1 lg:hidden">
+          <a
+            href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}
+            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            aria-label="Call us"
+          >
+            <Phone className="h-5 w-5 text-foreground" />
+          </a>
           <CartButton />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}

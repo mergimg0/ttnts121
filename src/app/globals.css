@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm backgrounds - subtle cream for approachability */
-  --background: #FEFCF9;
-  --background-alt: #F8F6F3;
+  /* Clean white backgrounds */
+  --background: #FFFFFF;
+  --background-alt: #F9FAFB;
 
   /* Text colors */
   --foreground: #1A1A1A;
@@ -161,4 +161,21 @@ html {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* Instagram embed styling */
+.instagram-embed-container {
+  display: flex;
+  justify-content: center;
+}
+
+.instagram-embed-container iframe {
+  max-width: 100% !important;
+  min-width: 100% !important;
+  width: 100% !important;
+}
+
+.instagram-media {
+  max-width: 100% !important;
+  min-width: 100% !important;
 }

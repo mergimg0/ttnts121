@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Archivo_Black, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { SITE_CONFIG } from "@/lib/constants";
-import { CartProvider } from "@/components/cart/cart-provider";
+import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 
 const archivoBlack = Archivo_Black({
   weight: "400",
@@ -112,11 +110,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-white font-sans antialiased">
-        <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-        </CartProvider>
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );

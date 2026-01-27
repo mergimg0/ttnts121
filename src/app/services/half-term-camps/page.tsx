@@ -92,7 +92,7 @@ export default function HalfTermCampsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
@@ -155,13 +155,13 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* What's Included */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               What&apos;s
               <br />
-              <span className="text-neutral-400">Included</span>
+              <span className="text-navy">Included</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Everything they need for an unforgettable week.
@@ -183,7 +183,7 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* Available Camps */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <SessionList
             serviceType="half-term"
@@ -195,13 +195,13 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Camp
               <br />
-              <span className="text-neutral-400">Pricing</span>
+              <span className="text-navy">Pricing</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Flexible options to fit your schedule and budget.
@@ -262,13 +262,13 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* A Day at Camp */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               A Day At
               <br />
-              <span className="text-neutral-400">Camp</span>
+              <span className="text-navy">Camp</span>
             </h2>
           </div>
 
@@ -300,13 +300,13 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Camp
               <br />
-              <span className="text-neutral-400">Questions</span>
+              <span className="text-navy">Questions</span>
             </h2>
           </div>
 
@@ -322,7 +322,7 @@ export default function HalfTermCampsPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">

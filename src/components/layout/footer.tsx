@@ -97,26 +97,23 @@ export function Footer() {
               <h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
                 Contact
               </h3>
-              <ul className="mt-6 space-y-4">
-                <li>
-                  <a
-                    href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}
-                    className="flex items-center gap-2 text-sm text-neutral-400 hover:text-grass transition-colors"
-                  >
-                    <Phone className="h-4 w-4" />
-                    {SITE_CONFIG.phone}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={`mailto:${SITE_CONFIG.email}`}
-                    className="flex items-center gap-2 text-sm text-neutral-400 hover:text-grass transition-colors"
-                  >
-                    <Mail className="h-4 w-4" />
-                    {SITE_CONFIG.email}
-                  </a>
-                </li>
-              </ul>
+              <div className="mt-6 flex flex-row flex-wrap gap-4 sm:gap-6">
+                <a
+                  href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}
+                  className="flex items-center gap-2 text-sm text-neutral-400 hover:text-grass transition-colors"
+                >
+                  <Phone className="h-4 w-4 flex-shrink-0" />
+                  {SITE_CONFIG.phone}
+                </a>
+                <a
+                  href={`mailto:${SITE_CONFIG.email}`}
+                  className="flex items-center gap-2 text-sm text-neutral-400 hover:text-grass transition-colors"
+                >
+                  <Mail className="h-4 w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{SITE_CONFIG.email}</span>
+                  <span className="sm:hidden">Email</span>
+                </a>
+              </div>
               <div className="mt-8">
                 <h4 className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
                   Credentials

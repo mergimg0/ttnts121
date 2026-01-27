@@ -14,7 +14,7 @@ export function LocationsPreview() {
         <FadeInUp>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-3xl tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Closer Than You Think
+              Our Locations
             </h2>
             <p className="mt-6 text-lg text-foreground-muted">
               Three locations across Bedfordshire. All with easy parking.

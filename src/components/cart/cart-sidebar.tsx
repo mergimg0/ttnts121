@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { ShoppingCart, X, Trash2, ArrowRight } from "lucide-react";
@@ -16,10 +16,11 @@ export function CartButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="relative flex items-center gap-2 px-3 py-2 text-navy hover:text-navy-deep transition-colors"
+        className="relative flex items-center gap-2 px-2 py-2 text-navy hover:text-navy-deep transition-colors"
+        title="Shopping Cart"
       >
-        <ShoppingCart className="h-5 w-5" strokeWidth={2} />
-        <span className="hidden sm:inline text-sm font-semibold">Cart</span>
+        <ShoppingCart className="h-5 w-5 flex-shrink-0" strokeWidth={2} />
+        <span className="hidden xl:inline text-sm font-semibold">Cart</span>
         {itemCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-navy text-white text-xs font-bold">
             {itemCount}
@@ -40,6 +41,18 @@ interface CartSidebarProps {
 export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
   const { items, removeItem, clearCart, getTotal } = useCart();
 
+  // Lock body scroll when cart is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -59,7 +72,7 @@ export function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-xl"
+            className="fixed inset-y-0 right-0 w-full max-w-md bg-white z-50 shadow-xl overflow-hidden"
           >
             <div className="flex h-full flex-col">
               {/* Header */}

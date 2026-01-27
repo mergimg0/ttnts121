@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { FadeInUp } from "@/lib/motion";
-import { Phone, Mail, ArrowRight } from "lucide-react";
+import { Phone, Mail, ArrowRight, MapPin } from "lucide-react";
 import { SITE_CONFIG } from "@/lib/constants";
 
 export function CTA() {
@@ -20,10 +20,6 @@ export function CTA() {
               <p className="mt-6 text-lg text-white/70">
                 No joining fee. No long-term commitment. Just football
                 and coaches who genuinely care.
-              </p>
-
-              <p className="mt-6 text-sm text-white/50">
-                Pay as you go · Cancel anytime · Full refund guarantee
               </p>
 
               <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -46,21 +42,26 @@ export function CTA() {
                 </Button>
               </div>
 
-              <div className="mt-12 flex flex-col items-center justify-center gap-6 border-t border-white/10 pt-10 sm:flex-row sm:gap-12">
+              <div className="mt-12 flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-6 border-t border-white/10 pt-10">
                 <a
                   href={`tel:${SITE_CONFIG.phone.replace(/\s/g, "")}`}
-                  className="flex items-center gap-3 text-white/60 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-white/60 hover:text-white transition-colors"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
                   <span>{SITE_CONFIG.phone}</span>
                 </a>
                 <a
                   href={`mailto:${SITE_CONFIG.email}`}
-                  className="flex items-center gap-3 text-white/60 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-white/60 hover:text-white transition-colors"
                 >
-                  <Mail className="h-4 w-4" />
-                  <span>{SITE_CONFIG.email}</span>
+                  <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{SITE_CONFIG.email}</span>
+                  <span className="sm:hidden">Email</span>
                 </a>
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-white/60">
+                  <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span>Luton · Barton · Silsoe</span>
+                </span>
               </div>
             </div>
           </div>

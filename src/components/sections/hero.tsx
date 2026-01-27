@@ -60,9 +60,6 @@ export function Hero() {
                   <Link href="/sessions">See Session Times</Link>
                 </Button>
               </div>
-              <p className="mt-3 text-sm text-foreground-muted">
-                No commitment required. Full refund if your child doesn&apos;t love it.
-              </p>
             </FadeInUp>
           </div>
 

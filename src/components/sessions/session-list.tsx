@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   Check,
   Bell,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
@@ -98,10 +99,16 @@ export function SessionList({
     return LOCATIONS.find((l) => l.id === id)?.name || id;
   };
 
+  const getStatusText = (session: SessionWithProgram) => {
+    if (session.availabilityStatus === "full") return "Full";
+    if (session.availabilityStatus === "limited") return `${session.spotsLeft} spots`;
+    return "Available";
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+        <Loader2 className="h-8 w-8 animate-spin text-navy" />
       </div>
     );
   }
@@ -147,7 +154,7 @@ export function SessionList({
           <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
             {title.split(" ").slice(0, -1).join(" ")}
             <br />
-            <span className="text-neutral-400">{title.split(" ").slice(-1)}</span>
+            <span className="text-navy">{title.split(" ").slice(-1)}</span>
           </h2>
           {subtitle && (
             <p className="mt-4 text-lg text-neutral-600">{subtitle}</p>
@@ -156,97 +163,86 @@ export function SessionList({
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {sessions.map((session, index) => (
-          <motion.div
-            key={session.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className="border border-neutral-200 bg-white p-6 hover:border-black transition-colors"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-bold text-lg text-black">{session.name}</h3>
+        {sessions.map((session, index) => {
+          const inCart = isInCart(session.id);
+          const isFull = session.availabilityStatus === "full";
+
+          return (
+            <motion.div
+              key={session.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={`bg-white rounded-xl border border-neutral-200 p-5 shadow-sm hover:shadow-md transition-shadow ${isFull ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="font-semibold text-lg text-black">{session.name}</h3>
+                  {session.program && (
+                    <p className="text-sm text-neutral-500 mt-0.5">{session.program.name}</p>
+                  )}
+                </div>
+                <p className="text-lg font-bold text-navy">{formatPrice(session.price)}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm text-neutral-600 mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-navy" />
+                  <span>{getDayName(session.dayOfWeek)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-navy" />
+                  <span>{session.startTime}</span>
+                </div>
                 {session.program && (
-                  <p className="text-sm text-neutral-500">{session.program.name}</p>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-navy" />
+                    <span>{getLocationName(session.program.location)}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-navy" />
+                  <span>Ages {session.ageMin}–{session.ageMax}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
+                <p className={`text-sm ${isFull ? "text-navy" : "text-neutral-500"}`}>
+                  {getStatusText(session)}
+                </p>
+                {isFull && session.waitlistEnabled ? (
+                  <Button
+                    onClick={() => setWaitlistSession(session)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    <Bell className="mr-1.5 h-4 w-4" />
+                    Waitlist
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => handleAddToCart(session)}
+                    disabled={isFull}
+                    variant={inCart ? "secondary" : "primary"}
+                    size="sm"
+                  >
+                    {inCart ? (
+                      <>
+                        <Check className="mr-1.5 h-4 w-4" />
+                        Added
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="mr-1.5 h-4 w-4" />
+                        Add
+                      </>
+                    )}
+                  </Button>
                 )}
               </div>
-              <span
-                className={`px-2 py-0.5 text-xs font-bold uppercase ${
-                  session.availabilityStatus === "full"
-                    ? "bg-red-100 text-red-700"
-                    : session.availabilityStatus === "limited"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-green-100 text-green-700"
-                }`}
-              >
-                {session.availabilityStatus === "full"
-                  ? "Full"
-                  : session.availabilityStatus === "limited"
-                    ? `${session.spotsLeft} left`
-                    : "Available"}
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-2 text-sm text-neutral-500">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span>{getDayName(session.dayOfWeek)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                <span>
-                  {session.startTime} - {session.endTime}
-                </span>
-              </div>
-              {session.program && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{getLocationName(session.program.location)}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                <span>
-                  Ages {session.ageMin}-{session.ageMax}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-between">
-              <span className="text-xl font-bold">{formatPrice(session.price)}</span>
-              {session.availabilityStatus === "full" && session.waitlistEnabled ? (
-                <Button
-                  onClick={() => setWaitlistSession(session)}
-                  variant="secondary"
-                  size="sm"
-                >
-                  <Bell className="mr-2 h-4 w-4" />
-                  Waitlist
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handleAddToCart(session)}
-                  disabled={session.availabilityStatus === "full"}
-                  variant={isInCart(session.id) ? "secondary" : "primary"}
-                  size="sm"
-                >
-                  {isInCart(session.id) ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" />
-                      In Cart
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      Add
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       {showViewAll && sessions.length >= maxSessions && (
@@ -254,6 +250,7 @@ export function SessionList({
           <Button asChild variant="secondary">
             <Link href={`/sessions?serviceType=${serviceType}`}>
               View All Sessions
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

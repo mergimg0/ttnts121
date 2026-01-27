@@ -85,7 +85,7 @@ export default function BirthdayPartiesPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
@@ -128,13 +128,13 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* What's Included */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Every Party
               <br />
-              <span className="text-neutral-400">Includes</span>
+              <span className="text-navy">Includes</span>
             </h2>
           </div>
 
@@ -184,13 +184,13 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* Venue Options */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Two Ways
               <br />
-              <span className="text-neutral-400">To Party</span>
+              <span className="text-navy">To Party</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Choose what works best for your family.
@@ -230,13 +230,13 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Party Day
               <br />
-              <span className="text-neutral-400">Rundown</span>
+              <span className="text-navy">Rundown</span>
             </h2>
           </div>
 
@@ -296,7 +296,7 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* Testimonial */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl border border-neutral-200 bg-white p-8 sm:p-12">
             <div className="text-center">
@@ -322,13 +322,13 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Party
               <br />
-              <span className="text-neutral-400">Questions</span>
+              <span className="text-navy">Questions</span>
             </h2>
           </div>
 
@@ -344,7 +344,7 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* Inquiry Form */}
-      <section className="py-20 sm:py-28" id="inquiry">
+      <section className="py-16 sm:py-20" id="inquiry">
         <Container>
           <div className="mx-auto max-w-2xl">
             <BirthdayInquiryForm />
@@ -353,7 +353,7 @@ export default function BirthdayPartiesPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">

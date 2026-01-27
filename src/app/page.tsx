@@ -13,11 +13,6 @@ const Testimonials = dynamic(
   { ssr: true }
 );
 
-const LocationsPreview = dynamic(
-  () => import("@/components/sections/locations-preview").then((mod) => mod.LocationsPreview),
-  { ssr: true }
-);
-
 const CTA = dynamic(
   () => import("@/components/sections/cta").then((mod) => mod.CTA),
   { ssr: true }
@@ -51,9 +46,6 @@ export default function Home() {
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <Testimonials />
-      </Suspense>
-      <Suspense fallback={<SectionSkeleton />}>
-        <LocationsPreview />
       </Suspense>
       <Suspense fallback={<SectionSkeleton />}>
         <CTA />

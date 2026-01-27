@@ -108,7 +108,7 @@ export default function AfterSchoolClubsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
@@ -171,13 +171,13 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Why Parents
               <br />
-              <span className="text-neutral-400">Love It</span>
+              <span className="text-navy">Love It</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Not just childcare. Proper coaching that happens to be convenient.
@@ -201,13 +201,13 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* What to Expect */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               A Typical
               <br />
-              <span className="text-neutral-400">Session</span>
+              <span className="text-navy">Session</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               One hour of structured fun. Every minute counts.
@@ -233,7 +233,7 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* Available Sessions */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <SessionList
             serviceType="after-school"
@@ -245,13 +245,13 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* Locations */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Where We
               <br />
-              <span className="text-neutral-400">Run Clubs</span>
+              <span className="text-navy">Run Clubs</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Currently running at schools across these areas.
@@ -266,7 +266,7 @@ export default function AfterSchoolClubsPage() {
                 key={location.id}
                 className="border border-neutral-200 bg-white p-6 text-center"
               >
-                <School className="mx-auto h-8 w-8 text-neutral-400" />
+                <School className="mx-auto h-8 w-8 text-navy" />
                 <h3 className="mt-4 font-bold uppercase tracking-wide text-black">
                   {location.name}
                 </h3>
@@ -288,13 +288,13 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* What's Included */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Every Session
               <br />
-              <span className="text-neutral-400">Includes</span>
+              <span className="text-navy">Includes</span>
             </h2>
           </div>
 
@@ -322,13 +322,13 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Common
               <br />
-              <span className="text-neutral-400">Questions</span>
+              <span className="text-navy">Questions</span>
             </h2>
           </div>
 
@@ -344,7 +344,7 @@ export default function AfterSchoolClubsPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">

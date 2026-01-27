@@ -113,7 +113,7 @@ export default function OneToOnePage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
@@ -156,13 +156,13 @@ export default function OneToOnePage() {
       </section>
 
       {/* Benefits */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               The 1:1
               <br />
-              <span className="text-neutral-400">Difference</span>
+              <span className="text-navy">Difference</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Group sessions are great for fun. Private sessions are where
@@ -187,7 +187,7 @@ export default function OneToOnePage() {
       </section>
 
       {/* Available Sessions */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <SessionList
             serviceType="one-to-one"
@@ -199,13 +199,13 @@ export default function OneToOnePage() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Simple Pricing
               <br />
-              <span className="text-neutral-400">No Surprises</span>
+              <span className="text-navy">No Surprises</span>
             </h2>
             <p className="mt-6 text-lg text-neutral-600">
               Try a single session or save with a package. No contracts. No commitments.
@@ -271,13 +271,13 @@ export default function OneToOnePage() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 sm:py-28">
+      <section className="py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               How It
               <br />
-              <span className="text-neutral-400">Works</span>
+              <span className="text-navy">Works</span>
             </h2>
           </div>
 
@@ -307,13 +307,13 @@ export default function OneToOnePage() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-neutral-50 py-20 sm:py-28">
+      <section className="bg-neutral-50 py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-black sm:text-4xl">
               Questions?
               <br />
-              <span className="text-neutral-400">We&apos;ve Got Answers</span>
+              <span className="text-navy">We&apos;ve Got Answers</span>
             </h2>
           </div>
 
@@ -329,7 +329,7 @@ export default function OneToOnePage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-navy py-20 sm:py-28">
+      <section className="bg-navy py-16 sm:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">
