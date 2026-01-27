@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TableSkeleton } from "@/components/ui/skeleton";
+import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
+import { AdminCard } from "@/components/admin/ui/admin-card";
+import { AdminEmptyState } from "@/components/admin/ui/admin-empty-state";
+import { AdminBadge } from "@/components/admin/ui/admin-badge";
 import { Loader2, Users, Mail, Trash2, CheckCircle } from "lucide-react";
 import { WaitlistEntry, Session, Program } from "@/types/booking";
 
@@ -117,15 +121,11 @@ export default function WaitlistPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-wide text-black">
-              Waitlist
-            </h1>
-            <p className="text-neutral-500">Loading...</p>
-          </div>
-        </div>
+      <div className="space-y-8">
+        <AdminPageHeader
+          title="Waitlist"
+          subtitle="Loading..."
+        />
         <TableSkeleton rows={6} columns={6} />
       </div>
     );
@@ -137,140 +137,133 @@ export default function WaitlistPage() {
   const convertedEntries = entries.filter((e) => e.status === "converted");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-black uppercase tracking-wide text-black">
-          Waitlist
-        </h1>
-        <p className="text-neutral-500">
-          {entries.length} total entries • {pendingEntries.length} waiting
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Waitlist"
+        subtitle={`${entries.length} total entries • ${pendingEntries.length} waiting`}
+      />
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="border border-neutral-200 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+        <AdminCard>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Waiting
           </p>
-          <p className="mt-1 text-2xl font-bold text-black">
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
             {pendingEntries.length}
           </p>
-        </div>
-        <div className="border border-neutral-200 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+        </AdminCard>
+        <AdminCard>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Notified
           </p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600">
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-600">
             {notifiedEntries.length}
           </p>
-        </div>
-        <div className="border border-neutral-200 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+        </AdminCard>
+        <AdminCard>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
             Converted
           </p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-emerald-600">
             {convertedEntries.length}
           </p>
-        </div>
+        </AdminCard>
       </div>
 
       {/* Waitlist Entries */}
       {entries.length === 0 ? (
-        <div className="border border-neutral-200 bg-white p-12 text-center">
-          <Users className="mx-auto h-12 w-12 text-neutral-300" />
-          <h3 className="mt-4 font-bold text-black">No waitlist entries</h3>
-          <p className="mt-2 text-neutral-500">
-            When sessions are full, parents can join the waitlist
-          </p>
-        </div>
+        <AdminEmptyState
+          icon={Users}
+          title="No waitlist entries"
+          description="When sessions are full, parents can join the waitlist"
+        />
       ) : (
-        <div className="border border-neutral-200 bg-white">
+        <AdminCard hover={false} padding={false}>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-neutral-200 bg-neutral-50">
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <tr className="border-b border-neutral-100">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Child
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Parent
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Session
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Added
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-200">
+            <tbody className="divide-y divide-neutral-50">
               {entries.map((entry) => {
                 const session = sessions[entry.sessionId];
                 const program = session ? programs[session.programId] : null;
 
                 return (
-                  <tr key={entry.id} className="hover:bg-neutral-50">
-                    <td className="px-6 py-4">
+                  <tr key={entry.id} className="group hover:bg-neutral-50/50 transition-colors">
+                    <td className="px-4 py-4">
                       <div>
-                        <p className="font-medium text-black">
+                        <p className="text-sm font-medium text-neutral-900">
                           {entry.childFirstName} {entry.childLastName}
                         </p>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-[13px] text-neutral-500">
                           {entry.ageGroup}
                         </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div>
                         <p className="text-sm text-neutral-600">
                           {entry.parentFirstName} {entry.parentLastName}
                         </p>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-[13px] text-neutral-500">
                           {entry.parentEmail}
                         </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4">
                       <div>
                         <p className="text-sm text-neutral-600">
                           {session?.name || "Unknown"}
                         </p>
-                        <p className="text-sm text-neutral-500">
+                        <p className="text-[13px] text-neutral-500">
                           {program?.name || ""}
                         </p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 text-xs font-bold uppercase ${
+                    <td className="px-4 py-4">
+                      <AdminBadge
+                        variant={
                           entry.status === "waiting"
-                            ? "bg-blue-100 text-blue-700"
+                            ? "info"
                             : entry.status === "notified"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-green-100 text-green-700"
-                        }`}
+                              ? "warning"
+                              : "success"
+                        }
                       >
                         {entry.status}
-                      </span>
+                      </AdminBadge>
                     </td>
-                    <td className="px-6 py-4 text-sm text-neutral-600">
+                    <td className="px-4 py-4 text-[13px] text-neutral-500">
                       {formatDate(entry.createdAt)}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="px-4 py-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
                         {entry.status === "waiting" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          <button
                             onClick={() => handleNotify(entry)}
                             disabled={processing === entry.id}
+                            className="p-2 text-neutral-400 hover:text-sky-600 transition-colors rounded-lg hover:bg-sky-50 disabled:opacity-50"
                             title="Send notification email"
                           >
                             {processing === entry.id ? (
@@ -278,32 +271,27 @@ export default function WaitlistPage() {
                             ) : (
                               <Mail className="h-4 w-4" />
                             )}
-                          </Button>
+                          </button>
                         )}
                         {entry.status === "notified" && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600"
-                            disabled
+                          <span
+                            className="p-2 text-emerald-500"
                             title="Already notified"
                           >
                             <CheckCircle className="h-4 w-4" />
-                          </Button>
+                          </span>
                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
+                        <button
                           onClick={() => handleRemove(entry.id)}
                           disabled={processing === entry.id}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-lg hover:bg-red-50 disabled:opacity-50"
                         >
                           {processing === entry.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <Trash2 className="h-4 w-4" />
                           )}
-                        </Button>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -311,7 +299,7 @@ export default function WaitlistPage() {
               })}
             </tbody>
           </table>
-        </div>
+        </AdminCard>
       )}
     </div>
   );

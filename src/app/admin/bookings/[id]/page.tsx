@@ -3,6 +3,8 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AdminCard } from "@/components/admin/ui/admin-card";
+import { AdminBadge } from "@/components/admin/ui/admin-badge";
 import {
   ArrowLeft,
   Loader2,
@@ -103,15 +105,15 @@ export default function BookingDetailPage({
 
   if (!booking) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div className="flex items-center gap-4">
           <Link
             href="/admin/bookings"
-            className="flex h-10 w-10 items-center justify-center border border-neutral-200 hover:bg-neutral-50"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <h1 className="text-2xl font-black uppercase tracking-wide text-black">
+          <h1 className="text-xl font-semibold text-neutral-900">
             Booking Not Found
           </h1>
         </div>
@@ -120,151 +122,151 @@ export default function BookingDetailPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
             href="/admin/bookings"
-            className="flex h-10 w-10 items-center justify-center border border-neutral-200 hover:bg-neutral-50"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-wide text-black">
+            <h1 className="text-xl font-semibold text-neutral-900">
               Booking Details
             </h1>
-            <p className="text-neutral-500 font-mono">{booking.bookingRef}</p>
+            <p className="text-[13px] text-neutral-500 font-mono">{booking.bookingRef}</p>
           </div>
         </div>
-        <span
-          className={`px-3 py-1 text-sm font-bold uppercase ${
+        <AdminBadge
+          variant={
             booking.paymentStatus === "paid"
-              ? "bg-green-100 text-green-700"
+              ? "success"
               : booking.paymentStatus === "pending"
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-700"
-          }`}
+                ? "warning"
+                : "error"
+          }
         >
           {booking.paymentStatus}
-        </span>
+        </AdminBadge>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Child Information */}
-        <div className="border border-neutral-200 bg-white p-6">
-          <h2 className="flex items-center gap-2 font-bold uppercase tracking-wide text-black mb-4">
-            <User className="h-4 w-4" />
+        <AdminCard hover={false}>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+            <User className="h-4 w-4 text-neutral-400" />
             Child Information
           </h2>
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Full Name
               </p>
-              <p className="mt-1 font-medium">
+              <p className="mt-1 text-sm font-medium text-neutral-900">
                 {booking.childFirstName} {booking.childLastName}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Date of Birth
               </p>
-              <p className="mt-1">{formatDate(booking.childDOB)}</p>
+              <p className="mt-1 text-sm text-neutral-600">{formatDate(booking.childDOB)}</p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Age Group
               </p>
-              <p className="mt-1">{booking.ageGroup}</p>
+              <p className="mt-1 text-sm text-neutral-600">{booking.ageGroup}</p>
             </div>
             {booking.medicalConditions && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Medical Conditions
                 </p>
-                <p className="mt-1">{booking.medicalConditions}</p>
+                <p className="mt-1 text-sm text-neutral-600">{booking.medicalConditions}</p>
               </div>
             )}
           </div>
-        </div>
+        </AdminCard>
 
         {/* Parent/Guardian Information */}
-        <div className="border border-neutral-200 bg-white p-6">
-          <h2 className="flex items-center gap-2 font-bold uppercase tracking-wide text-black mb-4">
-            <User className="h-4 w-4" />
+        <AdminCard hover={false}>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+            <User className="h-4 w-4 text-neutral-400" />
             Parent/Guardian
           </h2>
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Full Name
               </p>
-              <p className="mt-1 font-medium">
+              <p className="mt-1 text-sm font-medium text-neutral-900">
                 {booking.parentFirstName} {booking.parentLastName}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-neutral-400" />
+            <div className="flex items-start gap-2">
+              <Mail className="h-4 w-4 text-neutral-400 mt-0.5" />
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Email
                 </p>
                 <a
                   href={`mailto:${booking.parentEmail}`}
-                  className="mt-1 text-black hover:underline"
+                  className="mt-1 text-sm text-sky-600 hover:text-sky-700 transition-colors"
                 >
                   {booking.parentEmail}
                 </a>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-neutral-400" />
+            <div className="flex items-start gap-2">
+              <Phone className="h-4 w-4 text-neutral-400 mt-0.5" />
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Phone
                 </p>
                 <a
                   href={`tel:${booking.parentPhone}`}
-                  className="mt-1 text-black hover:underline"
+                  className="mt-1 text-sm text-sky-600 hover:text-sky-700 transition-colors"
                 >
                   {booking.parentPhone}
                 </a>
               </div>
             </div>
           </div>
-        </div>
+        </AdminCard>
 
         {/* Session Information */}
-        <div className="border border-neutral-200 bg-white p-6">
-          <h2 className="flex items-center gap-2 font-bold uppercase tracking-wide text-black mb-4">
-            <Calendar className="h-4 w-4" />
+        <AdminCard hover={false}>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+            <Calendar className="h-4 w-4 text-neutral-400" />
             Session Details
           </h2>
           <div className="space-y-4">
             {program && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Program
                 </p>
-                <p className="mt-1 font-medium">{program.name}</p>
+                <p className="mt-1 text-sm font-medium text-neutral-900">{program.name}</p>
               </div>
             )}
             {session && (
               <>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                     Session
                   </p>
-                  <p className="mt-1 font-medium">{session.name}</p>
+                  <p className="mt-1 text-sm font-medium text-neutral-900">{session.name}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-neutral-400" />
+                <div className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 text-neutral-400 mt-0.5" />
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                       Time
                     </p>
-                    <p className="mt-1">
+                    <p className="mt-1 text-sm text-neutral-600">
                       {session.startTime} - {session.endTime}
                     </p>
                   </div>
@@ -272,121 +274,121 @@ export default function BookingDetailPage({
               </>
             )}
             {program && (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-neutral-400" />
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-neutral-400 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                     Location
                   </p>
-                  <p className="mt-1">{program.location}</p>
+                  <p className="mt-1 text-sm text-neutral-600">{program.location}</p>
                 </div>
               </div>
             )}
           </div>
-        </div>
+        </AdminCard>
 
         {/* Payment Information */}
-        <div className="border border-neutral-200 bg-white p-6">
-          <h2 className="flex items-center gap-2 font-bold uppercase tracking-wide text-black mb-4">
-            <CreditCard className="h-4 w-4" />
+        <AdminCard hover={false}>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+            <CreditCard className="h-4 w-4 text-neutral-400" />
             Payment Details
           </h2>
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Amount
               </p>
-              <p className="mt-1 text-2xl font-bold">
+              <p className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
                 {formatPrice(booking.amount)}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-1">
                 Status
               </p>
-              <span
-                className={`mt-1 inline-block px-2 py-1 text-xs font-bold uppercase ${
+              <AdminBadge
+                variant={
                   booking.paymentStatus === "paid"
-                    ? "bg-green-100 text-green-700"
+                    ? "success"
                     : booking.paymentStatus === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-red-100 text-red-700"
-                }`}
+                      ? "warning"
+                      : "error"
+                }
               >
                 {booking.paymentStatus}
-              </span>
+              </AdminBadge>
             </div>
             {booking.stripeSessionId && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Stripe Session ID
                 </p>
-                <p className="mt-1 font-mono text-xs break-all">
+                <p className="mt-1 font-mono text-[11px] text-neutral-500 break-all">
                   {booking.stripeSessionId}
                 </p>
               </div>
             )}
             {booking.stripePaymentIntentId && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                   Payment Intent ID
                 </p>
-                <p className="mt-1 font-mono text-xs break-all">
+                <p className="mt-1 font-mono text-[11px] text-neutral-500 break-all">
                   {booking.stripePaymentIntentId}
                 </p>
               </div>
             )}
           </div>
-        </div>
+        </AdminCard>
       </div>
 
       {/* Booking Metadata */}
-      <div className="border border-neutral-200 bg-white p-6">
-        <h2 className="flex items-center gap-2 font-bold uppercase tracking-wide text-black mb-4">
-          <FileText className="h-4 w-4" />
+      <AdminCard hover={false}>
+        <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+          <FileText className="h-4 w-4 text-neutral-400" />
           Booking Information
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
               Booking Reference
             </p>
-            <p className="mt-1 font-mono">{booking.bookingRef}</p>
+            <p className="mt-1 font-mono text-sm text-neutral-600">{booking.bookingRef}</p>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
               Created At
             </p>
-            <p className="mt-1">{formatDateTime(booking.createdAt)}</p>
+            <p className="mt-1 text-sm text-neutral-600">{formatDateTime(booking.createdAt)}</p>
           </div>
           {booking.updatedAt && (
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Last Updated
               </p>
-              <p className="mt-1">{formatDateTime(booking.updatedAt)}</p>
+              <p className="mt-1 text-sm text-neutral-600">{formatDateTime(booking.updatedAt)}</p>
             </div>
           )}
         </div>
 
         {booking.emergencyContact && (
-          <div className="mt-6 pt-6 border-t border-neutral-200">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+          <div className="mt-6 pt-6 border-t border-neutral-100">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3">
               Emergency Contact
             </h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-sm text-neutral-600">Name</p>
-                <p className="font-medium">{booking.emergencyContact.name}</p>
+                <p className="text-[13px] text-neutral-500">Name</p>
+                <p className="text-sm font-medium text-neutral-900">{booking.emergencyContact.name}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-600">Phone</p>
-                <p className="font-medium">{booking.emergencyContact.phone}</p>
+                <p className="text-[13px] text-neutral-500">Phone</p>
+                <p className="text-sm font-medium text-neutral-900">{booking.emergencyContact.phone}</p>
               </div>
               {booking.emergencyContact.relationship && (
                 <div>
-                  <p className="text-sm text-neutral-600">Relationship</p>
-                  <p className="font-medium">
+                  <p className="text-[13px] text-neutral-500">Relationship</p>
+                  <p className="text-sm font-medium text-neutral-900">
                     {booking.emergencyContact.relationship}
                   </p>
                 </div>
@@ -394,11 +396,11 @@ export default function BookingDetailPage({
             </div>
           </div>
         )}
-      </div>
+      </AdminCard>
 
       {/* Actions */}
-      <div className="flex gap-4">
-        <Button variant="secondary" asChild>
+      <div className="flex gap-3">
+        <Button variant="adminSecondary" asChild>
           <Link href="/admin/bookings">Back to Bookings</Link>
         </Button>
       </div>

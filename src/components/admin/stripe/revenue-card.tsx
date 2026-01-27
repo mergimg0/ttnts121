@@ -1,26 +1,28 @@
-import { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+"use client";
 
-interface StatsCardProps {
+import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
+
+interface RevenueCardProps {
   title: string;
-  value: string | number;
-  description?: string;
-  icon: LucideIcon;
-  trend?: {
+  value: string;
+  subtitle?: string;
+  change?: {
     value: number;
     positive: boolean;
   };
+  icon: LucideIcon;
   className?: string;
 }
 
-export function StatsCard({
+export function RevenueCard({
   title,
   value,
-  description,
+  subtitle,
+  change,
   icon: Icon,
-  trend,
   className,
-}: StatsCardProps) {
+}: RevenueCardProps) {
   return (
     <div
       className={cn(
@@ -32,7 +34,7 @@ export function StatsCard({
         className
       )}
     >
-      {/* Gradient overlay on hover */}
+      {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-sky-50/0 to-sky-50/0 group-hover:from-sky-50/30 group-hover:to-transparent transition-all duration-500" />
 
       <div className="relative">
@@ -55,19 +57,19 @@ export function StatsCard({
 
         {/* Footer */}
         <div className="flex items-center gap-2">
-          {trend && (
+          {change && (
             <span
               className={cn(
                 "inline-flex items-center text-[13px] font-medium tabular-nums",
-                trend.positive ? "text-emerald-600" : "text-red-500"
+                change.positive ? "text-emerald-600" : "text-red-500"
               )}
             >
-              {trend.positive ? "+" : ""}{trend.value}%
+              {change.positive ? "+" : ""}{change.value}%
             </span>
           )}
-          {description && (
+          {subtitle && (
             <span className="text-[13px] text-neutral-400">
-              {description}
+              {subtitle}
             </span>
           )}
         </div>

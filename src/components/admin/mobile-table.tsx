@@ -1,15 +1,22 @@
 "use client";
 
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface MobileCardProps {
   children: ReactNode;
   className?: string;
 }
 
-export function MobileCard({ children, className = "" }: MobileCardProps) {
+export function MobileCard({ children, className }: MobileCardProps) {
   return (
-    <div className={`border border-neutral-200 bg-white p-4 space-y-3 ${className}`}>
+    <div
+      className={cn(
+        "rounded-2xl border border-neutral-200/60 bg-white p-4 space-y-3",
+        "shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
+        className
+      )}
+    >
       {children}
     </div>
   );
@@ -23,10 +30,10 @@ interface MobileCardRowProps {
 export function MobileCardRow({ label, children }: MobileCardRowProps) {
   return (
     <div className="flex justify-between items-start gap-2">
-      <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 shrink-0">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 shrink-0">
         {label}
       </span>
-      <div className="text-right">{children}</div>
+      <div className="text-right text-sm text-neutral-900">{children}</div>
     </div>
   );
 }
@@ -40,7 +47,7 @@ export function ResponsiveTable({ children, mobileView }: ResponsiveTableProps) 
   return (
     <>
       {/* Desktop Table */}
-      <div className="hidden lg:block border border-neutral-200 bg-white">
+      <div className="hidden lg:block rounded-2xl border border-neutral-200/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
         {children}
       </div>
       {/* Mobile Cards */}

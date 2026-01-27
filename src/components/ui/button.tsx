@@ -32,6 +32,18 @@ const buttonVariants = cva(
         // Danger - Destructive actions
         danger:
           "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 rounded-lg",
+        // Admin Primary - Dark rounded button
+        adminPrimary:
+          "bg-neutral-900 text-white hover:bg-neutral-800 focus-visible:ring-neutral-900 rounded-xl text-sm font-medium normal-case tracking-normal shadow-sm",
+        // Admin Secondary - Light border button
+        adminSecondary:
+          "border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 focus-visible:ring-neutral-400 rounded-xl text-sm font-medium normal-case tracking-normal",
+        // Admin Ghost - Text only with sky hover
+        adminGhost:
+          "text-neutral-500 hover:text-sky-600 rounded-xl text-[13px] font-medium normal-case tracking-normal",
+        // Admin Danger - Destructive for admin
+        adminDanger:
+          "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 rounded-xl text-sm font-medium normal-case tracking-normal",
       },
       size: {
         sm: "h-10 px-5 text-xs",

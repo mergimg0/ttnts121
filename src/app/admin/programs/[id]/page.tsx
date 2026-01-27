@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AdminCard } from "@/components/admin/ui/admin-card";
+import { AdminSelect } from "@/components/admin/ui/admin-select";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { LOCATIONS } from "@/lib/constants";
 import { Program, Session } from "@/types/booking";
@@ -130,182 +132,178 @@ export default function EditProgramPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/admin/programs"
-          className="flex h-10 w-10 items-center justify-center border border-neutral-200 hover:bg-neutral-50"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-black uppercase tracking-wide text-black">
+          <h1 className="text-xl font-semibold text-neutral-900">
             Edit Program
           </h1>
-          <p className="text-neutral-500">{formData.name}</p>
+          <p className="text-[13px] text-neutral-500">{formData.name}</p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Form */}
         <form onSubmit={handleSubmit} className="lg:col-span-2">
-          <div className="border border-neutral-200 bg-white p-6 space-y-6">
+          <AdminCard hover={false}>
             {error && (
-              <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
                 {error}
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Program Name *
-              </label>
-              <Input
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-                className="mt-2 rounded-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Description
-              </label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={3}
-                className="mt-2 rounded-none"
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-6">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                  Location *
-                </label>
-                <select
-                  value={formData.location}
-                  onChange={(e) =>
-                    setFormData({ ...formData, location: e.target.value })
-                  }
-                  required
-                  className="mt-2 w-full rounded-none border border-neutral-300 px-3 py-2"
-                >
-                  <option value="">Select location</option>
-                  {LOCATIONS.map((loc) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                  Service Type *
-                </label>
-                <select
-                  value={formData.serviceType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, serviceType: e.target.value })
-                  }
-                  required
-                  className="mt-2 w-full rounded-none border border-neutral-300 px-3 py-2"
-                >
-                  {serviceTypes.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                  Start Date *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                  Program Name *
                 </label>
                 <Input
-                  type="date"
-                  value={formData.dateRange.start}
+                  value={formData.name}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      dateRange: { ...formData.dateRange, start: e.target.value },
-                    })
+                    setFormData({ ...formData, name: e.target.value })
                   }
                   required
-                  className="mt-2 rounded-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                  End Date *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                  Description
                 </label>
-                <Input
-                  type="date"
-                  value={formData.dateRange.end}
+                <Textarea
+                  value={formData.description}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      dateRange: { ...formData.dateRange, end: e.target.value },
-                    })
+                    setFormData({ ...formData, description: e.target.value })
                   }
-                  required
-                  className="mt-2 rounded-none"
+                  rows={3}
                 />
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={formData.isActive}
-                onChange={(e) =>
-                  setFormData({ ...formData, isActive: e.target.checked })
-                }
-                className="h-4 w-4"
-              />
-              <label htmlFor="isActive" className="text-sm text-neutral-600">
-                Program is active and visible to parents
-              </label>
-            </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                    Location *
+                  </label>
+                  <AdminSelect
+                    value={formData.location}
+                    onChange={(e) =>
+                      setFormData({ ...formData, location: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="">Select location</option>
+                    {LOCATIONS.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </div>
 
-            <div className="flex gap-4 pt-4 border-t border-neutral-200">
-              <Button type="submit" disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-              <Button type="button" variant="secondary" asChild>
-                <Link href="/admin/programs">Cancel</Link>
-              </Button>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                    Service Type *
+                  </label>
+                  <AdminSelect
+                    value={formData.serviceType}
+                    onChange={(e) =>
+                      setFormData({ ...formData, serviceType: e.target.value })
+                    }
+                    required
+                  >
+                    {serviceTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                    Start Date *
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.dateRange.start}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dateRange: { ...formData.dateRange, start: e.target.value },
+                      })
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                    End Date *
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.dateRange.end}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dateRange: { ...formData.dateRange, end: e.target.value },
+                      })
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isActive: e.target.checked })
+                  }
+                  className="h-4 w-4 rounded border-neutral-300 text-sky-600 focus:ring-sky-500"
+                />
+                <label htmlFor="isActive" className="text-[13px] text-neutral-600">
+                  Program is active and visible to parents
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-6 border-t border-neutral-100">
+                <Button type="submit" variant="adminPrimary" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+                <Button type="button" variant="adminSecondary" asChild>
+                  <Link href="/admin/programs">Cancel</Link>
+                </Button>
+              </div>
             </div>
-          </div>
+          </AdminCard>
         </form>
 
         {/* Sessions sidebar */}
-        <div className="border border-neutral-200 bg-white p-6">
+        <AdminCard hover={false}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold uppercase tracking-wide text-black">
+            <h2 className="text-[15px] font-semibold text-neutral-900">
               Sessions
             </h2>
-            <Button size="sm" asChild>
+            <Button size="sm" variant="adminPrimary" asChild>
               <Link href={`/admin/programs/${id}/sessions/new`}>
                 <Plus className="mr-1 h-3 w-3" />
                 Add
@@ -314,7 +312,7 @@ export default function EditProgramPage({
           </div>
 
           {sessions.length === 0 ? (
-            <p className="text-sm text-neutral-500 py-4 text-center">
+            <p className="text-[13px] text-neutral-500 py-8 text-center">
               No sessions yet
             </p>
           ) : (
@@ -323,18 +321,18 @@ export default function EditProgramPage({
                 <Link
                   key={session.id}
                   href={`/admin/sessions/${session.id}`}
-                  className="block border border-neutral-200 p-3 hover:border-black transition-colors"
+                  className="block rounded-xl border border-neutral-100 p-3 hover:border-neutral-300 hover:bg-neutral-50/50 transition-all duration-200"
                 >
-                  <p className="font-medium text-sm">{session.name}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-sm font-medium text-neutral-900">{session.name}</p>
+                  <p className="text-[13px] text-neutral-500 mt-0.5">
                     {session.startTime} - {session.endTime} •{" "}
-                    {session.enrolled}/{session.capacity} enrolled
+                    <span className="tabular-nums">{session.enrolled}/{session.capacity}</span> enrolled
                   </p>
                 </Link>
               ))}
             </div>
           )}
-        </div>
+        </AdminCard>
       </div>
     </div>
   );
