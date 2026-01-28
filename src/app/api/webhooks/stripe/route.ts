@@ -89,8 +89,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const booking = await adminDb.collection("bookings").doc(bookingId).get();
   const bookingData = booking.data();
 
-  if (bookingData?.sessionId) {
-    const sessionRef = adminDb.collection("sessions").doc(bookingData.sessionId);
+  // Handle both sessionId (singular) and sessionIds (array) formats
+  const sessionIds = bookingData?.sessionIds || (bookingData?.sessionId ? [bookingData.sessionId] : []);
+
+  for (const sessionId of sessionIds) {
+    if (!sessionId) continue;
+    const sessionRef = adminDb.collection("sessions").doc(sessionId);
     const sessionDoc = await sessionRef.get();
     const currentEnrolled = sessionDoc.data()?.enrolled || 0;
 

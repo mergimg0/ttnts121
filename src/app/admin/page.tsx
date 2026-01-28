@@ -17,6 +17,8 @@ import {
   Plus,
   ArrowRight,
   ClipboardList,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { DashboardStats } from "@/types/booking";
 import { formatPrice } from "@/lib/booking-utils";
@@ -24,25 +26,61 @@ import { formatPrice } from "@/lib/booking-utils";
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("/api/admin/stats");
+      const data = await response.json();
+
+      if (data.success) {
+        setStats(data.data);
+      } else {
+        setError(data.error || "Failed to load stats");
+      }
+    } catch (err) {
+      console.error("Failed to fetch stats:", err);
+      setError("Failed to connect to server");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // For now, use mock data. Will be replaced with actual API call
-    const mockStats: DashboardStats = {
-      totalBookings: 47,
-      totalRevenue: 128500, // in pence
-      upcomingSessions: 12,
-      waitlistCount: 8,
-      recentBookings: [],
-    };
-    setStats(mockStats);
-    setLoading(false);
+    fetchStats();
   }, []);
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="space-y-8">
         <div className="h-8 w-48 bg-neutral-100 rounded-lg animate-pulse" />
         <AdminStatsSkeleton />
+      </div>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <div className="space-y-8">
+        <AdminPageHeader
+          title="Dashboard"
+          subtitle="Welcome back. Here's your overview."
+        />
+        <AdminCard hover={false}>
+          <div className="py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 mx-auto mb-4">
+              <AlertCircle className="h-6 w-6 text-red-500" />
+            </div>
+            <p className="text-neutral-900 font-medium mb-2">Failed to load dashboard</p>
+            <p className="text-neutral-500 text-sm mb-4">{error}</p>
+            <Button variant="outline" onClick={fetchStats}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        </AdminCard>
       </div>
     );
   }
@@ -54,12 +92,24 @@ export default function AdminDashboard() {
         title="Dashboard"
         subtitle="Welcome back. Here's your overview."
       >
-        <Button variant="adminPrimary" asChild>
-          <Link href="/admin/programs/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Program
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchStats}
+            disabled={loading}
+            className="h-9"
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+          <Button variant="adminPrimary" asChild>
+            <Link href="/admin/programs/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Program
+            </Link>
+          </Button>
+        </div>
       </AdminPageHeader>
 
       {/* Stats Grid */}
