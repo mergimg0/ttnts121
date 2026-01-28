@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/components/admin/auth-provider";
 import { AdminSidebar, MobileMenuButton } from "@/components/admin/sidebar";
+import { ToastContainer } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Loader2, User, LogOut } from "lucide-react";
 
@@ -92,6 +93,7 @@ export default function AdminLayout({
   return (
     <AuthProvider>
       <AdminLayoutContent>{children}</AdminLayoutContent>
+      <ToastContainer />
     </AuthProvider>
   );
 }

@@ -5,17 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Loader2 } from "lucide-react";
-
-const daysOfWeek = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
-];
+import { toast } from "@/components/ui/toast";
+import { DateRangePicker } from "@/components/admin/ui/date-range-picker";
+import { DaySelector, calculateOccurrences } from "@/components/admin/ui/day-selector";
+import { ArrowLeft, Loader2, Calendar } from "lucide-react";
 
 export default function NewSessionPage({
   params,
@@ -26,9 +19,18 @@ export default function NewSessionPage({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get default dates (today to 3 months from now)
+  const today = new Date().toISOString().split("T")[0];
+  const threeMonthsLater = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0];
+
   const [formData, setFormData] = useState({
     name: "",
-    dayOfWeek: 1,
+    daysOfWeek: [1] as number[], // Default to Monday
+    startDate: today,
+    endDate: threeMonthsLater,
     startTime: "16:00",
     endTime: "17:00",
     ageMin: 5,
@@ -36,10 +38,24 @@ export default function NewSessionPage({
     capacity: 15,
     price: 1000,
     isActive: true,
+    lowStockThreshold: 3,
+    waitlistEnabled: true,
   });
+
+  const occurrences = calculateOccurrences(
+    formData.startDate,
+    formData.endDate,
+    formData.daysOfWeek
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.daysOfWeek.length === 0) {
+      setError("Please select at least one day of the week");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -49,6 +65,8 @@ export default function NewSessionPage({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          // For backward compatibility, also set dayOfWeek to first selected day
+          dayOfWeek: formData.daysOfWeek[0],
           programId,
           enrolled: 0,
         }),
@@ -57,12 +75,16 @@ export default function NewSessionPage({
       const data = await response.json();
 
       if (data.success) {
+        toast(`Session "${formData.name}" created successfully`, "success");
         router.push(`/admin/programs/${programId}`);
       } else {
         setError(data.error || "Failed to create session");
+        toast(data.error || "Failed to create session", "error");
       }
     } catch (err) {
-      setError("An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast(errorMessage, "error");
     } finally {
       setLoading(false);
     }
@@ -74,29 +96,29 @@ export default function NewSessionPage({
       <div className="flex items-center gap-4">
         <Link
           href={`/admin/programs/${programId}`}
-          className="flex h-10 w-10 items-center justify-center border border-neutral-200 hover:bg-neutral-50"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 hover:bg-neutral-50 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-black uppercase tracking-wide text-black">
+          <h1 className="text-xl font-semibold text-neutral-900">
             New Session
           </h1>
-          <p className="text-neutral-500">Add a new session to this program</p>
+          <p className="text-[13px] text-neutral-500">Add a new session to this program</p>
         </div>
       </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="border border-neutral-200 bg-white p-6 space-y-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-6 space-y-6">
           {error && (
-            <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
               Session Name *
             </label>
             <Input
@@ -105,53 +127,54 @@ export default function NewSessionPage({
                 setFormData({ ...formData, name: e.target.value })
               }
               required
-              className="mt-2 rounded-none"
               placeholder="e.g., Monday Juniors"
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Day of Week *
-              </label>
-              <select
-                value={formData.dayOfWeek}
-                onChange={(e) =>
-                  setFormData({ ...formData, dayOfWeek: Number(e.target.value) })
-                }
-                required
-                className="mt-2 w-full rounded-none border border-neutral-300 px-3 py-2"
-              >
-                {daysOfWeek.map((day) => (
-                  <option key={day.value} value={day.value}>
-                    {day.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Capacity *
-              </label>
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                value={formData.capacity}
-                onChange={(e) =>
-                  setFormData({ ...formData, capacity: Number(e.target.value) })
-                }
-                required
-                className="mt-2 rounded-none"
-              />
-            </div>
+          {/* Date Range */}
+          <div className="pt-4 border-t border-neutral-100">
+            <h3 className="text-sm font-medium text-neutral-700 mb-4">Schedule</h3>
+            <DateRangePicker
+              startDate={formData.startDate}
+              endDate={formData.endDate}
+              onStartDateChange={(date) => setFormData({ ...formData, startDate: date })}
+              onEndDateChange={(date) => setFormData({ ...formData, endDate: date })}
+            />
           </div>
 
+          {/* Day Selector */}
+          <div>
+            <DaySelector
+              selectedDays={formData.daysOfWeek}
+              onChange={(days) => setFormData({ ...formData, daysOfWeek: days })}
+              multiple={true}
+            />
+          </div>
+
+          {/* Session count preview */}
+          {occurrences > 0 && (
+            <div className="flex items-center gap-2 rounded-xl bg-sky-50 border border-sky-200 p-3">
+              <Calendar className="h-4 w-4 text-sky-600" />
+              <span className="text-sm text-sky-700">
+                <strong>{occurrences}</strong> session{occurrences !== 1 ? "s" : ""} from{" "}
+                {new Date(formData.startDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                })}{" "}
+                to{" "}
+                {new Date(formData.endDate).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+          )}
+
+          {/* Times */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                 Start Time *
               </label>
               <Input
@@ -161,12 +184,11 @@ export default function NewSessionPage({
                   setFormData({ ...formData, startTime: e.target.value })
                 }
                 required
-                className="mt-2 rounded-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                 End Time *
               </label>
               <Input
@@ -176,14 +198,31 @@ export default function NewSessionPage({
                   setFormData({ ...formData, endTime: e.target.value })
                 }
                 required
-                className="mt-2 rounded-none"
               />
             </div>
           </div>
 
+          {/* Capacity */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+              Capacity *
+            </label>
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              value={formData.capacity}
+              onChange={(e) =>
+                setFormData({ ...formData, capacity: Number(e.target.value) })
+              }
+              required
+            />
+          </div>
+
+          {/* Age Range */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                 Minimum Age *
               </label>
               <Input
@@ -195,12 +234,11 @@ export default function NewSessionPage({
                   setFormData({ ...formData, ageMin: Number(e.target.value) })
                 }
                 required
-                className="mt-2 rounded-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+              <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
                 Maximum Age *
               </label>
               <Input
@@ -212,13 +250,13 @@ export default function NewSessionPage({
                   setFormData({ ...formData, ageMax: Number(e.target.value) })
                 }
                 required
-                className="mt-2 rounded-none"
               />
             </div>
           </div>
 
+          {/* Price */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500">
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
               Price (in pence) *
             </label>
             <Input
@@ -230,31 +268,67 @@ export default function NewSessionPage({
                 setFormData({ ...formData, price: Number(e.target.value) })
               }
               required
-              className="mt-2 rounded-none"
             />
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1.5 text-[13px] text-neutral-500">
               Enter price in pence (e.g., 1000 = £10.00)
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="isActive"
-              checked={formData.isActive}
-              onChange={(e) =>
-                setFormData({ ...formData, isActive: e.target.checked })
-              }
-              className="h-4 w-4"
-            />
-            <label htmlFor="isActive" className="text-sm text-neutral-600">
-              Session is active and available for booking
+          {/* Low Stock Threshold */}
+          <div>
+            <label className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+              Low Stock Threshold
             </label>
+            <Input
+              type="number"
+              min={1}
+              max={20}
+              value={formData.lowStockThreshold}
+              onChange={(e) =>
+                setFormData({ ...formData, lowStockThreshold: Number(e.target.value) })
+              }
+            />
+            <p className="mt-1.5 text-[13px] text-neutral-500">
+              Show &quot;X spots left&quot; badge when spots remaining ≤ this number
+            </p>
+          </div>
+
+          {/* Toggles */}
+          <div className="space-y-3 pt-4 border-t border-neutral-100">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={(e) =>
+                  setFormData({ ...formData, isActive: e.target.checked })
+                }
+                className="h-4 w-4 rounded border-neutral-300 text-sky-600 focus:ring-sky-500"
+              />
+              <label htmlFor="isActive" className="text-[13px] text-neutral-600">
+                Session is active and available for booking
+              </label>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="waitlistEnabled"
+                checked={formData.waitlistEnabled}
+                onChange={(e) =>
+                  setFormData({ ...formData, waitlistEnabled: e.target.checked })
+                }
+                className="h-4 w-4 rounded border-neutral-300 text-sky-600 focus:ring-sky-500"
+              />
+              <label htmlFor="waitlistEnabled" className="text-[13px] text-neutral-600">
+                Enable waitlist when session is full
+              </label>
+            </div>
           </div>
         </div>
 
         <div className="mt-6 flex gap-4">
-          <Button type="submit" disabled={loading}>
+          <Button type="submit" variant="adminPrimary" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -264,8 +338,8 @@ export default function NewSessionPage({
               "Create Session"
             )}
           </Button>
-          <Button type="button" variant="secondary" asChild>
-            <Link href={`/admin/programs/${programId}`}>Cancel</Link>
+          <Button type="button" variant="adminSecondary" asChild>
+            <Link href={`/admin/programs/${programId}`}>Discard</Link>
           </Button>
         </div>
       </form>

@@ -6,7 +6,7 @@ import { generateBookingRef, calculateAgeGroup } from "@/lib/booking-utils";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, customerDetails } = body;
+    const { items, customerDetails, secondaryParent, guardianDeclaration, paymentType, depositInfo } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json(
@@ -15,6 +15,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate guardian declaration
+    if (!guardianDeclaration?.accepted || !guardianDeclaration?.signature?.trim()) {
+      return NextResponse.json(
+        { success: false, error: "Guardian declaration is required" },
+        { status: 400 }
+      );
+    }
+
+    // Get IP address and user agent for audit trail
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ipAddress = forwardedFor ? forwardedFor.split(",")[0].trim() : "unknown";
+    const userAgent = request.headers.get("user-agent") || "unknown";
+
     // Generate booking reference
     const bookingRef = generateBookingRef();
 
@@ -22,23 +35,41 @@ export async function POST(request: Request) {
     const childDOB = new Date(customerDetails.childDOB);
     const ageGroup = calculateAgeGroup(childDOB);
 
-    // Create line items for Stripe
-    const lineItems = items.map((item: { name: string; price: number }) => ({
-      price_data: {
-        currency: "gbp",
-        product_data: {
-          name: item.name,
-        },
-        unit_amount: item.price,
-      },
-      quantity: 1,
-    }));
-
     // Calculate total
     const totalAmount = items.reduce(
       (sum: number, item: { price: number }) => sum + item.price,
       0
     );
+
+    // Determine if this is a deposit payment
+    const isDepositPayment = paymentType === "deposit" && depositInfo?.enabled;
+    const chargeAmount = isDepositPayment ? depositInfo.depositAmount : totalAmount;
+
+    // Create line items for Stripe
+    const lineItems = isDepositPayment
+      ? [
+          {
+            price_data: {
+              currency: "gbp",
+              product_data: {
+                name: `Deposit - ${items.map((i: { name: string }) => i.name).join(", ")}`,
+                description: `Deposit payment. Balance of £${((depositInfo.balanceDue) / 100).toFixed(2)} due by ${new Date(depositInfo.balanceDueDate).toLocaleDateString("en-GB")}`,
+              },
+              unit_amount: depositInfo.depositAmount,
+            },
+            quantity: 1,
+          },
+        ]
+      : items.map((item: { name: string; price: number }) => ({
+          price_data: {
+            currency: "gbp",
+            product_data: {
+              name: item.name,
+            },
+            unit_amount: item.price,
+          },
+          quantity: 1,
+        }));
 
     // Create pending booking record in Firestore
     const bookingData = {
@@ -57,10 +88,35 @@ export async function POST(request: Request) {
         phone: customerDetails.emergencyContactPhone,
         relationship: customerDetails.emergencyContactRelationship,
       },
+      // Secondary parent/guardian (optional)
+      secondaryParent: secondaryParent ? {
+        name: secondaryParent.name,
+        email: secondaryParent.email || null,
+        phone: secondaryParent.phone,
+        relationship: secondaryParent.relationship,
+        canPickup: secondaryParent.canPickup,
+        receiveEmails: secondaryParent.receiveEmails,
+      } : null,
       medicalConditions: customerDetails.medicalConditions || null,
       marketingConsent: customerDetails.marketingConsent || false,
+      // Guardian declaration for legal compliance
+      guardianDeclaration: {
+        accepted: guardianDeclaration.accepted,
+        signature: guardianDeclaration.signature.trim(),
+        childrenNames: guardianDeclaration.childrenNames || [],
+        ipAddress,
+        userAgent,
+        acceptedAt: new Date(guardianDeclaration.acceptedAt),
+      },
       amount: totalAmount,
       paymentStatus: "pending",
+      // Deposit payment tracking
+      paymentType: isDepositPayment ? "deposit" : "full",
+      ...(isDepositPayment && {
+        depositPaid: depositInfo.depositAmount,
+        balanceDue: depositInfo.balanceDue,
+        balanceDueDate: new Date(depositInfo.balanceDueDate),
+      }),
       createdAt: new Date(),
     };
 
@@ -81,6 +137,12 @@ export async function POST(request: Request) {
         sessionIds: JSON.stringify(
           items.map((item: { sessionId: string }) => item.sessionId)
         ),
+        paymentType: isDepositPayment ? "deposit" : "full",
+        ...(isDepositPayment && {
+          depositAmount: String(depositInfo.depositAmount),
+          balanceDue: String(depositInfo.balanceDue),
+          balanceDueDate: new Date(depositInfo.balanceDueDate).toISOString(),
+        }),
       },
     });
 

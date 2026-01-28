@@ -47,14 +47,26 @@ export async function PUT(
 
     await adminDb.collection("sessions").doc(id).update(updateData);
 
+    // Verify update succeeded by re-fetching the document
+    const verifyDoc = await adminDb.collection("sessions").doc(id).get();
+    if (!verifyDoc.exists) {
+      console.error("Firebase write verification failed: document not found after update");
+      return NextResponse.json(
+        { success: false, error: "Failed to verify session update. Please try again." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: { id, ...updateData },
+      data: { id, ...verifyDoc.data() },
+      message: "Session updated successfully",
     });
   } catch (error) {
     console.error("Error updating session:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { success: false, error: "Failed to update session" },
+      { success: false, error: `Failed to update session: ${errorMessage}` },
       { status: 500 }
     );
   }

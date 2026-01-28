@@ -48,14 +48,26 @@ export async function POST(request: NextRequest) {
 
     const docRef = await adminDb.collection("sessions").add(sessionData);
 
+    // Verify write succeeded by re-fetching the document
+    const verifyDoc = await docRef.get();
+    if (!verifyDoc.exists) {
+      console.error("Firebase write verification failed: document not found after create");
+      return NextResponse.json(
+        { success: false, error: "Failed to verify session creation. Please try again." },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      data: { id: docRef.id, ...sessionData },
+      data: { id: docRef.id, ...verifyDoc.data() },
+      message: "Session created successfully",
     });
   } catch (error) {
     console.error("Error creating session:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { success: false, error: "Failed to create session" },
+      { success: false, error: `Failed to create session: ${errorMessage}` },
       { status: 500 }
     );
   }

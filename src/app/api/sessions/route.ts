@@ -74,12 +74,17 @@ export async function GET(request: Request) {
     sessions = sessions.map((s: any) => {
       const program = programsMap[s.programId];
       const spotsLeft = s.capacity - s.enrolled;
+      // Use per-session threshold, default to 3
+      const threshold = s.lowStockThreshold ?? 3;
+      // Check for manual close first, then actual capacity
       const availabilityStatus =
-        spotsLeft <= 0
+        s.isForceClosed
           ? "full"
-          : spotsLeft <= 3
-            ? "limited"
-            : "available";
+          : spotsLeft <= 0
+            ? "full"
+            : spotsLeft <= threshold
+              ? "limited"
+              : "available";
 
       return {
         ...s,
@@ -92,7 +97,7 @@ export async function GET(request: Request) {
               dateRange: program.dateRange,
             }
           : null,
-        spotsLeft,
+        spotsLeft: s.isForceClosed ? 0 : spotsLeft,
         availabilityStatus,
       };
     });

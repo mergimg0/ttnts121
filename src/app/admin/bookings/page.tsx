@@ -8,9 +8,10 @@ import { ResponsiveTable, MobileCard, MobileCardRow } from "@/components/admin/m
 import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { AdminEmptyState } from "@/components/admin/ui/admin-empty-state";
 import { AdminBadge } from "@/components/admin/ui/admin-badge";
-import { CreditCard, Eye, Download } from "lucide-react";
+import { CreditCard, Eye } from "lucide-react";
 import { Booking } from "@/types/booking";
 import { formatPrice, toDate } from "@/lib/booking-utils";
+import { ExportButtonWithFilters } from "@/components/admin/export-button";
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -40,40 +41,6 @@ export default function BookingsPage() {
     return booking.paymentStatus === filter;
   });
 
-  const exportToCSV = () => {
-    const headers = [
-      "Booking Ref",
-      "Child Name",
-      "Parent Name",
-      "Email",
-      "Phone",
-      "Session",
-      "Payment Status",
-      "Amount",
-      "Date",
-    ];
-
-    const rows = filteredBookings.map((b) => [
-      b.bookingRef,
-      `${b.childFirstName} ${b.childLastName}`,
-      `${b.parentFirstName} ${b.parentLastName}`,
-      b.parentEmail,
-      b.parentPhone,
-      b.sessionId,
-      b.paymentStatus,
-      formatPrice(b.amount),
-      toDate(b.createdAt).toLocaleDateString(),
-    ]);
-
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bookings-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-  };
-
   if (loading) {
     return (
       <div className="space-y-8">
@@ -93,10 +60,10 @@ export default function BookingsPage() {
         title="Bookings"
         subtitle={`${bookings.length} total bookings`}
       >
-        <Button variant="adminSecondary" onClick={exportToCSV} className="w-full sm:w-auto">
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
-        </Button>
+        <ExportButtonWithFilters
+          endpoint="/api/admin/export/bookings"
+          label="Export"
+        />
       </AdminPageHeader>
 
       {/* Filters */}

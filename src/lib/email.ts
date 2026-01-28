@@ -6,11 +6,19 @@
 
 import { SITE_CONFIG } from "./constants";
 
+interface EmailAttachment {
+  filename: string;
+  content: Buffer | string;
+  contentType?: string;
+}
+
 interface EmailOptions {
   to: string;
+  cc?: string | string[]; // CC recipients for secondary parent notifications
   subject: string;
   html: string;
   text?: string;
+  attachments?: EmailAttachment[];
 }
 
 interface EmailResult {
@@ -20,16 +28,18 @@ interface EmailResult {
 }
 
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
-  const { to, subject, html, text } = options;
+  const { to, cc, subject, html, text, attachments } = options;
 
   // Check if Resend is configured
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.EMAIL_FROM || `${SITE_CONFIG.name} <${SITE_CONFIG.email}>`;
+  // Use Resend's test domain if no verified domain is set
+  const fromEmail = process.env.EMAIL_FROM || "TTNTS <onboarding@resend.dev>";
 
   if (!apiKey) {
     // Development mode - just log the email
     console.log("📧 Email would be sent:");
     console.log(`  To: ${to}`);
+    if (cc) console.log(`  CC: ${Array.isArray(cc) ? cc.join(", ") : cc}`);
     console.log(`  Subject: ${subject}`);
     console.log(`  From: ${fromEmail}`);
     console.log("  (Set RESEND_API_KEY to enable actual email sending)");
@@ -47,9 +57,17 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       body: JSON.stringify({
         from: fromEmail,
         to,
+        cc: cc || undefined,
         subject,
         html,
         text: text || stripHtml(html),
+        attachments: attachments?.map((att) => ({
+          filename: att.filename,
+          content: typeof att.content === "string"
+            ? att.content
+            : att.content.toString("base64"),
+          content_type: att.contentType,
+        })),
       }),
     });
 

@@ -14,6 +14,7 @@ import {
   CreditCard,
   ChevronDown,
   ChevronUp,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,18 @@ import {
   getFieldError,
   ValidationError,
 } from "@/lib/validation";
+import { GuardianDeclaration } from "@/components/booking/guardian-declaration";
+import { CouponInput } from "@/components/checkout/coupon-input";
+import { AppliedCoupon } from "@/types/coupon";
+
+interface SecondaryParentFormData {
+  name: string;
+  email: string;
+  phone: string;
+  relationship: string;
+  canPickup: boolean;
+  receiveEmails: boolean;
+}
 
 interface BookingFormData {
   childFirstName: string;
@@ -39,15 +52,28 @@ interface BookingFormData {
   emergencyContactRelationship: string;
   medicalConditions: string;
   marketingConsent: boolean;
+  // Secondary parent/guardian (optional)
+  secondaryParent?: SecondaryParentFormData;
 }
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, removeItem, clearCart, getTotal } = useCart();
+  const { items, removeItem, clearCart, getTotal, trackCartForRecovery } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<ValidationError[]>([]);
   const [showMobileCart, setShowMobileCart] = useState(false);
+  const [guardianDeclarationAccepted, setGuardianDeclarationAccepted] = useState(false);
+  const [guardianSignature, setGuardianSignature] = useState("");
+  const [showSecondaryParent, setShowSecondaryParent] = useState(false);
+  const [secondaryParent, setSecondaryParent] = useState<SecondaryParentFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    relationship: "",
+    canPickup: true,
+    receiveEmails: true,
+  });
   const [formData, setFormData] = useState<BookingFormData>({
     childFirstName: "",
     childLastName: "",
@@ -62,6 +88,22 @@ export default function CheckoutPage() {
     medicalConditions: "",
     marketingConsent: false,
   });
+
+  // Handler for guardian declaration changes
+  const handleGuardianDeclarationChange = (accepted: boolean, signature: string) => {
+    setGuardianDeclarationAccepted(accepted);
+    setGuardianSignature(signature);
+  };
+
+  // Get child's full name for the declaration
+  const getChildFullName = () => {
+    const firstName = formData.childFirstName.trim();
+    const lastName = formData.childLastName.trim();
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    }
+    return "";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +121,15 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Validate guardian declaration
+    if (!guardianDeclarationAccepted || !guardianSignature.trim()) {
+      setError("Please complete and sign the guardian declaration before proceeding to payment");
+      // Scroll to guardian declaration section
+      const declarationSection = document.getElementById("guardian-declaration-section");
+      declarationSection?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -93,6 +144,23 @@ export default function CheckoutPage() {
             name: item.sessionName,
           })),
           customerDetails: formData,
+          // Include secondary parent if provided
+          secondaryParent: showSecondaryParent && secondaryParent.name && secondaryParent.phone
+            ? {
+                name: secondaryParent.name.trim(),
+                email: secondaryParent.email.trim() || undefined,
+                phone: secondaryParent.phone.trim(),
+                relationship: secondaryParent.relationship || "Other",
+                canPickup: secondaryParent.canPickup,
+                receiveEmails: secondaryParent.receiveEmails,
+              }
+            : undefined,
+          guardianDeclaration: {
+            accepted: guardianDeclarationAccepted,
+            signature: guardianSignature.trim(),
+            childrenNames: [getChildFullName()].filter(Boolean),
+            acceptedAt: new Date().toISOString(),
+          },
         }),
       });
 
@@ -312,6 +380,14 @@ export default function CheckoutPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, parentEmail: e.target.value })
                       }
+                      onBlur={(e) => {
+                        // Track cart for abandonment recovery when email is entered
+                        const email = e.target.value;
+                        if (email && email.includes("@")) {
+                          const customerName = formData.parentFirstName || undefined;
+                          trackCartForRecovery(email, customerName);
+                        }
+                      }}
                       className={`rounded-none ${getFieldError(fieldErrors, "parentEmail") ? "border-red-500 bg-red-50" : ""}`}
                     />
                     {getFieldError(fieldErrors, "parentEmail") && (
@@ -399,6 +475,165 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
+              {/* Secondary Parent/Guardian (Optional) */}
+              <div className="border border-neutral-200 bg-white">
+                <button
+                  type="button"
+                  onClick={() => setShowSecondaryParent(!showSecondaryParent)}
+                  className="w-full p-6 flex items-center justify-between hover:bg-neutral-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <UserPlus className="h-5 w-5 text-neutral-400" />
+                    <div className="text-left">
+                      <h2 className="font-bold uppercase tracking-wide text-black">
+                        Secondary Parent/Guardian
+                      </h2>
+                      <p className="text-xs text-neutral-500 mt-0.5">
+                        Optional - Add another parent or authorized pickup person
+                      </p>
+                    </div>
+                  </div>
+                  {showSecondaryParent ? (
+                    <ChevronUp className="h-5 w-5 text-neutral-400" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-neutral-400" />
+                  )}
+                </button>
+
+                <AnimatePresence>
+                  {showSecondaryParent && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 pt-4">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="sm:col-span-2">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                              Full Name
+                            </label>
+                            <Input
+                              value={secondaryParent.name}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  name: e.target.value,
+                                })
+                              }
+                              placeholder="e.g., John Smith"
+                              className="rounded-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                              Email
+                            </label>
+                            <Input
+                              type="email"
+                              value={secondaryParent.email}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  email: e.target.value,
+                                })
+                              }
+                              placeholder="Optional"
+                              className="rounded-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                              Phone *
+                            </label>
+                            <Input
+                              type="tel"
+                              value={secondaryParent.phone}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  phone: e.target.value,
+                                })
+                              }
+                              placeholder="Required if adding secondary contact"
+                              className="rounded-none"
+                            />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                              Relationship
+                            </label>
+                            <select
+                              value={secondaryParent.relationship}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  relationship: e.target.value,
+                                })
+                              }
+                              className="w-full h-10 px-3 border border-neutral-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                            >
+                              <option value="">Select relationship...</option>
+                              <option value="Father">Father</option>
+                              <option value="Mother">Mother</option>
+                              <option value="Step-parent">Step-parent</option>
+                              <option value="Grandparent">Grandparent</option>
+                              <option value="Aunt/Uncle">Aunt/Uncle</option>
+                              <option value="Sibling">Sibling (18+)</option>
+                              <option value="Nanny/Au Pair">Nanny/Au Pair</option>
+                              <option value="Family Friend">Family Friend</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 pt-2">
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              id="canPickup"
+                              checked={secondaryParent.canPickup}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  canPickup: e.target.checked,
+                                })
+                              }
+                              className="mt-1 h-4 w-4"
+                            />
+                            <label htmlFor="canPickup" className="text-sm text-neutral-600">
+                              <span className="font-medium text-black">Authorized for pickup</span>
+                              <br />
+                              <span className="text-xs">This person can collect the child from sessions</span>
+                            </label>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              id="receiveEmails"
+                              checked={secondaryParent.receiveEmails}
+                              onChange={(e) =>
+                                setSecondaryParent({
+                                  ...secondaryParent,
+                                  receiveEmails: e.target.checked,
+                                })
+                              }
+                              className="mt-1 h-4 w-4"
+                            />
+                            <label htmlFor="receiveEmails" className="text-sm text-neutral-600">
+                              <span className="font-medium text-black">Receive email notifications</span>
+                              <br />
+                              <span className="text-xs">Copy this person on booking confirmations and reminders</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Medical Information */}
               <div className="border border-neutral-200 bg-white p-6">
                 <h2 className="font-bold uppercase tracking-wide text-black mb-4">
@@ -444,6 +679,19 @@ export default function CheckoutPage() {
                     unsubscribe at any time.
                   </label>
                 </div>
+              </div>
+
+              {/* Guardian Declaration */}
+              <div id="guardian-declaration-section">
+                <GuardianDeclaration
+                  onAccept={handleGuardianDeclarationChange}
+                  childrenNames={getChildFullName() ? [getChildFullName()] : []}
+                  error={
+                    error?.includes("guardian declaration")
+                      ? error
+                      : undefined
+                  }
+                />
               </div>
 
               {/* Submit Button - Mobile */}

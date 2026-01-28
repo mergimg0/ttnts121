@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { AdminBadge } from "@/components/admin/ui/admin-badge";
+import { QRCodeDisplay } from "@/components/booking/qr-code-display";
 import {
   ArrowLeft,
   Loader2,
@@ -16,9 +17,18 @@ import {
   Clock,
   MapPin,
   FileText,
+  ShieldCheck,
+  QrCode,
+  Send,
+  Banknote,
+  Link2,
 } from "lucide-react";
 import { Booking, Session, Program } from "@/types/booking";
+import { PaymentHistoryItem } from "@/types/payment";
 import { formatPrice } from "@/lib/booking-utils";
+import { RecordPaymentForm } from "@/components/admin/record-payment-form";
+import { PaymentLinkForm } from "@/components/admin/payment-link-form";
+import { PaymentHistory } from "@/components/admin/payment-history";
 
 export default function BookingDetailPage({
   params,
@@ -29,11 +39,52 @@ export default function BookingDetailPage({
   const [booking, setBooking] = useState<Booking | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [program, setProgram] = useState<Program | null>(null);
+  const [payments, setPayments] = useState<PaymentHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resendingQR, setResendingQR] = useState(false);
+  const [qrResendMessage, setQrResendMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [showRecordPayment, setShowRecordPayment] = useState(false);
+  const [showPaymentLink, setShowPaymentLink] = useState(false);
 
   useEffect(() => {
     fetchBooking();
   }, [id]);
+
+  const handleResendQR = async () => {
+    if (!booking) return;
+
+    setResendingQR(true);
+    setQrResendMessage(null);
+
+    try {
+      const response = await fetch(`/api/admin/bookings/${id}/resend-qr`, {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setQrResendMessage({
+          type: "success",
+          text: data.message || "QR code sent successfully",
+        });
+      } else {
+        setQrResendMessage({
+          type: "error",
+          text: data.error || "Failed to send QR code",
+        });
+      }
+    } catch (error) {
+      setQrResendMessage({
+        type: "error",
+        text: "Failed to send QR code",
+      });
+    } finally {
+      setResendingQR(false);
+    }
+  };
 
   const fetchBooking = async () => {
     try {
@@ -338,9 +389,85 @@ export default function BookingDetailPage({
                 </p>
               </div>
             )}
+            {booking.paymentMethod && (
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  Payment Method
+                </p>
+                <p className="mt-1 text-sm text-neutral-600 capitalize">
+                  {booking.paymentMethod.replace('_', ' ')}
+                </p>
+              </div>
+            )}
+
+            {/* Payment Actions */}
+            {booking.paymentStatus !== "paid" && (
+              <div className="pt-4 border-t border-neutral-100 space-y-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  Payment Actions
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowRecordPayment(true)}
+                    className="h-9"
+                  >
+                    <Banknote className="h-4 w-4 mr-2" />
+                    Record Payment
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPaymentLink(true)}
+                    className="h-9"
+                  >
+                    <Link2 className="h-4 w-4 mr-2" />
+                    Send Payment Link
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </AdminCard>
       </div>
+
+      {/* Payment Forms (Modals/Drawers) */}
+      {showRecordPayment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-md w-full">
+            <RecordPaymentForm
+              bookingId={id}
+              bookingRef={booking.bookingRef}
+              totalAmount={booking.amount}
+              paidAmount={0}
+              onSuccess={() => {
+                setShowRecordPayment(false);
+                fetchBooking();
+              }}
+              onCancel={() => setShowRecordPayment(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {showPaymentLink && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="max-w-md w-full">
+            <PaymentLinkForm
+              bookingId={id}
+              customerEmail={booking.parentEmail}
+              customerName={`${booking.parentFirstName} ${booking.parentLastName}`}
+              suggestedAmount={booking.amount}
+              suggestedDescription={session?.name ? `${session.name} - ${booking.childFirstName} ${booking.childLastName}` : `Booking ${booking.bookingRef}`}
+              onSuccess={() => {
+                // Keep form open to show success state
+              }}
+              onCancel={() => setShowPaymentLink(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Booking Metadata */}
       <AdminCard hover={false}>
@@ -396,7 +523,172 @@ export default function BookingDetailPage({
             </div>
           </div>
         )}
+
+        {booking.secondaryParent && (
+          <div className="mt-6 pt-6 border-t border-neutral-100">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-3">
+              Secondary Parent/Guardian
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-[13px] text-neutral-500">Name</p>
+                <p className="text-sm font-medium text-neutral-900">{booking.secondaryParent.name}</p>
+              </div>
+              <div>
+                <p className="text-[13px] text-neutral-500">Phone</p>
+                <a
+                  href={`tel:${booking.secondaryParent.phone}`}
+                  className="text-sm text-sky-600 hover:text-sky-700 transition-colors"
+                >
+                  {booking.secondaryParent.phone}
+                </a>
+              </div>
+              {booking.secondaryParent.email && (
+                <div>
+                  <p className="text-[13px] text-neutral-500">Email</p>
+                  <a
+                    href={`mailto:${booking.secondaryParent.email}`}
+                    className="text-sm text-sky-600 hover:text-sky-700 transition-colors"
+                  >
+                    {booking.secondaryParent.email}
+                  </a>
+                </div>
+              )}
+              <div>
+                <p className="text-[13px] text-neutral-500">Relationship</p>
+                <p className="text-sm font-medium text-neutral-900">
+                  {booking.secondaryParent.relationship}
+                </p>
+              </div>
+              <div className="sm:col-span-2 flex flex-wrap gap-2">
+                {booking.secondaryParent.canPickup && (
+                  <AdminBadge variant="success">
+                    Authorized Pickup
+                  </AdminBadge>
+                )}
+                {booking.secondaryParent.receiveEmails && (
+                  <AdminBadge variant="info">
+                    Receives Emails
+                  </AdminBadge>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </AdminCard>
+
+      {/* Guardian Declaration */}
+      <AdminCard hover={false}>
+        <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+          <ShieldCheck className="h-4 w-4 text-neutral-400" />
+          Guardian Declaration
+        </h2>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+              Status
+            </p>
+            <AdminBadge
+              variant={booking.guardianDeclaration?.accepted ? "success" : "warning"}
+            >
+              {booking.guardianDeclaration?.accepted ? "Signed" : "Not Signed"}
+            </AdminBadge>
+          </div>
+          {booking.guardianDeclaration?.accepted && (
+            <>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  Digital Signature
+                </p>
+                <p className="mt-1 text-sm font-medium text-neutral-900 italic">
+                  &quot;{booking.guardianDeclaration.signature}&quot;
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  Children Named
+                </p>
+                <p className="mt-1 text-sm text-neutral-600">
+                  {booking.guardianDeclaration.childrenNames?.join(", ") || "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                  Signed At
+                </p>
+                <p className="mt-1 text-sm text-neutral-600">
+                  {formatDateTime(booking.guardianDeclaration.acceptedAt)}
+                </p>
+              </div>
+              <div className="pt-4 border-t border-neutral-100">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 mb-2">
+                  Audit Information
+                </p>
+                <div className="text-xs text-neutral-500 space-y-1 font-mono">
+                  <p>IP: {booking.guardianDeclaration.ipAddress || "Not recorded"}</p>
+                  <p className="truncate" title={booking.guardianDeclaration.userAgent}>
+                    UA: {booking.guardianDeclaration.userAgent || "Not recorded"}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+          {!booking.guardianDeclaration?.accepted && (
+            <p className="text-sm text-amber-600">
+              No guardian declaration on file for this booking.
+            </p>
+          )}
+        </div>
+      </AdminCard>
+
+      {/* QR Code Section - Only show for paid bookings */}
+      {booking.paymentStatus === "paid" && (
+        <AdminCard hover={false}>
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold text-neutral-900 mb-4">
+            <QrCode className="h-4 w-4 text-neutral-400" />
+            Check-in QR Code
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            <QRCodeDisplay
+              bookingId={id}
+              childName={`${booking.childFirstName} ${booking.childLastName}`}
+              size="md"
+              showControls={true}
+            />
+            <div className="flex-1 space-y-4">
+              <p className="text-sm text-neutral-600">
+                This QR code can be scanned at check-in to verify the booking.
+                It contains the booking ID, session, and child information.
+              </p>
+              <div className="space-y-2">
+                <Button
+                  variant="adminSecondary"
+                  onClick={handleResendQR}
+                  disabled={resendingQR}
+                >
+                  {resendingQR ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  {resendingQR ? "Sending..." : "Email QR Code"}
+                </Button>
+                {qrResendMessage && (
+                  <p
+                    className={`text-sm ${
+                      qrResendMessage.type === "success"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {qrResendMessage.text}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </AdminCard>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3">

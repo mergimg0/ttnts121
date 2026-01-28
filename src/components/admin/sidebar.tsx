@@ -10,11 +10,18 @@ import {
   Users,
   CreditCard,
   ClipboardList,
+  ClipboardCheck,
   DollarSign,
   Settings,
   Menu,
   X,
   ArrowLeft,
+  Mail,
+  UserPlus,
+  Link2,
+  ShoppingCart,
+  Tag,
+  Percent,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +47,11 @@ const navItems = [
     icon: CreditCard,
   },
   {
+    label: "Attendance",
+    href: "/admin/attendance",
+    icon: ClipboardCheck,
+  },
+  {
     label: "Waitlist",
     href: "/admin/waitlist",
     icon: Users,
@@ -48,6 +60,36 @@ const navItems = [
     label: "Payments",
     href: "/admin/payments",
     icon: DollarSign,
+  },
+  {
+    label: "Payment Links",
+    href: "/admin/payment-links",
+    icon: Link2,
+  },
+  {
+    label: "Abandoned Carts",
+    href: "/admin/abandoned-carts",
+    icon: ShoppingCart,
+  },
+  {
+    label: "Coupons",
+    href: "/admin/coupons",
+    icon: Tag,
+  },
+  {
+    label: "Discounts",
+    href: "/admin/discounts",
+    icon: Percent,
+  },
+  {
+    label: "Contacts",
+    href: "/admin/contacts",
+    icon: UserPlus,
+  },
+  {
+    label: "Campaigns",
+    href: "/admin/campaigns",
+    icon: Mail,
   },
 ];
 
@@ -143,7 +185,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   return (
     <>
       {/* Desktop Sidebar - positioned below fixed header */}
-      <aside className="hidden lg:block fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 bg-white shadow-[1px_0_0_rgba(0,0,0,0.04)]">
+      <aside className="hidden lg:block fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 bg-white border-r border-neutral-200">
         {sidebarContent}
       </aside>
 

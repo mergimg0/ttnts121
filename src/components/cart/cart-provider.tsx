@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { CartItem } from "@/types/booking";
@@ -17,19 +18,25 @@ interface CartContextType {
   getTotal: () => number;
   itemCount: number;
   isInCart: (sessionId: string) => boolean;
+  trackCartForRecovery: (email: string, customerName?: string) => void;
+  customerEmail: string | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = "ttnts-cart";
+const CART_EMAIL_KEY = "ttnts-cart-email";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [customerEmail, setCustomerEmail] = useState<string | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
+    const storedEmail = localStorage.getItem(CART_EMAIL_KEY);
+
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -43,6 +50,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Error parsing cart:", e);
       }
     }
+
+    if (storedEmail) {
+      setCustomerEmail(storedEmail);
+    }
+
     setIsHydrated(true);
   }, []);
 
@@ -52,6 +64,50 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
     }
   }, [items, isHydrated]);
+
+  // Track cart for abandonment recovery
+  const trackCartOnServer = useCallback(async (email: string, cartItems: CartItem[], customerName?: string) => {
+    if (!email || cartItems.length === 0) return;
+
+    try {
+      await fetch("/api/carts/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          items: cartItems,
+          customerName,
+        }),
+      });
+    } catch (error) {
+      console.error("Error tracking cart:", error);
+    }
+  }, []);
+
+  // Track cart when email is provided
+  const trackCartForRecovery = useCallback((email: string, customerName?: string) => {
+    if (!email || !email.includes("@")) return;
+
+    setCustomerEmail(email);
+    localStorage.setItem(CART_EMAIL_KEY, email);
+
+    // Track on server if we have items
+    if (items.length > 0) {
+      trackCartOnServer(email, items, customerName);
+    }
+  }, [items, trackCartOnServer]);
+
+  // Re-track cart when items change and we have an email
+  useEffect(() => {
+    if (isHydrated && customerEmail && items.length > 0) {
+      // Debounce tracking to avoid too many requests
+      const timer = setTimeout(() => {
+        trackCartOnServer(customerEmail, items);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [items, customerEmail, isHydrated, trackCartOnServer]);
 
   const addItem = (item: Omit<CartItem, "addedAt">) => {
     setItems((prev) => {
@@ -69,6 +125,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
+    // Clear email when cart is cleared (after checkout)
+    setCustomerEmail(null);
+    localStorage.removeItem(CART_EMAIL_KEY);
   };
 
   const getTotal = () => {
@@ -89,6 +148,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         getTotal,
         itemCount: items.length,
         isInCart,
+        trackCartForRecovery,
+        customerEmail,
       }}
     >
       {children}

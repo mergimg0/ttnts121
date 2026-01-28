@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import { HeroBackground } from "@/components/sections/hero-background";
@@ -67,17 +68,15 @@ export function Hero() {
           <div className="relative lg:pl-8">
             <FadeInRight delay={0.2}>
               <div className="relative aspect-[4/5] rounded-3xl bg-gradient-to-br from-sky/5 via-navy/5 to-sky-light overflow-hidden border border-neutral-100">
-                {/* Placeholder pattern */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center p-8">
-                    <div className="mx-auto h-24 w-24 rounded-full bg-navy/10 flex items-center justify-center mb-4">
-                      <span className="text-4xl">⚽</span>
-                    </div>
-                    <p className="text-sm text-foreground-muted">
-                      Photo coming soon
-                    </p>
-                  </div>
-                </div>
+                {/* Hero image */}
+                <Image
+                  src="/images/hero-image.jpg"
+                  alt="Young footballer training on the pitch with coach"
+                  fill
+                  className="object-cover object-center"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
 
                 {/* Static testimonial card */}
                 <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-xs bg-white rounded-2xl shadow-lg p-4 border border-neutral-100">

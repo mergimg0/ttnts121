@@ -89,8 +89,9 @@ export async function sendCampaignEmails(
   const { subject, body, contacts } = options;
 
   const apiKey = process.env.RESEND_API_KEY;
+  // Use Resend's test domain if no verified domain is set
   const fromEmail =
-    process.env.EMAIL_FROM || `${SITE_CONFIG.name} <${SITE_CONFIG.email}>`;
+    process.env.EMAIL_FROM || "TTNTS <onboarding@resend.dev>";
 
   const results: BatchSendResult["results"] = [];
   let successCount = 0;
