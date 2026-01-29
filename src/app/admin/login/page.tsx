@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useAuth } from "@/components/admin/auth-provider";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Loader2, AlertCircle } from "lucide-react";
 import Image from "next/image";
 
@@ -36,9 +34,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-neutral-50 to-neutral-100 px-4">
       <div className="w-full max-w-md">
-        <div className="border border-neutral-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-neutral-200/60 bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
           <div className="mb-8 text-center">
             <Image
               src="/logo.png"
@@ -47,7 +45,7 @@ export default function AdminLoginPage() {
               height={40}
               className="mx-auto h-12 w-auto"
             />
-            <h1 className="mt-6 text-xl font-bold uppercase tracking-wide text-black">
+            <h1 className="mt-6 text-xl font-semibold text-neutral-900">
               Admin Login
             </h1>
             <p className="mt-2 text-sm text-neutral-500">
@@ -55,9 +53,9 @@ export default function AdminLoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="flex items-center gap-2 border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 {error}
               </div>
@@ -66,17 +64,17 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                className="block text-sm font-medium text-neutral-700 mb-2"
               >
                 Email
               </label>
-              <Input
+              <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
+                className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all text-neutral-900 placeholder:text-neutral-400"
                 placeholder="admin@example.com"
               />
             </div>
@@ -84,25 +82,25 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-bold uppercase tracking-wider text-neutral-500"
+                className="block text-sm font-medium text-neutral-700 mb-2"
               >
                 Password
               </label>
-              <Input
+              <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-2 rounded-none border-neutral-300 focus:border-black focus:ring-black"
-                placeholder="••••••••"
+                className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all text-neutral-900 placeholder:text-neutral-400"
+                placeholder="Enter your password"
               />
             </div>
 
-            <Button
+            <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-none uppercase tracking-wider font-semibold"
+              className="w-full py-3 rounded-xl bg-[#1e3a5f] hover:bg-[#152a45] text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {loading ? (
                 <>
@@ -112,11 +110,11 @@ export default function AdminLoginPage() {
               ) : (
                 "Sign In"
               )}
-            </Button>
+            </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-neutral-500">
+        <p className="mt-6 text-center text-xs text-neutral-400">
           Protected admin area. Unauthorized access prohibited.
         </p>
       </div>

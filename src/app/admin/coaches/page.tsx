@@ -251,9 +251,9 @@ export default function CoachesPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowInactive(!showInactive)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+            className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
               showInactive
-                ? "bg-black text-white"
+                ? "bg-[#1e3a5f] text-white"
                 : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
             }`}
           >

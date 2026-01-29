@@ -178,7 +178,7 @@ export default function NewCouponPage() {
                       discountType: e.target.value as "percentage" | "fixed",
                     })
                   }
-                  className="w-full h-10 px-3 rounded-md border border-neutral-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full h-10 px-3 rounded-xl border border-neutral-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
                 >
                   <option value="percentage">Percentage (%)</option>
                   <option value="fixed">Fixed Amount (GBP)</option>
@@ -301,7 +301,7 @@ export default function NewCouponPage() {
 
         {/* Submit */}
         <div className="flex gap-3">
-          <Button type="submit" disabled={loading} className="bg-black hover:bg-neutral-800">
+          <Button type="submit" disabled={loading} variant="adminPrimary">
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -312,7 +312,7 @@ export default function NewCouponPage() {
             )}
           </Button>
           <Link href="/admin/coupons">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="adminSecondary">
               Cancel
             </Button>
           </Link>

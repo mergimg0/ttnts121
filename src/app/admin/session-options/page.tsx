@@ -85,7 +85,7 @@ export default function SessionOptionsPage() {
           subtitle="Manage add-ons and extras for sessions"
         />
         <Link href="/admin/session-options/new">
-          <Button className="bg-black hover:bg-neutral-800">
+          <Button variant="adminPrimary">
             <Plus className="h-4 w-4 mr-2" />
             Add Option
           </Button>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { AdminBadge } from "@/components/admin/ui/admin-badge";
+import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import {
   Plus,
   Loader2,
@@ -168,20 +169,17 @@ export default function CouponsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-neutral-900">Coupons</h1>
-          <p className="text-[13px] text-neutral-500 mt-1">
-            Create and manage discount codes
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Coupons"
+        subtitle="Create and manage discount codes"
+      >
         <Link href="/admin/coupons/new">
-          <Button className="bg-black hover:bg-neutral-800">
+          <Button variant="adminPrimary">
             <Plus className="h-4 w-4 mr-2" />
             Create Coupon
           </Button>
         </Link>
-      </div>
+      </AdminPageHeader>
 
       {/* Filters */}
       <div className="flex gap-2 flex-wrap">
@@ -189,10 +187,10 @@ export default function CouponsPage() {
           <button
             key={status}
             onClick={() => setStatusFilter(status)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+            className={`px-4 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
               statusFilter === status
-                ? "bg-black text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                ? "bg-[#1e3a5f] text-white shadow-sm"
+                : "bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50"
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -216,7 +214,7 @@ export default function CouponsPage() {
               Create a discount code to offer special pricing
             </p>
             <Link href="/admin/coupons/new">
-              <Button className="bg-black hover:bg-neutral-800">
+              <Button variant="adminPrimary">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Coupon
               </Button>
