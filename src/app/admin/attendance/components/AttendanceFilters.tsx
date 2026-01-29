@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminSelect } from "@/components/admin/ui/admin-select";
 import { AdminCard } from "@/components/admin/ui/admin-card";
+import { ExportButton } from "@/components/admin/export-button";
 import { SessionType } from "@/types/attendance";
 
 interface Coach {
@@ -19,6 +20,13 @@ export interface AttendanceFilterValues {
 interface AttendanceFiltersProps {
   filters: AttendanceFilterValues;
   onFiltersChange: (filters: AttendanceFilterValues) => void;
+  /** Optional date range for export (used by Weekly/Monthly views) */
+  dateRange?: {
+    dateFrom: string;
+    dateTo: string;
+  };
+  /** Hide export button (e.g., for analytics view with its own export) */
+  hideExport?: boolean;
 }
 
 const SESSION_TYPES = [
@@ -39,7 +47,12 @@ const LOCATIONS = [
   { value: "St John's Wood", label: "St John's Wood" },
 ];
 
-export function AttendanceFilters({ filters, onFiltersChange }: AttendanceFiltersProps) {
+export function AttendanceFilters({
+  filters,
+  onFiltersChange,
+  dateRange,
+  hideExport = false,
+}: AttendanceFiltersProps) {
   const [coaches, setCoaches] = useState<Coach[]>([]);
   const [loadingCoaches, setLoadingCoaches] = useState(true);
 
@@ -76,28 +89,48 @@ export function AttendanceFilters({ filters, onFiltersChange }: AttendanceFilter
     })),
   ];
 
+  // Build export filters from current filter state
+  const exportFilters = {
+    dateFrom: dateRange?.dateFrom,
+    dateTo: dateRange?.dateTo,
+    sessionType: filters.sessionType || undefined,
+    coachId: filters.coachId || undefined,
+    location: filters.location || undefined,
+  };
+
   return (
     <AdminCard>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <AdminSelect
-          label="Session Type"
-          value={filters.sessionType}
-          onChange={(e) => handleFilterChange("sessionType", e.target.value)}
-          options={SESSION_TYPES}
-        />
-        <AdminSelect
-          label="Coach"
-          value={filters.coachId}
-          onChange={(e) => handleFilterChange("coachId", e.target.value)}
-          options={coachOptions}
-          disabled={loadingCoaches}
-        />
-        <AdminSelect
-          label="Location"
-          value={filters.location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
-          options={LOCATIONS}
-        />
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <AdminSelect
+            label="Session Type"
+            value={filters.sessionType}
+            onChange={(e) => handleFilterChange("sessionType", e.target.value)}
+            options={SESSION_TYPES}
+          />
+          <AdminSelect
+            label="Coach"
+            value={filters.coachId}
+            onChange={(e) => handleFilterChange("coachId", e.target.value)}
+            options={coachOptions}
+            disabled={loadingCoaches}
+          />
+          <AdminSelect
+            label="Location"
+            value={filters.location}
+            onChange={(e) => handleFilterChange("location", e.target.value)}
+            options={LOCATIONS}
+          />
+        </div>
+        {!hideExport && (
+          <div className="flex justify-end pt-2 border-t border-neutral-100">
+            <ExportButton
+              endpoint="/api/admin/export/attendance"
+              filters={exportFilters}
+              label="Export Attendance"
+            />
+          </div>
+        )}
       </div>
     </AdminCard>
   );

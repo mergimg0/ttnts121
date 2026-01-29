@@ -226,7 +226,11 @@ export function AnalyticsView({ className }: AnalyticsViewProps) {
               {formatDateRange()}
             </div>
           </div>
-          <AttendanceFilters filters={filters} onFiltersChange={setFilters} />
+          <AttendanceFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            hideExport={true}
+          />
         </div>
       </AdminCard>
 

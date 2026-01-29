@@ -30,6 +30,7 @@ export function DailyView({ selectedDate, onDateChange }: DailyViewProps) {
 
   const [summary, setSummary] = useState<AttendanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<AttendanceFilterValues>(() => {
     // Initialize filters from URL params
     return {
@@ -80,6 +81,7 @@ export function DailyView({ selectedDate, onDateChange }: DailyViewProps) {
 
   const fetchAttendanceSummary = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({
         summary: "true",
@@ -101,9 +103,12 @@ export function DailyView({ selectedDate, onDateChange }: DailyViewProps) {
       const data = await response.json();
       if (data.success) {
         setSummary(data.data);
+      } else {
+        setError(data.error || "Failed to fetch attendance data");
       }
-    } catch (error) {
-      console.error("Error fetching attendance summary:", error);
+    } catch (err) {
+      console.error("Error fetching attendance summary:", err);
+      setError("Failed to fetch attendance data");
     } finally {
       setLoading(false);
     }
@@ -136,7 +141,11 @@ export function DailyView({ selectedDate, onDateChange }: DailyViewProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <AttendanceFilters filters={filters} onFiltersChange={handleFiltersChange} />
+      <AttendanceFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        dateRange={{ dateFrom: selectedDate, dateTo: selectedDate }}
+      />
 
       {/* Date Navigation */}
       <div className="flex items-center justify-between bg-white rounded-2xl border border-neutral-200/60 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -170,6 +179,16 @@ export function DailyView({ selectedDate, onDateChange }: DailyViewProps) {
 
       {loading ? (
         <TableSkeleton rows={5} columns={5} />
+      ) : error ? (
+        <div className="bg-white rounded-2xl border border-neutral-200/60 p-8 shadow-[0_1px_3px_rgba(0,0,0,0.04)] text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={fetchAttendanceSummary}
+            className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
+          >
+            Try again
+          </button>
+        </div>
       ) : (
         <>
           {/* Summary Stats */}

@@ -33,6 +33,7 @@ export function MonthlyView({ onNavigateToDay }: MonthlyViewProps) {
   // State for data
   const [summary, setSummary] = useState<MonthlyAttendanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Filters state
   const [filters, setFilters] = useState<AttendanceFilterValues>(() => {
@@ -80,6 +81,7 @@ export function MonthlyView({ onNavigateToDay }: MonthlyViewProps) {
   // Fetch monthly data
   const fetchMonthlyData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({
         month: String(currentMonth.month),
@@ -102,9 +104,12 @@ export function MonthlyView({ onNavigateToDay }: MonthlyViewProps) {
 
       if (data.success) {
         setSummary(data.data);
+      } else {
+        setError(data.error || "Failed to fetch monthly data");
       }
-    } catch (error) {
-      console.error("Error fetching monthly attendance:", error);
+    } catch (err) {
+      console.error("Error fetching monthly attendance:", err);
+      setError("Failed to fetch monthly attendance data");
     } finally {
       setLoading(false);
     }
@@ -157,7 +162,14 @@ export function MonthlyView({ onNavigateToDay }: MonthlyViewProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <AttendanceFilters filters={filters} onFiltersChange={handleFiltersChange} />
+      <AttendanceFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        dateRange={{
+          dateFrom: `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}-01`,
+          dateTo: `${currentMonth.year}-${String(currentMonth.month).padStart(2, "0")}-${new Date(currentMonth.year, currentMonth.month, 0).getDate()}`,
+        }}
+      />
 
       {/* Month Navigation */}
       <div className="flex items-center justify-between bg-white rounded-2xl border border-neutral-200/60 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -191,6 +203,18 @@ export function MonthlyView({ onNavigateToDay }: MonthlyViewProps) {
 
       {loading ? (
         <TableSkeleton rows={6} columns={7} />
+      ) : error ? (
+        <AdminCard>
+          <div className="py-8 text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={fetchMonthlyData}
+              className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
+            >
+              Try again
+            </button>
+          </div>
+        </AdminCard>
       ) : (
         <>
           {/* Summary Stats */}

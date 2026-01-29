@@ -10,6 +10,9 @@ export interface ExportFilters {
   dateFrom?: string;
   dateTo?: string;
   sessionId?: string;
+  sessionType?: string;
+  coachId?: string;
+  location?: string;
   paymentStatus?: string;
 }
 
@@ -64,6 +67,9 @@ export function ExportButton({
       if (filters.dateFrom) params.append("dateFrom", filters.dateFrom);
       if (filters.dateTo) params.append("dateTo", filters.dateTo);
       if (filters.sessionId) params.append("sessionId", filters.sessionId);
+      if (filters.sessionType) params.append("sessionType", filters.sessionType);
+      if (filters.coachId) params.append("coachId", filters.coachId);
+      if (filters.location) params.append("location", filters.location);
       if (filters.paymentStatus) params.append("paymentStatus", filters.paymentStatus);
 
       const response = await fetch(`${endpoint}?${params.toString()}`);

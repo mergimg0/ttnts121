@@ -153,7 +153,14 @@ export function WeeklyView({ selectedDate, onDateChange }: WeeklyViewProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <AttendanceFilters filters={filters} onFiltersChange={handleFiltersChange} />
+      <AttendanceFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        dateRange={{
+          dateFrom: weekStart,
+          dateTo: weeklyData?.weekEnd || weekStart,
+        }}
+      />
 
       {/* Week Navigation */}
       <div className="flex items-center justify-between bg-white rounded-2xl border border-neutral-200/60 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -185,7 +192,15 @@ export function WeeklyView({ selectedDate, onDateChange }: WeeklyViewProps) {
         <TableSkeleton rows={5} columns={8} />
       ) : error ? (
         <AdminCard>
-          <div className="py-8 text-center text-red-600">{error}</div>
+          <div className="py-8 text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={fetchWeeklyData}
+              className="text-sm text-sky-600 hover:text-sky-700 hover:underline"
+            >
+              Try again
+            </button>
+          </div>
         </AdminCard>
       ) : weeklyData ? (
         <>
