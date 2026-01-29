@@ -33,7 +33,7 @@ export function AdminTabs({ activeTab, onTabChange }: AdminTabsProps) {
   const currentTab = activeTab ?? getTabFromPath(pathname);
 
   return (
-    <div className="flex items-center gap-1 px-4 py-2 bg-neutral-50/80 border-b border-neutral-200/60 overflow-x-auto scrollbar-hide">
+    <div className="flex items-center gap-2 px-3 py-3 sm:px-4 bg-neutral-50/80 border-b border-neutral-200/60 overflow-x-auto scrollbar-hide">
       {adminTabs.map((tab) => {
         const isActive = currentTab === tab.id;
         const TabIcon = tab.icon;
