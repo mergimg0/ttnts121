@@ -1044,8 +1044,9 @@ async function parseMonthlyHours(
       const coachName = (headerRow[i] || "").toString().trim().toUpperCase();
       if (!coachName) continue;
 
-      const hourlyRate = ratesRow && typeof ratesRow[i] === "number"
-        ? Math.round(ratesRow[i] * 100) // Convert to pence
+      const rateValue = ratesRow?.[i];
+      const hourlyRate = typeof rateValue === "number"
+        ? Math.round(rateValue * 100) // Convert to pence
         : 1500; // Default £15/hr
 
       coachColumns[i] = { name: coachName, rate: hourlyRate };

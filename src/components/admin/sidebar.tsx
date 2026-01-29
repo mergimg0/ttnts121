@@ -29,6 +29,7 @@ import {
   Clock,
   PiggyBank,
   UserMinus,
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +83,11 @@ const navItems = [
     label: "Coach Hours",
     href: "/admin/coach-hours",
     icon: Clock,
+  },
+  {
+    label: "Coach Awards",
+    href: "/admin/coach-awards",
+    icon: Award,
   },
   {
     label: "Challenges",
