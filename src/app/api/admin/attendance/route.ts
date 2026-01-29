@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
-import { AttendanceRecord, AttendanceSummary, SessionOccurrence } from "@/types/attendance";
-import { Session, Booking } from "@/types/booking";
+import { AttendanceRecord, AttendanceSummary, SessionOccurrence, SessionType } from "@/types/attendance";
+import { Session } from "@/types/booking";
 
 // GET attendance records with filters
 export async function GET(request: NextRequest) {
@@ -13,9 +13,17 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get("dateTo");
     const summary = searchParams.get("summary") === "true";
 
+    // New filter params
+    const sessionType = searchParams.get("sessionType") as SessionType | null;
+    const coachId = searchParams.get("coachId");
+    const location = searchParams.get("location");
+
     // If summary requested, return aggregated data
     if (summary) {
-      return await getAttendanceSummary(date || new Date().toISOString().split("T")[0]);
+      return await getAttendanceSummary(
+        date || new Date().toISOString().split("T")[0],
+        { sessionType, coachId, location }
+      );
     }
 
     // Build query for attendance records
@@ -50,8 +58,18 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper to get attendance summary for a date
-async function getAttendanceSummary(date: string): Promise<NextResponse> {
+// Filter configuration
+interface AttendanceFilterConfig {
+  sessionType: SessionType | null;
+  coachId: string | null;
+  location: string | null;
+}
+
+// Helper to get attendance summary for a date with filters
+async function getAttendanceSummary(
+  date: string,
+  filters: AttendanceFilterConfig
+): Promise<NextResponse> {
   try {
     // Get all active sessions
     const sessionsSnapshot = await adminDb
@@ -59,13 +77,34 @@ async function getAttendanceSummary(date: string): Promise<NextResponse> {
       .where("isActive", "==", true)
       .get();
 
-    const sessions = sessionsSnapshot.docs.map((doc) => ({
+    let sessions = sessionsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Session[];
 
-    // Get bookings for these sessions
-    const sessionIds = sessions.map((s) => s.id);
+    // Apply filters
+    if (filters.sessionType) {
+      // Get programs with matching service type
+      const programsSnapshot = await adminDb
+        .collection("programs")
+        .where("serviceType", "==", filters.sessionType)
+        .get();
+
+      const programIds = new Set(programsSnapshot.docs.map((doc) => doc.id));
+      sessions = sessions.filter((s) => programIds.has(s.programId));
+    }
+
+    if (filters.coachId) {
+      sessions = sessions.filter(
+        (s) => s.coaches && s.coaches.includes(filters.coachId!)
+      );
+    }
+
+    if (filters.location) {
+      sessions = sessions.filter(
+        (s) => s.location && s.location.toLowerCase().includes(filters.location!.toLowerCase())
+      );
+    }
 
     // Get attendance records for this date
     const attendanceSnapshot = await adminDb
