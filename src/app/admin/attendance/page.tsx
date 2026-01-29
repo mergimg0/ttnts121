@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
-import { AdminCard } from "@/components/admin/ui/admin-card";
 import { ViewModeTabs } from "./components/ViewModeTabs";
 import { DailyView } from "./components/DailyView";
 import { WeeklyView } from "./components/WeeklyView";
 import { MonthlyView } from "./components/MonthlyView";
+import { AnalyticsView } from "./components/AnalyticsView";
 import { AttendanceViewMode } from "@/types/attendance";
-import { Construction } from "lucide-react";
 
 export default function AttendancePage() {
   const [viewMode, setViewMode] = useState<AttendanceViewMode>("daily");
@@ -44,12 +43,7 @@ export default function AttendancePage() {
           />
         );
       case "analytics":
-        return (
-          <ComingSoonPlaceholder
-            title="Analytics View"
-            description="Attendance trends, patterns, and at-risk student identification."
-          />
-        );
+        return <AnalyticsView />;
       default:
         return null;
     }
@@ -69,27 +63,5 @@ export default function AttendancePage() {
       {/* View Content */}
       {renderView()}
     </div>
-  );
-}
-
-// Placeholder component for coming soon views
-function ComingSoonPlaceholder({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <AdminCard>
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 mb-4">
-          <Construction className="h-8 w-8 text-amber-600" />
-        </div>
-        <h3 className="text-lg font-semibold text-neutral-900 mb-2">{title}</h3>
-        <p className="text-sm text-neutral-500 max-w-md">{description}</p>
-        <p className="text-xs text-neutral-400 mt-4">Coming soon</p>
-      </div>
-    </AdminCard>
   );
 }
