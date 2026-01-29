@@ -1111,7 +1111,13 @@ async function parseMonthlyHours(
         const hoursValue = row[colIdx];
         if (hoursValue === null || hoursValue === undefined || hoursValue === "") continue;
 
-        const hours = typeof hoursValue === "number" ? hoursValue : parseHours(hoursValue.toString());
+        let hours = typeof hoursValue === "number" ? hoursValue : parseHours(hoursValue.toString());
+
+        // Sanity check: hours should be 0-24 per day. Values > 24 are likely Excel date serials
+        if (hours > 24) {
+          log(`  WARNING: Skipping invalid hours value ${hours} for ${coachData.name} on ${dateStr}`, options.verbose, true);
+          continue;
+        }
         if (hours <= 0) continue;
 
         result.recordsProcessed++;
