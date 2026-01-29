@@ -5,6 +5,8 @@ import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { ViewModeTabs } from "./components/ViewModeTabs";
 import { DailyView } from "./components/DailyView";
+import { WeeklyView } from "./components/WeeklyView";
+import { MonthlyView } from "./components/MonthlyView";
 import { AttendanceViewMode } from "@/types/attendance";
 import { Construction } from "lucide-react";
 
@@ -25,16 +27,20 @@ export default function AttendancePage() {
         );
       case "weekly":
         return (
-          <ComingSoonPlaceholder
-            title="Weekly View"
-            description="View attendance data aggregated by week with session type breakdown."
+          <WeeklyView
+            selectedDate={selectedDate}
+            onDateChange={(date) => {
+              setSelectedDate(date);
+            }}
           />
         );
       case "monthly":
         return (
-          <ComingSoonPlaceholder
-            title="Monthly View"
-            description="Calendar heatmap showing daily attendance rates for the month."
+          <MonthlyView
+            onNavigateToDay={(date) => {
+              setSelectedDate(date);
+              setViewMode("daily");
+            }}
           />
         );
       case "analytics":
