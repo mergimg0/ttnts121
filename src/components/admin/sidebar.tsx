@@ -74,6 +74,11 @@ const navItems = [
     icon: ClipboardCheck,
   },
   {
+    label: "Coaches",
+    href: "/admin/coaches",
+    icon: Users,
+  },
+  {
     label: "Coach Hours",
     href: "/admin/coach-hours",
     icon: Clock,

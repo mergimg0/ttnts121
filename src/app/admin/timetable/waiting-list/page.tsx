@@ -40,14 +40,6 @@ interface Coach {
   name: string;
 }
 
-// Mock coaches - in production, fetch from API
-const MOCK_COACHES: Coach[] = [
-  { id: "coach-val", name: "Val" },
-  { id: "coach-ciaran", name: "Ciaran" },
-  { id: "coach-tom", name: "Tom" },
-  { id: "coach-mike", name: "Mike" },
-];
-
 // Generate time options
 const TIME_OPTIONS: { value: string; label: string }[] = [];
 for (let hour = 6; hour <= 22; hour++) {
@@ -83,7 +75,8 @@ const DAY_OPTIONS = DAYS_OF_WEEK.map((day) => ({
 export default function WaitingListPage() {
   // State
   const [entries, setEntries] = useState<WaitingListEntry[]>([]);
-  const [coaches] = useState<Coach[]>(MOCK_COACHES);
+  const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [coachesLoading, setCoachesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<WaitingListStatus | "all">("all");
@@ -128,9 +121,29 @@ export default function WaitingListPage() {
     }
   }, [statusFilter]);
 
+  // Fetch coaches from API
+  const fetchCoaches = useCallback(async () => {
+    try {
+      setCoachesLoading(true);
+      const response = await fetch("/api/admin/coaches?activeOnly=true");
+      const data = await response.json();
+      if (data.success) {
+        setCoaches(data.data.map((c: { id: string; name: string }) => ({ id: c.id, name: c.name })));
+      }
+    } catch (err) {
+      console.error("Error fetching coaches:", err);
+    } finally {
+      setCoachesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchEntries();
   }, [fetchEntries]);
+
+  useEffect(() => {
+    fetchCoaches();
+  }, [fetchCoaches]);
 
   // Open editor for new entry
   const handleCreateNew = () => {

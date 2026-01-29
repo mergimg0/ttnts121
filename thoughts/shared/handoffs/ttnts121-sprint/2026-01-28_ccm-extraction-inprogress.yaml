@@ -1,0 +1,73 @@
+---
+session: ccm-knowledge-extraction
+date: 2026-01-28
+status: in_progress
+outcome: CONTINUING
+---
+
+goal: Extract knowledge from 24 CCM documentation files to inform TTNTS121 feature development
+now: Phase 3 in progress - 11/24 documents complete
+test: Check extraction files exist and task list progress
+
+done_this_session:
+  - task: Phase 1 - Foundation (6 documents)
+    files: [thoughts/shared/extraction/phase-1-foundation.md]
+    docs_processed:
+      - CCM Online Registration User Guide.pdf
+      - Refund Limit FAQ.pdf
+      - Financial Overview User Guide.pdf
+      - CCM - Custom Reports.pdf
+      - Report Concierge User Guide.pdf
+      - Thriva Migration to CCM User Guide.docx
+  - task: Phase 2 - Core Features (5 documents)
+    files: [thoughts/shared/extraction/phase-2-core-features.md]
+    docs_processed:
+      - Attendance Tracking User Guide.pdf
+      - Online Account User Guide.pdf
+      - CCM - Reg Adjustments 2.0 pdf.pdf
+      - Season Setup User Guide.pdf
+      - OnlineAccountFAQ.pdf
+
+blockers: []
+
+questions: []
+
+decisions:
+  - process_order: Smallest documents first to build vocabulary
+  - batch_size: 2-4 documents per batch to avoid context overflow
+  - output_structure: One markdown file per phase with structured extractions
+
+findings:
+  - ccm_9_step_registration: Session selection → Cart → Auth → Participant info → Forms → Waivers → Checkout → Payment → Complete
+  - ccm_hierarchy: Organization → Season → Program/Session → Tuition/Options/Merchandise
+  - ccm_14_financial_reports: AR aging, Credit Balance, Failed Payments, Deferred Revenue, etc.
+  - ccm_attendance_portal: Separate check-in/out system with signatures and measurements
+
+critical_gaps_identified:
+  - user_accounts: No customer login or self-service portal
+  - payment_plans: No installment or deposit options
+  - custom_forms: No configurable registration forms
+  - waivers: No digital signature/waiver system
+  - attendance: No check-in/out tracking
+  - session_options: No add-ons or merchandise
+  - transfers: No session transfer capability
+  - report_builder: No custom reporting or export
+
+next:
+  - Continue Phase 3 Batch 3a (Reserve Agency + Consumer Experience)
+  - Complete Phase 3 remaining batches (3b, 3c, 3d)
+  - Process Phase 4 large DOCX files individually
+  - Synthesize all findings in Phase 5
+  - Create gap analysis in Phase 6
+
+files:
+  created:
+    - thoughts/shared/extraction/phase-1-foundation.md
+    - thoughts/shared/extraction/phase-2-core-features.md
+    - thoughts/shared/plans/ccm-extraction-plan.md
+  modified: []
+
+task_progress:
+  completed: [1, 2, 3, 4, 5, 6]
+  in_progress: [7]
+  pending: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17]

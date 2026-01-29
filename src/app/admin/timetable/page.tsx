@@ -32,20 +32,13 @@ interface Coach {
   name: string;
 }
 
-// Mock coaches for now - in production, fetch from API
-const MOCK_COACHES: Coach[] = [
-  { id: "coach-val", name: "Val" },
-  { id: "coach-ciaran", name: "Ciaran" },
-  { id: "coach-tom", name: "Tom" },
-  { id: "coach-mike", name: "Mike" },
-];
-
 export default function TimetablePage() {
   // State
   const [weekStart, setWeekStart] = useState<string>(() => getWeekStart(new Date()));
   const [slots, setSlots] = useState<TimetableSlot[]>([]);
   const [templates, setTemplates] = useState<TimetableTemplate[]>([]);
-  const [coaches] = useState<Coach[]>(MOCK_COACHES);
+  const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [coachesLoading, setCoachesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applyingTemplate, setApplyingTemplate] = useState(false);
@@ -87,6 +80,22 @@ export default function TimetablePage() {
     }
   }, [selectedTemplateId]);
 
+  // Fetch coaches from API
+  const fetchCoaches = useCallback(async () => {
+    try {
+      setCoachesLoading(true);
+      const response = await fetch("/api/admin/coaches?activeOnly=true");
+      const data = await response.json();
+      if (data.success) {
+        setCoaches(data.data.map((c: { id: string; name: string }) => ({ id: c.id, name: c.name })));
+      }
+    } catch (err) {
+      console.error("Error fetching coaches:", err);
+    } finally {
+      setCoachesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSlots();
   }, [fetchSlots]);
@@ -94,6 +103,10 @@ export default function TimetablePage() {
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
+
+  useEffect(() => {
+    fetchCoaches();
+  }, [fetchCoaches]);
 
   // Handle week change
   const handleWeekChange = (newWeekStart: string) => {

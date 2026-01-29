@@ -1,0 +1,125 @@
+---
+session: ttnts121-sprint
+date: 2026-01-28
+status: partial
+outcome: PARTIAL_PLUS
+---
+
+goal: Execute 13 tasks across 5 sprints - Session management + Email campaigns + Testing
+now: Begin Sprint 2 Task #7 - Contact List Management
+
+done_this_session:
+  - task: "#2 Firebase Write Verification - Added write verification to session APIs, created toast component, added success/error toasts"
+    files:
+      - src/app/api/admin/sessions/route.ts
+      - src/app/api/admin/sessions/[id]/route.ts
+      - src/components/ui/toast.tsx
+      - src/app/admin/layout.tsx
+      - src/app/admin/programs/[id]/sessions/new/page.tsx
+      - src/app/admin/sessions/[id]/page.tsx
+
+  - task: "#3 Configurable Low Stock Threshold - Added lowStockThreshold field to Session, updated public API to use per-session threshold"
+    files:
+      - src/types/booking.ts
+      - src/app/api/sessions/route.ts
+      - src/app/admin/programs/[id]/sessions/new/page.tsx
+      - src/app/admin/sessions/[id]/page.tsx
+
+  - task: "#4 Manual Close/Sold Out Toggle - Added isForceClosed field, toggle-closed API, Close/Reopen Enrollment button"
+    files:
+      - src/types/booking.ts
+      - src/app/api/admin/sessions/[id]/toggle-closed/route.ts
+      - src/app/admin/sessions/[id]/page.tsx
+
+  - task: "#6 Clear Action Labels - Created ConfirmDialog component, added Delete Session button with confirmation, updated Cancel to Discard Changes"
+    files:
+      - src/components/admin/ui/confirm-dialog.tsx
+      - src/app/admin/sessions/[id]/page.tsx
+
+  - task: "#5 Date Range with Day Selection - Created DateRangePicker and DaySelector components, updated session creation form"
+    files:
+      - src/components/admin/ui/date-range-picker.tsx
+      - src/components/admin/ui/day-selector.tsx
+      - src/app/admin/programs/[id]/sessions/new/page.tsx
+
+blockers: []
+
+questions: []
+
+decisions:
+  - daysOfWeek_array: Added daysOfWeek[] for multi-day support, keeping dayOfWeek for backward compatibility
+  - isForceClosed_toggle: Separate quick-action API at toggle-closed endpoint for better UX
+  - toast_global_state: Used simple global state for toasts without context provider for admin simplicity
+
+findings:
+  - session_model_fields: Session now has lowStockThreshold, isForceClosed, daysOfWeek[], waitlistEnabled
+  - public_api_availability: Public sessions API respects isForceClosed before calculating availability
+  - occurrence_calculation: calculateOccurrences helper counts sessions in date range for selected days
+
+worked:
+  - Global toast state works well for admin without React context complexity
+  - ConfirmDialog with AnimatePresence provides smooth UX for destructive actions
+  - DaySelector with visual buttons better than dropdown for multi-day selection
+
+failed: []
+
+next:
+  - Sprint 2 Task #7: Create contacts Firebase collection and admin UI
+  - Sprint 2 Task #9: Contact profile and consent management
+  - Sprint 3 Task #11: Email campaign builder
+  - Sprint 3 Task #10: Campaign sending with Resend batch API
+  - Sprint 4 Task #8: Email dashboard and analytics
+  - Sprint 5 Tasks #12, #13, #14: Testing and validation
+
+files:
+  created:
+    - src/components/ui/toast.tsx
+    - src/app/api/admin/sessions/[id]/toggle-closed/route.ts
+    - src/components/admin/ui/confirm-dialog.tsx
+    - src/components/admin/ui/date-range-picker.tsx
+    - src/components/admin/ui/day-selector.tsx
+  modified:
+    - src/types/booking.ts
+    - src/app/api/admin/sessions/route.ts
+    - src/app/api/admin/sessions/[id]/route.ts
+    - src/app/api/sessions/route.ts
+    - src/app/admin/layout.tsx
+    - src/app/admin/programs/[id]/sessions/new/page.tsx
+    - src/app/admin/sessions/[id]/page.tsx
+
+task_tracker:
+  completed:
+    - id: 2
+      name: Firebase Write Verification
+    - id: 3
+      name: Configurable Low Stock Threshold
+    - id: 4
+      name: Manual Close/Sold Out Toggle
+    - id: 5
+      name: Date Range with Day Selection
+    - id: 6
+      name: Clear Action Labels
+  pending:
+    - id: 7
+      name: Contact List Management
+    - id: 9
+      name: Contact Profile & Consent
+      blocked_by: [7]
+    - id: 11
+      name: Email Campaign Builder
+      blocked_by: [7]
+    - id: 10
+      name: Campaign Sending
+      blocked_by: [11]
+    - id: 8
+      name: Email Dashboard & Analytics
+      blocked_by: [10]
+    - id: 12
+      name: Firebase Connection Test
+      blocked_by: [2]
+    - id: 14
+      name: E2E Tests
+      blocked_by: [2, 3, 4, 5, 11]
+    - id: 13
+      name: Email Integration Test
+      blocked_by: [10]

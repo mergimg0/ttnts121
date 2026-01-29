@@ -34,112 +34,8 @@ import {
   AddFollowUpInput,
   ScheduleFollowUpInput,
   MarkAsReturnedInput,
-  daysSince,
-  isFollowUpOverdue,
 } from "@/types/retention";
-
-// Mock data for development - will be replaced with API calls
-const MOCK_CUSTOMERS: LostCustomerSummary[] = [
-  {
-    id: "1",
-    studentName: "James Wilson",
-    parentName: "Sarah Wilson",
-    parentEmail: "sarah.wilson@email.com",
-    status: "lost",
-    lostReason: "schedule_conflict",
-    lastSessionDate: "2024-12-15",
-    daysSinceLost: 45,
-    totalFollowUps: 0,
-    priority: 1,
-    nextStepNotes: "Was doing really well. Dad mentioned new after-school activities.",
-  },
-  {
-    id: "2",
-    studentName: "Emma Thompson",
-    parentName: "David Thompson",
-    parentEmail: "d.thompson@email.com",
-    status: "follow_up_scheduled",
-    lostReason: "cost",
-    lastSessionDate: "2024-11-20",
-    catchUpDate: "2025-02-01",
-    daysSinceLost: 70,
-    daysSinceContact: 14,
-    totalFollowUps: 2,
-    priority: 2,
-  },
-  {
-    id: "3",
-    studentName: "Oliver Brown",
-    parentName: "Lisa Brown",
-    parentEmail: "lisa.brown@email.com",
-    status: "contacted",
-    lostReason: "joined_team",
-    lastSessionDate: "2024-10-01",
-    daysSinceLost: 120,
-    daysSinceContact: 3,
-    totalFollowUps: 3,
-    priority: 3,
-    nextStepNotes: "Joined local team but might return for 1-2-1 skill work.",
-  },
-  {
-    id: "4",
-    studentName: "Sophie Davis",
-    parentName: "Mark Davis",
-    parentEmail: "markd@email.com",
-    status: "returning",
-    lastSessionDate: "2024-09-15",
-    daysSinceLost: 136,
-    daysSinceContact: 1,
-    totalFollowUps: 4,
-    priority: 2,
-    nextStepNotes: "Booked to return next week! School holidays free.",
-  },
-  {
-    id: "5",
-    studentName: "Harry Miller",
-    parentName: "Jane Miller",
-    parentEmail: "jane.m@email.com",
-    status: "returned",
-    lostReason: "health_injury",
-    lastSessionDate: "2024-08-01",
-    daysSinceLost: 180,
-    daysSinceContact: 30,
-    totalFollowUps: 2,
-    priority: 2,
-  },
-];
-
-const MOCK_METRICS: RetentionMetricsType = {
-  totalLost: 45,
-  totalReturned: 12,
-  totalDeclined: 5,
-  totalPending: 28,
-  returnRate: 27,
-  byStatus: {
-    lost: 15,
-    follow_up_scheduled: 8,
-    contacted: 5,
-    returning: 5,
-    returned: 12,
-    declined: 5,
-  },
-  byReason: {
-    schedule_conflict: 12,
-    cost: 8,
-    moved_away: 5,
-    lost_interest: 4,
-    joined_team: 6,
-    school_commitments: 5,
-    health_injury: 3,
-    other: 2,
-    unknown: 0,
-  },
-  lostThisMonth: 3,
-  returnedThisMonth: 2,
-  needsFollowUp: 7,
-  averageDaysToReturn: 45,
-  averageFollowUpsToReturn: 3,
-};
+import { toast } from "@/components/ui/toast";
 
 export default function RetentionPage() {
   const [customers, setCustomers] = useState<LostCustomerSummary[]>([]);
@@ -166,16 +62,35 @@ export default function RetentionPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch("/api/admin/retention");
-      // const data = await response.json();
+      const [customersResponse, metricsResponse] = await Promise.all([
+        fetch("/api/admin/retention"),
+        fetch("/api/admin/retention/metrics"),
+      ]);
 
-      // Using mock data for now
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCustomers(MOCK_CUSTOMERS);
-      setMetrics(MOCK_METRICS);
+      if (!customersResponse.ok) {
+        throw new Error("Failed to fetch customers");
+      }
+      if (!metricsResponse.ok) {
+        throw new Error("Failed to fetch metrics");
+      }
+
+      const customersData = await customersResponse.json();
+      const metricsData = await metricsResponse.json();
+
+      if (customersData.success) {
+        setCustomers(customersData.data.customers);
+      } else {
+        throw new Error(customersData.error || "Failed to fetch customers");
+      }
+
+      if (metricsData.success) {
+        setMetrics(metricsData.data);
+      } else {
+        throw new Error(metricsData.error || "Failed to fetch metrics");
+      }
     } catch (error) {
       console.error("Error fetching retention data:", error);
+      toast("Failed to load retention data", "error");
     } finally {
       setLoading(false);
     }
@@ -243,33 +158,111 @@ export default function RetentionPage() {
     setReturnedDialogOpen(true);
   };
 
-  // Submit handlers (these will call APIs in production)
+  // Submit handlers
   const handleAddCustomerSubmit = async (data: CreateLostCustomerInput) => {
-    console.log("Adding customer:", data);
-    // TODO: API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await fetchData();
+    try {
+      const response = await fetch("/api/admin/retention", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to add customer");
+      }
+
+      toast("Lost customer added successfully", "success");
+      await fetchData();
+    } catch (error) {
+      console.error("Error adding customer:", error);
+      toast(error instanceof Error ? error.message : "Failed to add customer", "error");
+      throw error;
+    }
   };
 
   const handleFollowUpSubmit = async (data: AddFollowUpInput) => {
-    console.log("Adding follow-up:", data);
-    // TODO: API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await fetchData();
+    try {
+      const response = await fetch(`/api/admin/retention/\${data.lostCustomerId}/follow-up`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: data.method,
+          notes: data.notes,
+          outcome: data.outcome,
+          nextFollowUpDate: data.nextFollowUpDate,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to add follow-up");
+      }
+
+      toast("Follow-up recorded successfully", "success");
+      await fetchData();
+    } catch (error) {
+      console.error("Error adding follow-up:", error);
+      toast(error instanceof Error ? error.message : "Failed to add follow-up", "error");
+      throw error;
+    }
   };
 
   const handleScheduleSubmit = async (data: ScheduleFollowUpInput) => {
-    console.log("Scheduling call:", data);
-    // TODO: API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await fetchData();
+    try {
+      const response = await fetch(`/api/admin/retention/\${data.lostCustomerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          catchUpDate: data.followUpDate,
+          nextStepNotes: data.notes,
+          status: "follow_up_scheduled",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to schedule follow-up");
+      }
+
+      toast("Follow-up scheduled successfully", "success");
+      await fetchData();
+    } catch (error) {
+      console.error("Error scheduling follow-up:", error);
+      toast(error instanceof Error ? error.message : "Failed to schedule follow-up", "error");
+      throw error;
+    }
   };
 
   const handleReturnedSubmit = async (data: MarkAsReturnedInput) => {
-    console.log("Marking as returned:", data);
-    // TODO: API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await fetchData();
+    try {
+      const response = await fetch(`/api/admin/retention/\${data.lostCustomerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "returned",
+          returnedAt: new Date().toISOString(),
+          returnBookingId: data.bookingId,
+          returnNotes: data.notes,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to mark as returned");
+      }
+
+      toast("Customer marked as returned!", "success");
+      await fetchData();
+    } catch (error) {
+      console.error("Error marking as returned:", error);
+      toast(error instanceof Error ? error.message : "Failed to mark as returned", "error");
+      throw error;
+    }
   };
 
   // Quick filter buttons for status

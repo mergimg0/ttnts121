@@ -1,6 +1,30 @@
 import { Timestamp } from "firebase/firestore";
 
 // ============================================================================
+// COACH TYPES
+// ============================================================================
+
+/**
+ * Coach entity - a member of coaching staff
+ */
+export interface Coach {
+  id: string;
+  name: string;
+  abbreviation?: string; // Short code (e.g., "V" for Val)
+  email?: string;
+  phone?: string;
+  hourlyRate?: number; // Current default rate in pence
+  sessionRate?: number; // Per-session rate in pence (optional)
+  isActive: boolean;
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
+}
+
+export type CreateCoachInput = Omit<Coach, "id" | "createdAt" | "updatedAt">;
+
+export type UpdateCoachInput = Partial<Omit<Coach, "id" | "createdAt">>;
+
+// ============================================================================
 // COACH RATE TYPES
 // ============================================================================
 

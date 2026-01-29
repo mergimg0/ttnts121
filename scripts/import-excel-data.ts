@@ -26,9 +26,14 @@
 
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore, Timestamp, FieldValue } from "firebase-admin/firestore";
-import * as XLSX from "xlsx";
+import XLSX from "xlsx";
 import * as dotenv from "dotenv";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+// ES Module compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load environment variables
 dotenv.config({ path: resolve(__dirname, "../.env.local") });
@@ -66,24 +71,34 @@ interface CoachMapping {
 // ============================================================================
 
 // Map coach names/abbreviations to IDs and rates
-// These are placeholder IDs - in production, look up from users collection
+// Based on Excel analysis - rates from Monthly Hours sheets
 const COACH_MAPPING: CoachMapping = {
+  // Primary coaches from Monthly Hours 2026
   VAL: { id: "coach_val", abbreviation: "VAL", hourlyRate: 1500 },
-  VALERIE: { id: "coach_val", abbreviation: "VAL", hourlyRate: 1500 },
   CIARAN: { id: "coach_ciaran", abbreviation: "CIARAN", hourlyRate: 1500 },
-  ELISHA: { id: "coach_elisha", abbreviation: "ELISHA", hourlyRate: 1250 },
-  KADEEM: { id: "coach_kadeem", abbreviation: "KADEEM", hourlyRate: 1250 },
-  JERMAINE: { id: "coach_jermaine", abbreviation: "JERMAINE", hourlyRate: 1250 },
-  CHRIS: { id: "coach_chris", abbreviation: "CHRIS", hourlyRate: 1250 },
+  HARLEY: { id: "coach_harley", abbreviation: "HARLEY", hourlyRate: 1500 },
   LUCA: { id: "coach_luca", abbreviation: "LUCA", hourlyRate: 1500 },
+  KADEEM: { id: "coach_kadeem", abbreviation: "KADEEM", hourlyRate: 1250 },
+  SHAKA: { id: "coach_shaka", abbreviation: "SHAKA", hourlyRate: 1250 },
+  HARRY: { id: "coach_harry", abbreviation: "HARRY", hourlyRate: 1500 },
+  CAM: { id: "coach_cam", abbreviation: "CAM", hourlyRate: 1250 },
+  ALFIE: { id: "coach_alfie", abbreviation: "ALFIE", hourlyRate: 600 },
+  ILI: { id: "coach_ili", abbreviation: "ILI", hourlyRate: 1250 },
   LEYAH: { id: "coach_leyah", abbreviation: "LEYAH", hourlyRate: 3000 },
-  DIVA: { id: "coach_diva", abbreviation: "DIVA", hourlyRate: 1250 },
-  JAYDEN: { id: "coach_jayden", abbreviation: "JAYDEN", hourlyRate: 1250 },
-  "JAYDEN SR": { id: "coach_jayden_sr", abbreviation: "JAYDEN SR", hourlyRate: 1500 },
-  ZION: { id: "coach_zion", abbreviation: "ZION", hourlyRate: 1250 },
-  OMER: { id: "coach_omer", abbreviation: "OMER", hourlyRate: 1250 },
-  ETHAN: { id: "coach_ethan", abbreviation: "ETHAN", hourlyRate: 1250 },
-  SIENNA: { id: "coach_sienna", abbreviation: "SIENNA", hourlyRate: 1250 },
+  // Historical coaches from 2025
+  FREDDIE: { id: "coach_freddie", abbreviation: "FREDDIE", hourlyRate: 1500 },
+  "DAN M": { id: "coach_dan_m", abbreviation: "DAN M", hourlyRate: 1500 },
+  DAN: { id: "coach_dan_m", abbreviation: "DAN", hourlyRate: 1500 },
+  // From Weekly Rota
+  ANTONY: { id: "coach_antony", abbreviation: "ANTONY", hourlyRate: 1250 },
+  NATHAN: { id: "coach_nathan", abbreviation: "NATHAN", hourlyRate: 1250 },
+  TOM: { id: "coach_tom", abbreviation: "TOM", hourlyRate: 1250 },
+  MIKE: { id: "coach_mike", abbreviation: "MIKE", hourlyRate: 1250 },
+  // Abbreviation variations
+  N: { id: "coach_nathan", abbreviation: "N", hourlyRate: 1250 },
+  A: { id: "coach_antony", abbreviation: "A", hourlyRate: 1250 },
+  V: { id: "coach_val", abbreviation: "V", hourlyRate: 1500 },
+  C: { id: "coach_ciaran", abbreviation: "C", hourlyRate: 1500 },
 };
 
 const DAY_MAPPING: { [key: string]: number } = {
@@ -489,35 +504,31 @@ async function parseBlockBookings(
     for (const row of data) {
       result.recordsProcessed++;
 
-      // Expected columns (case-insensitive matching)
+      // Actual Excel columns: "Block Booking Name", "Amount of sessions", "Dates"
       const studentName =
+        (row["Block Booking Name"] as string) ||
         (row["Student Name"] as string) ||
-        (row["student name"] as string) ||
         (row["Name"] as string) ||
         "";
-      const parentName =
-        (row["Parent Name"] as string) ||
-        (row["parent name"] as string) ||
-        (row["Parent"] as string) ||
-        "";
-      const parentEmail =
-        (row["Email"] as string) ||
-        (row["email"] as string) ||
-        (row["Parent Email"] as string) ||
-        "";
-      const parentPhone = (row["Phone"] as string) || (row["phone"] as string) || "";
 
-      const totalSessions =
-        parseInt((row["Total Sessions"] as string) || (row["Sessions"] as string) || "0") || 10;
-      const remainingSessions =
-        parseInt((row["Remaining"] as string) || (row["remaining"] as string) || "0") || totalSessions;
-      const totalPaid = parseCurrency(
-        (row["Total Paid"] as string) || (row["Amount"] as string) || (row["amount"] as string) || "0"
-      );
+      // No parent info in this sheet - will need to match later
+      const parentName = "Unknown";
+      const parentEmail = "";
+      const parentPhone = "";
 
-      // Parse usage dates if present (format like "20.1/ 27.1/")
+      // Amount of sessions = total sessions remaining in the block
+      const sessionCount = parseInt(
+        (row["Amount of sessions"] as string) ||
+        (row["Sessions"] as string) ||
+        (row["Total Sessions"] as string) ||
+        "0"
+      ) || 0;
+
+      // Parse usage dates (format like "20.1/ 27.1/")
       const usageDatesStr =
-        (row["Dates Used"] as string) || (row["dates used"] as string) || (row["Usage"] as string) || "";
+        (row["Dates"] as string) ||
+        (row["Dates Used"] as string) ||
+        "";
       const usageHistory: Array<{
         usedAt: Timestamp;
         sessionDate: string;
@@ -544,21 +555,31 @@ async function parseBlockBookings(
         continue;
       }
 
-      const blockBooking = {
+      // In Excel: "Amount of sessions" = remaining sessions
+      // Dates = sessions already used
+      // Total = remaining + used
+      const usedSessions = usageHistory.length;
+      const remainingSessions = sessionCount;
+      const totalSessions = remainingSessions + usedSessions;
+
+      // Estimate price (no payment data in sheet, use typical £25/session)
+      const estimatedPrice = totalSessions * 2500;
+
+      const blockBooking: Record<string, unknown> = {
         studentName,
         parentName: parentName || "Unknown",
         parentEmail: parentEmail || "",
-        parentPhone: parentPhone || undefined,
         totalSessions,
         remainingSessions,
         usageHistory,
-        totalPaid,
-        pricePerSession: totalSessions > 0 ? Math.round(totalPaid / totalSessions) : 0,
+        totalPaid: estimatedPrice,
+        pricePerSession: 2500, // £25 per session default
         status: remainingSessions > 0 ? "active" : "exhausted",
         purchasedAt: FieldValue.serverTimestamp(),
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       };
+      if (parentPhone) blockBooking.parentPhone = parentPhone;
 
       if (!options.dryRun) {
         const docRef = db.collection("block_bookings").doc();
@@ -585,6 +606,10 @@ async function parseBlockBookings(
 
 /**
  * Parse GDS sheets -> gds_students + gds_attendance
+ * Excel structure:
+ *   Row 0: Headers ["GDS", null, null, null, "DATES", "NUMBERS", "PLAYER OF THE SESSION", ...]
+ *   Row 1+: Age group headers (like "Y1 - Y2") or student names in column A
+ *   Column A contains both age group labels and student names interspersed
  */
 async function parseGDSSheet(
   db: FirebaseFirestore.Firestore,
@@ -602,43 +627,45 @@ async function parseGDSSheet(
   };
 
   try {
-    const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
     const batch = db.batch();
 
-    for (const row of data) {
+    // Age group patterns
+    const ageGroupPattern = /^Y\d+\s*[-–]\s*Y\d+$/i;
+    let currentAgeGroup = "Y3-Y4"; // default
+
+    // Skip header row (row 0), process from row 1
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (!row || row.length === 0) continue;
+
+      const firstCell = (row[0] || "").toString().trim();
+      if (!firstCell) continue;
+
       result.recordsProcessed++;
 
-      const studentName =
-        (row["Name"] as string) ||
-        (row["Student Name"] as string) ||
-        (row["Student"] as string) ||
-        "";
-      const ageGroup =
-        (row["Age Group"] as string) ||
-        (row["age group"] as string) ||
-        (row["Group"] as string) ||
-        "Y3-Y4";
-      const parentName = (row["Parent"] as string) || (row["parent"] as string) || "";
-      const parentEmail = (row["Email"] as string) || (row["email"] as string) || "";
-      const parentPhone = (row["Phone"] as string) || (row["phone"] as string) || "";
-      const notes = (row["Notes"] as string) || (row["notes"] as string) || "";
-      const medicalConditions =
-        (row["Medical"] as string) || (row["medical"] as string) || "";
-
-      if (!studentName) {
+      // Check if this is an age group header
+      if (ageGroupPattern.test(firstCell) || firstCell.toUpperCase() === "GDS") {
+        currentAgeGroup = firstCell;
         result.recordsSkipped++;
         continue;
       }
 
+      // Skip known non-student rows
+      if (firstCell.toLowerCase().includes("cancelled") ||
+          firstCell.toLowerCase() === "dates" ||
+          firstCell.toLowerCase().includes("player of")) {
+        result.recordsSkipped++;
+        continue;
+      }
+
+      // This should be a student name
+      const studentName = firstCell;
+
       const student = {
         studentName,
         day,
-        ageGroup,
-        parentName: parentName || undefined,
-        parentEmail: parentEmail || undefined,
-        parentPhone: parentPhone || undefined,
-        medicalConditions: medicalConditions || undefined,
-        notes: notes || undefined,
+        ageGroup: currentAgeGroup,
         totalAttendances: 0,
         playerOfSessionCount: 0,
         status: "active",
@@ -653,7 +680,7 @@ async function parseGDSSheet(
 
       result.recordsCreated++;
       log(
-        `  GDS Student: ${studentName} (${day}, ${ageGroup})`,
+        `  GDS Student: ${studentName} (${day}, ${currentAgeGroup})`,
         options.verbose,
         true
       );
@@ -671,6 +698,11 @@ async function parseGDSSheet(
 
 /**
  * Parse Income and Expenses sheet -> daily_financials
+ * Excel structure:
+ *   Row 0: ["January", "Revenue ASC", "Revenue GDS", "Revenue 121", "Revenue Total",
+ *           "Expenses ASC", "Expenses GDS", "Expenses 121", "Expenses Total", "Total Gross Profit"]
+ *   Row 1+: ["Mon 5th", 89.3, 0, 0, 89.3, 39.75, 0, 23, 62.75, "£26.55"]
+ *   First column has "January" header but contains day descriptions like "Mon 5th"
  */
 async function parseFinancials(
   db: FirebaseFirestore.Firestore,
@@ -690,92 +722,101 @@ async function parseFinancials(
     const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
     const batch = db.batch();
 
+    // Month from first column header - extract to get year context
+    const currentYear = new Date().getFullYear();
+    let currentMonth = 0; // January = 0
+
+    // Day name mapping for parsing "Mon 5th" etc
+    const dayNameMap: { [key: string]: number } = {
+      mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 0,
+      monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6, sunday: 0,
+    };
+
     for (const row of data) {
       result.recordsProcessed++;
 
-      // Try to parse date from various possible column names
-      const dateValue =
-        row["Date"] || row["date"] || row["DATE"] || row["Day"] || row["day"];
-      if (!dateValue) {
+      // First column could be named "January", "February", etc. based on month
+      // Value is like "Mon 5th", "Tues 6th", etc.
+      const dateCell =
+        (row["January"] as string) ||
+        (row["February"] as string) ||
+        (row["March"] as string) ||
+        (row["Date"] as string) ||
+        "";
+
+      if (!dateCell || typeof dateCell !== "string") {
         result.recordsSkipped++;
         continue;
       }
 
-      const date = parseExcelDate(dateValue as number | string | Date);
-      if (isNaN(date.getTime())) {
+      // Parse "Mon 5th" format
+      const match = dateCell.match(/^(\w+)\s+(\d+)/);
+      if (!match) {
         result.recordsSkipped++;
         continue;
       }
 
+      const dayName = match[1].toLowerCase();
+      const dayNum = parseInt(match[2]);
+      const dayOfWeek = dayNameMap[dayName];
+
+      if (dayOfWeek === undefined || !dayNum) {
+        result.recordsSkipped++;
+        continue;
+      }
+
+      // Construct date (assume January 2026 for now based on sample)
+      const date = new Date(currentYear, currentMonth, dayNum);
       const dateStr = formatDateString(date);
-      const dayOfWeek = date.getDay();
-      const dayName = date.toLocaleDateString("en-GB", { weekday: "long" });
 
-      // Parse income columns
-      const ascIncome = parseCurrency(
-        (row["ASC Income"] as string) || (row["asc income"] as string) || (row["ASC"] as string) || "0"
-      );
-      const gdsIncome = parseCurrency(
-        (row["GDS Income"] as string) || (row["gds income"] as string) || (row["GDS"] as string) || "0"
-      );
-      const oneToOneIncome = parseCurrency(
-        (row["121 Income"] as string) ||
-        (row["1-2-1"] as string) ||
-        (row["121"] as string) ||
-        (row["One to One"] as string) ||
-        "0"
-      );
-      const otherIncome = parseCurrency((row["Other Income"] as string) || (row["Other"] as string) || "0");
+      // Parse revenue columns (actual column names from Excel)
+      const ascIncome = parseCurrency(row["Revenue ASC"] as string | number || 0);
+      const gdsIncome = parseCurrency(row["Revenue GDS"] as string | number || 0);
+      const oneToOneIncome = parseCurrency(row["Revenue 121"] as string | number || 0);
+      const revenueTotal = parseCurrency(row["Revenue Total"] as string | number || 0);
 
       // Parse expense columns
-      const coachWages = parseCurrency(
-        (row["Coach Wages"] as string) || (row["Wages"] as string) || (row["wages"] as string) || "0"
-      );
-      const equipment = parseCurrency((row["Equipment"] as string) || (row["equipment"] as string) || "0");
-      const venue = parseCurrency((row["Venue"] as string) || (row["venue"] as string) || "0");
-      const otherExpenses = parseCurrency(
-        (row["Other Expenses"] as string) || (row["Expenses"] as string) || (row["expenses"] as string) || "0"
-      );
-
-      const incomeTotal = ascIncome + gdsIncome + oneToOneIncome + otherIncome;
-      const expenseTotal = coachWages + equipment + venue + otherExpenses;
+      const ascExpenses = parseCurrency(row["Expenses ASC"] as string | number || 0);
+      const gdsExpenses = parseCurrency(row["Expenses GDS"] as string | number || 0);
+      const oneToOneExpenses = parseCurrency(row["Expenses 121"] as string | number || 0);
+      const expenseTotal = parseCurrency(row["Expenses Total"] as string | number || 0);
 
       const financial = {
         date: dateStr,
         dayOfWeek,
-        dayName,
+        dayName: date.toLocaleDateString("en-GB", { weekday: "long" }),
         income: {
           asc: ascIncome,
           gds: gdsIncome,
           oneToOne: oneToOneIncome,
-          other: otherIncome,
-          total: incomeTotal,
+          other: 0,
+          total: revenueTotal || (ascIncome + gdsIncome + oneToOneIncome),
         },
         expenses: {
-          asc: 0,
-          gds: 0,
-          oneToOne: 0,
-          coachWages,
-          equipment,
-          venue,
-          other: otherExpenses,
-          total: expenseTotal,
+          asc: ascExpenses,
+          gds: gdsExpenses,
+          oneToOne: oneToOneExpenses,
+          coachWages: 0,
+          equipment: 0,
+          venue: 0,
+          other: 0,
+          total: expenseTotal || (ascExpenses + gdsExpenses + oneToOneExpenses),
         },
-        grossProfit: incomeTotal - expenseTotal,
+        grossProfit: (revenueTotal || (ascIncome + gdsIncome + oneToOneIncome)) -
+                     (expenseTotal || (ascExpenses + gdsExpenses + oneToOneExpenses)),
         isVerified: false,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       };
 
       if (!options.dryRun) {
-        // Use date as document ID for easy lookup
         const docRef = db.collection("daily_financials").doc(dateStr);
         batch.set(docRef, financial);
       }
 
       result.recordsCreated++;
       log(
-        `  Financial: ${dateStr} - Income: ${incomeTotal / 100}, Expenses: ${expenseTotal / 100}`,
+        `  Financial: ${dateStr} - Income: £${financial.income.total / 100}, Expenses: £${financial.expenses.total / 100}`,
         options.verbose,
         true
       );
@@ -793,6 +834,10 @@ async function parseFinancials(
 
 /**
  * Parse Monthly Hours sheet -> coach_hours + coach_rates
+ * Excel structure (2026):
+ *   Row 0: [null, "Pay", "Leyah", "Luca", "Kadeem", "Shaka", "Harley", "CAM", "Harry", "Ili", "ALFIE"]
+ *   Row 1: [null, null, 30, 15, 12.5, 12.5, 15, 12.5, 15, 12.5, 6] - hourly rates
+ *   Row 4+: [46023, hours, hours, hours, ...] - first col is Excel serial date
  */
 async function parseMonthlyHours(
   db: FirebaseFirestore.Firestore,
@@ -815,28 +860,28 @@ async function parseMonthlyHours(
     const ratesBatch = db.batch();
     const processedRates = new Set<string>();
 
-    // Find header row with coach names
-    let headerRow = 0;
-    let coachColumns: { [idx: number]: string } = {};
+    // Row 0 has coach names starting at column 2 (skip null and "Pay")
+    const headerRow = data[0] as (string | null)[];
+    const ratesRow = data[1] as (number | null)[];
 
-    for (let i = 0; i < Math.min(10, data.length); i++) {
-      const row = data[i] as string[];
-      if (!row) continue;
+    if (!headerRow || headerRow.length < 3) {
+      result.errors.push("Could not find coach columns in header");
+      return result;
+    }
 
-      // Look for known coach names
-      let foundCoaches = 0;
-      row.forEach((cell, idx) => {
-        const cellStr = (cell || "").toString().toUpperCase().trim();
-        if (COACH_MAPPING[cellStr]) {
-          coachColumns[idx] = cellStr;
-          foundCoaches++;
-        }
-      });
+    // Build coach column mapping from header row
+    // Format: { columnIndex: { name: "LEYAH", rate: 3000 } }
+    const coachColumns: { [idx: number]: { name: string; rate: number } } = {};
 
-      if (foundCoaches >= 2) {
-        headerRow = i;
-        break;
-      }
+    for (let i = 2; i < headerRow.length; i++) {
+      const coachName = (headerRow[i] || "").toString().trim().toUpperCase();
+      if (!coachName) continue;
+
+      const hourlyRate = ratesRow && typeof ratesRow[i] === "number"
+        ? Math.round(ratesRow[i] * 100) // Convert to pence
+        : 1500; // Default £15/hr
+
+      coachColumns[i] = { name: coachName, rate: hourlyRate };
     }
 
     if (Object.keys(coachColumns).length === 0) {
@@ -844,62 +889,92 @@ async function parseMonthlyHours(
       return result;
     }
 
-    log(`Found ${Object.keys(coachColumns).length} coaches at row ${headerRow}`, options.verbose, true);
+    log(`Found ${Object.keys(coachColumns).length} coaches with rates`, options.verbose, true);
 
-    // Find the date column (usually first column)
-    const dateColIdx = 0;
+    // Day name mapping for parsing "Mon 5th" style dates
+    const dayNameMap: { [key: string]: number } = {
+      mon: 1, tue: 2, tues: 2, wed: 3, thu: 4, thurs: 4, fri: 5, friday: 5, sat: 6, sun: 0,
+      monday: 1, tuesday: 2, wednesday: 3, thursday: 4, saturday: 6, sunday: 0,
+    };
 
-    // Process each row (day)
-    for (let rowIdx = headerRow + 1; rowIdx < data.length; rowIdx++) {
-      const row = data[rowIdx] as (string | number)[];
+    // Process data rows starting from row 5 (row 4 is a repeated header with coach names)
+    let currentMonth = 0; // January
+    for (let rowIdx = 5; rowIdx < data.length; rowIdx++) {
+      const row = data[rowIdx] as (number | string | null)[];
       if (!row || row.length === 0) continue;
 
-      const dateValue = row[dateColIdx];
+      const dateValue = row[0];
       if (!dateValue) continue;
 
-      const date = parseExcelDate(dateValue);
-      if (isNaN(date.getTime()) || date.getFullYear() !== year) continue;
+      let date: Date;
+
+      // Check if it's an Excel serial date number
+      if (typeof dateValue === "number" && dateValue > 40000) {
+        date = parseExcelDate(dateValue);
+      } else if (typeof dateValue === "string") {
+        // Parse "Mon 5th", "Tues 6th" style dates
+        const match = dateValue.match(/^(\w+)\s+(\d+)/);
+        if (!match) continue;
+
+        const dayName = match[1].toLowerCase();
+        const dayNum = parseInt(match[2]);
+
+        if (dayNameMap[dayName] === undefined || !dayNum) continue;
+
+        // Construct date using current month
+        date = new Date(year, currentMonth, dayNum);
+
+        // If day number seems to reset, we might be in a new month
+        // Simple heuristic: if day < 5 and previous was > 25, advance month
+      } else {
+        continue;
+      }
+
+      if (isNaN(date.getTime())) continue;
+
+      // Only process dates from the target year
+      if (date.getFullYear() !== year) continue;
 
       const dateStr = formatDateString(date);
 
       // Process each coach's hours for this day
-      for (const [colIdxStr, coachName] of Object.entries(coachColumns)) {
+      for (const [colIdxStr, coachData] of Object.entries(coachColumns)) {
         const colIdx = parseInt(colIdxStr);
         const hoursValue = row[colIdx];
-        if (!hoursValue) continue;
+        if (hoursValue === null || hoursValue === undefined || hoursValue === "") continue;
 
-        const hours = parseHours(hoursValue.toString());
+        const hours = typeof hoursValue === "number" ? hoursValue : parseHours(hoursValue.toString());
         if (hours <= 0) continue;
 
         result.recordsProcessed++;
 
-        const coachInfo = COACH_MAPPING[coachName];
-        if (!coachInfo) {
-          result.recordsSkipped++;
-          continue;
-        }
+        // Normalize coach name and get info
+        const coachInfo = getCoachInfo(coachData.name);
+        const coachId = coachInfo?.id || `coach_${coachData.name.toLowerCase().replace(/\s+/g, "_")}`;
+        const coachName = coachInfo?.abbreviation || coachData.name;
+        const hourlyRate = coachData.rate;
 
         // Create coach rate if not already created
-        if (!processedRates.has(coachInfo.id) && !options.dryRun) {
+        if (!processedRates.has(coachId) && !options.dryRun) {
           const rateRef = db.collection("coach_rates").doc();
           ratesBatch.set(rateRef, {
-            coachId: coachInfo.id,
-            coachName: coachInfo.abbreviation,
-            hourlyRate: coachInfo.hourlyRate,
+            coachId,
+            coachName,
+            hourlyRate,
             effectiveFrom: Timestamp.fromDate(new Date(year, 0, 1)),
             createdAt: FieldValue.serverTimestamp(),
             updatedAt: FieldValue.serverTimestamp(),
           });
-          processedRates.add(coachInfo.id);
+          processedRates.add(coachId);
         }
 
         const hoursDoc = {
-          coachId: coachInfo.id,
-          coachName: coachInfo.abbreviation,
+          coachId,
+          coachName,
           date: dateStr,
           hoursWorked: hours,
-          hourlyRate: coachInfo.hourlyRate,
-          earnings: Math.round(hours * coachInfo.hourlyRate),
+          hourlyRate,
+          earnings: Math.round(hours * hourlyRate),
           loggedBy: "import",
           isVerified: true,
           createdAt: FieldValue.serverTimestamp(),
@@ -913,7 +988,7 @@ async function parseMonthlyHours(
 
         result.recordsCreated++;
         log(
-          `  Hours: ${coachName} on ${dateStr} - ${hours}h`,
+          `  Hours: ${coachName} on ${dateStr} - ${hours}h @ £${hourlyRate / 100}/hr`,
           options.verbose,
           true
         );
@@ -933,6 +1008,10 @@ async function parseMonthlyHours(
 
 /**
  * Parse Challenge Winners -> weekly_challenges
+ * Excel structure:
+ *   Row 0: [null, "TAKE THE NEXT STEP CALENDAR AND WINNERS"]
+ *   Row 1: [null, "CHALLENGE", null, null, "CHALLENGE WINNER", null, null, "121 OF THE WEEK"]
+ *   Row 2+: ["WEEK 1", "CROSSBAR CHALLENGE", null, null, "N/A", null, null, "N/A"]
  */
 async function parseChallengeWinners(
   db: FirebaseFirestore.Firestore,
@@ -949,104 +1028,66 @@ async function parseChallengeWinners(
   };
 
   try {
-    const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
     const batch = db.batch();
 
-    // Group challenges by week
-    const weeklyData: Map<
-      string,
-      {
-        weekStart: string;
-        weekEnd: string;
-        weekNumber: number;
-        year: number;
-        challenges: Array<{
-          challengeType: string;
-          challengeName?: string;
-          winnerName?: string;
-          winnerScore?: string | number;
-        }>;
-        oneToOneOfWeek?: { studentName: string; reason?: string };
-      }
-    > = new Map();
+    const currentYear = new Date().getFullYear();
 
-    for (const row of data) {
+    // Process each row looking for "WEEK N" pattern
+    for (let i = 2; i < data.length; i++) {
+      const row = data[i];
+      if (!row || row.length === 0) continue;
+
+      const weekCell = (row[0] || "").toString().trim();
+      const weekMatch = weekCell.match(/WEEK\s*(\d+)/i);
+
+      if (!weekMatch) continue;
+
       result.recordsProcessed++;
 
-      const dateValue = row["Date"] || row["date"] || row["Week"] || row["week"];
-      const challengeType =
-        (row["Challenge"] as string) ||
-        (row["challenge"] as string) ||
-        (row["Type"] as string) ||
-        "custom";
-      const winnerName =
-        (row["Winner"] as string) ||
-        (row["winner"] as string) ||
-        (row["Name"] as string) ||
-        "";
-      const score = row["Score"] || row["score"] || "";
-      const oneToOneOfWeek =
-        (row["121 of the Week"] as string) || (row["121 of week"] as string) || "";
+      const weekNumber = parseInt(weekMatch[1]);
+      const challengeName = (row[1] || "").toString().trim();
+      const challengeWinner = (row[4] || "").toString().trim();
+      const oneToOneOfWeek = (row[7] || "").toString().trim();
 
-      if (!dateValue) {
+      // Skip if no valid winner data
+      if (challengeWinner.toLowerCase() === "n/a" && oneToOneOfWeek.toLowerCase() === "n/a") {
         result.recordsSkipped++;
         continue;
       }
 
-      const date = parseExcelDate(dateValue as number | string | Date);
-      if (isNaN(date.getTime())) {
-        result.recordsSkipped++;
-        continue;
-      }
+      // Calculate week start date from week number (approximate)
+      const weekStart = new Date(currentYear, 0, 1 + (weekNumber - 1) * 7);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
 
-      const weekStart = getWeekStart(date);
-      const year = date.getFullYear();
-      const weekNumber = Math.ceil(
-        (date.getTime() - new Date(year, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)
-      );
+      const challenges: Array<{
+        challengeType: string;
+        challengeName: string;
+        winnerName: string;
+      }> = [];
 
-      if (!weeklyData.has(weekStart)) {
-        const weekEnd = new Date(date);
-        weekEnd.setDate(weekEnd.getDate() + (7 - weekEnd.getDay()));
-
-        weeklyData.set(weekStart, {
-          weekStart,
-          weekEnd: formatDateString(weekEnd),
-          weekNumber,
-          year,
-          challenges: [],
+      if (challengeWinner && challengeWinner.toLowerCase() !== "n/a") {
+        challenges.push({
+          challengeType: challengeName.toLowerCase().replace(/\s+/g, "_"),
+          challengeName,
+          winnerName: challengeWinner,
         });
       }
 
-      const weekData = weeklyData.get(weekStart)!;
-
-      if (winnerName) {
-        weekData.challenges.push({
-          challengeType: challengeType.toLowerCase().replace(/\s+/g, "_"),
-          challengeName: challengeType,
-          winnerName,
-          winnerScore: score as string | number,
-        });
-      }
-
-      if (oneToOneOfWeek && !weekData.oneToOneOfWeek) {
-        weekData.oneToOneOfWeek = { studentName: oneToOneOfWeek };
-      }
-    }
-
-    // Create documents for each week
-    for (const [weekStart, weekData] of Array.from(weeklyData.entries())) {
-      const challenge = {
-        weekNumber: weekData.weekNumber,
-        weekStart: weekData.weekStart,
-        weekEnd: weekData.weekEnd,
-        year: weekData.year,
+      const challenge: Record<string, unknown> = {
+        weekNumber,
+        weekStart: formatDateString(weekStart),
+        weekEnd: formatDateString(weekEnd),
+        year: currentYear,
         isHalfTerm: false,
-        challenges: weekData.challenges,
-        oneToOneOfWeek: weekData.oneToOneOfWeek,
+        challenges,
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       };
+      if (oneToOneOfWeek && oneToOneOfWeek.toLowerCase() !== "n/a") {
+        challenge.oneToOneOfWeek = { studentName: oneToOneOfWeek };
+      }
 
       if (!options.dryRun) {
         const docRef = db.collection("weekly_challenges").doc();
@@ -1055,7 +1096,7 @@ async function parseChallengeWinners(
 
       result.recordsCreated++;
       log(
-        `  Challenge week: ${weekStart} - ${weekData.challenges.length} winners`,
+        `  Challenge week ${weekNumber}: ${challengeName} winner: ${challengeWinner}, 121: ${oneToOneOfWeek}`,
         options.verbose,
         true
       );
@@ -1073,6 +1114,10 @@ async function parseChallengeWinners(
 
 /**
  * Parse Coach of the Month -> coach_awards
+ * Excel structure:
+ *   Row 0: ["COACH OF THE MONTH - £30"]
+ *   Row 1: ["MONTH", "COACH"]
+ *   Row 2+: ["SEPTEMBER", "Harley"]
  */
 async function parseCoachAwards(
   db: FirebaseFirestore.Firestore,
@@ -1089,44 +1134,41 @@ async function parseCoachAwards(
   };
 
   try {
-    const data = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as unknown[][];
     const batch = db.batch();
 
-    for (const row of data) {
+    // Month name to number mapping
+    const monthNameMap: { [key: string]: number } = {
+      january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+      july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+      jan: 1, feb: 2, mar: 3, apr: 4, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+    };
+
+    const currentYear = new Date().getFullYear();
+    // Assume awards are for the academic year starting Sept previous year
+    const academicYearStart = currentYear - 1;
+
+    // Skip header rows (0 = title, 1 = column headers), start from row 2
+    for (let i = 2; i < data.length; i++) {
+      const row = data[i];
+      if (!row || row.length < 2) continue;
+
+      const monthName = (row[0] || "").toString().trim();
+      const coachName = (row[1] || "").toString().trim();
+
+      if (!monthName || !coachName) continue;
+
       result.recordsProcessed++;
 
-      const month =
-        (row["Month"] as string) || (row["month"] as string) || (row["Date"] as string) || "";
-      const coachName =
-        (row["Coach"] as string) ||
-        (row["coach"] as string) ||
-        (row["Winner"] as string) ||
-        (row["Name"] as string) ||
-        "";
-      const reason = (row["Reason"] as string) || (row["reason"] as string) || "";
-      const prize = parseCurrency((row["Prize"] as string) || (row["prize"] as string) || "30");
-
-      if (!coachName || !month) {
+      const monthNum = monthNameMap[monthName.toLowerCase()];
+      if (!monthNum) {
         result.recordsSkipped++;
         continue;
       }
 
-      // Parse month format (could be "January 2026", "Jan-26", "2026-01", etc.)
-      let monthStr = "";
-      const monthMatch = month.match(/(\d{4})-(\d{2})/);
-      if (monthMatch) {
-        monthStr = `${monthMatch[1]}-${monthMatch[2]}`;
-      } else {
-        const date = new Date(month);
-        if (!isNaN(date.getTime())) {
-          monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-        }
-      }
-
-      if (!monthStr) {
-        result.recordsSkipped++;
-        continue;
-      }
+      // Determine year based on month (Sept-Dec = previous year, Jan-Aug = current year)
+      const year = monthNum >= 9 ? academicYearStart : currentYear;
+      const monthStr = `${year}-${String(monthNum).padStart(2, "0")}`;
 
       const coachInfo = getCoachInfo(coachName);
 
@@ -1135,8 +1177,7 @@ async function parseCoachAwards(
         month: monthStr,
         coachId: coachInfo?.id || "unknown",
         coachName: coachInfo?.abbreviation || coachName,
-        prize,
-        reason: reason || undefined,
+        prize: 3000, // £30 as stated in header
         createdAt: FieldValue.serverTimestamp(),
       };
 
@@ -1187,35 +1228,29 @@ async function parseLostCustomers(
     for (const row of data) {
       result.recordsProcessed++;
 
+      // Actual Excel columns: "Names", "Catch up", "Next Step"
       const studentName =
-        (row["Student"] as string) ||
-        (row["student"] as string) ||
+        (row["Names"] as string) ||
         (row["Name"] as string) ||
-        (row["name"] as string) ||
+        (row["Student"] as string) ||
         "";
-      const parentName =
-        (row["Parent"] as string) || (row["parent"] as string) || "";
-      const parentEmail =
-        (row["Email"] as string) || (row["email"] as string) || "";
-      const parentPhone =
-        (row["Phone"] as string) || (row["phone"] as string) || "";
-      const lastSessionDate =
-        (row["Last Session"] as string) ||
-        (row["last session"] as string) ||
-        (row["Last Date"] as string) ||
-        "";
-      const reason =
-        (row["Reason"] as string) || (row["reason"] as string) || "";
+
+      // No parent info in this sheet
+      const parentName = "";
+      const parentEmail = "";
+      const parentPhone = "";
+
+      // "Catch up" column contains the follow-up date
+      const catchUpRaw = row["Catch up"] as string | number || "";
+
+      // "Next Step" column contains progress notes
       const notes =
+        (row["Next Step"] as string) ||
         (row["Notes"] as string) ||
-        (row["notes"] as string) ||
-        (row["Progress"] as string) ||
         "";
-      const catchUpDate =
-        (row["Catch Up Date"] as string) ||
-        (row["Follow Up"] as string) ||
-        (row["follow up"] as string) ||
-        "";
+
+      // No explicit reason column - infer from notes
+      const reason = "";
 
       if (!studentName) {
         result.recordsSkipped++;
@@ -1241,42 +1276,32 @@ async function parseLostCustomers(
         lostReason = "health_injury";
       else if (reason) lostReason = "other";
 
-      // Parse last session date
-      let lastSessionDateStr = "";
-      if (lastSessionDate) {
-        const date = parseExcelDate(lastSessionDate);
-        if (!isNaN(date.getTime())) {
-          lastSessionDateStr = formatDateString(date);
-        }
-      }
-
       // Parse catch up date
       let catchUpDateStr = "";
-      if (catchUpDate) {
-        const date = parseExcelDate(catchUpDate);
+      if (catchUpRaw) {
+        const date = parseExcelDate(catchUpRaw);
         if (!isNaN(date.getTime())) {
           catchUpDateStr = formatDateString(date);
         }
       }
 
-      const lostCustomer = {
+      const lostCustomer: Record<string, unknown> = {
         studentName,
         parentName: parentName || "Unknown",
         parentEmail: parentEmail || "",
-        parentPhone: parentPhone || undefined,
-        lastSessionDate: lastSessionDateStr || undefined,
         lostReason,
-        lostReasonDetails: reason || undefined,
         lostAt: FieldValue.serverTimestamp(),
         status: catchUpDateStr ? "follow_up_scheduled" : "lost",
-        catchUpDate: catchUpDateStr || undefined,
-        nextStepNotes: notes || undefined,
         followUpHistory: [],
         totalFollowUps: 0,
         priority: 2, // Default medium priority
         addedAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       };
+      if (parentPhone) lostCustomer.parentPhone = parentPhone;
+      if (reason) lostCustomer.lostReasonDetails = reason;
+      if (catchUpDateStr) lostCustomer.catchUpDate = catchUpDateStr;
+      if (notes) lostCustomer.nextStepNotes = notes;
 
       if (!options.dryRun) {
         const docRef = db.collection("lost_customers").doc();

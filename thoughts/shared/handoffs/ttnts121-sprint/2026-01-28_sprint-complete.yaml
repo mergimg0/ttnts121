@@ -1,0 +1,87 @@
+---
+session: ttnts121-sprint
+date: 2026-01-28
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Complete 5-sprint implementation of session enhancements and email campaign system
+now: Ready for production testing and deployment
+test: npm run build && npm run test:e2e
+
+done_this_session:
+  - task: Sprint 1 - Session Enhancements (5 tasks)
+    files: [src/app/api/admin/sessions/route.ts, src/app/api/admin/sessions/[id]/route.ts, src/app/api/admin/sessions/[id]/toggle-closed/route.ts, src/types/booking.ts, src/components/ui/toast.tsx, src/components/admin/ui/confirm-dialog.tsx, src/components/admin/ui/date-range-picker.tsx, src/components/admin/ui/day-selector.tsx, src/app/admin/sessions/[id]/page.tsx, src/app/admin/programs/[id]/sessions/new/page.tsx]
+  - task: Sprint 2 - Contact Management (2 tasks)
+    files: [src/types/contact.ts, src/app/api/admin/contacts/route.ts, src/app/api/admin/contacts/[id]/route.ts, src/app/admin/contacts/page.tsx, src/app/admin/contacts/new/page.tsx, src/app/admin/contacts/[id]/page.tsx]
+  - task: Sprint 3 - Campaign Builder & Sending (2 tasks)
+    files: [src/app/api/admin/campaigns/route.ts, src/app/api/admin/campaigns/[id]/route.ts, src/app/api/admin/campaigns/[id]/send/route.ts, src/lib/email-campaign.ts, src/app/admin/campaigns/page.tsx, src/app/admin/campaigns/new/page.tsx, src/app/admin/campaigns/[id]/page.tsx]
+  - task: Sprint 4 - Email Dashboard & Analytics
+    files: [src/app/api/admin/campaigns/stats/route.ts, src/app/admin/campaigns/page.tsx]
+  - task: Sprint 5 - Testing (3 tasks)
+    files: [src/app/admin/debug/page.tsx, src/app/api/admin/debug/firebase-read/route.ts, src/app/api/admin/debug/firebase-write/route.ts, src/app/api/admin/debug/firebase-delete/route.ts, src/app/api/admin/debug/email-config/route.ts, src/app/api/admin/debug/email-test/route.ts, e2e/admin-email.spec.ts]
+
+blockers: []
+
+questions: []
+
+decisions:
+  - per_session_threshold: Each session has its own lowStockThreshold with fallback to 3
+  - badge_variants: Used error/neutral instead of danger/default for AdminBadge consistency
+  - batch_email: Resend batch API (100 emails/request) with rate limiting
+  - consent_logging: All consent changes logged to consentLogs subcollection
+
+findings:
+  - Button variants in this codebase use adminDanger not destructive
+  - AdminBadge variants are success/warning/error/neutral/info
+  - Resend batch API returns { data: [{ id }, ...] } format
+
+worked:
+  - Global toast state without React context for admin simplicity
+  - Firebase write verification by reading back immediately
+  - Batch processing with 100ms delay between batches
+
+failed: []
+
+next:
+  - Run E2E tests to verify all functionality
+  - Test email sending with real Resend API key
+  - Deploy and verify in production
+
+files:
+  created:
+    - src/components/ui/toast.tsx
+    - src/components/admin/ui/confirm-dialog.tsx
+    - src/components/admin/ui/date-range-picker.tsx
+    - src/components/admin/ui/day-selector.tsx
+    - src/types/contact.ts
+    - src/lib/email-campaign.ts
+    - src/app/api/admin/sessions/[id]/toggle-closed/route.ts
+    - src/app/api/admin/contacts/route.ts
+    - src/app/api/admin/contacts/[id]/route.ts
+    - src/app/api/admin/campaigns/route.ts
+    - src/app/api/admin/campaigns/[id]/route.ts
+    - src/app/api/admin/campaigns/[id]/send/route.ts
+    - src/app/api/admin/campaigns/stats/route.ts
+    - src/app/api/admin/debug/firebase-read/route.ts
+    - src/app/api/admin/debug/firebase-write/route.ts
+    - src/app/api/admin/debug/firebase-delete/route.ts
+    - src/app/api/admin/debug/email-config/route.ts
+    - src/app/api/admin/debug/email-test/route.ts
+    - src/app/admin/contacts/page.tsx
+    - src/app/admin/contacts/new/page.tsx
+    - src/app/admin/contacts/[id]/page.tsx
+    - src/app/admin/campaigns/page.tsx
+    - src/app/admin/campaigns/new/page.tsx
+    - src/app/admin/campaigns/[id]/page.tsx
+    - src/app/admin/debug/page.tsx
+    - e2e/admin-email.spec.ts
+  modified:
+    - src/types/booking.ts
+    - src/app/api/admin/sessions/route.ts
+    - src/app/api/admin/sessions/[id]/route.ts
+    - src/app/api/sessions/route.ts
+    - src/app/admin/layout.tsx
+    - src/app/admin/sessions/[id]/page.tsx
+    - src/app/admin/programs/[id]/sessions/new/page.tsx
+    - src/components/admin/sidebar.tsx

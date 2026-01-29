@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { AdminQuickAction } from "@/components/admin/ui/admin-quick-action";
+import { AdminEmptyState } from "@/components/admin/ui/admin-empty-state";
 import { StatsCard } from "@/components/admin/stats-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
   RefreshCw,
   AlertCircle,
   ArrowRight,
+  PiggyBank,
 } from "lucide-react";
 import {
   DailyFinancial,
@@ -127,7 +129,32 @@ export default function FinanceDashboard() {
     );
   }
 
-  // Use demo data if no API data yet
+  // Check for empty state - no data at all
+  if (!loading && !error && !summary) {
+    return (
+      <div className="space-y-8">
+        <AdminPageHeader
+          title="Finance"
+          subtitle="Track income, expenses, and profit"
+        />
+        <AdminEmptyState
+          icon={PiggyBank}
+          title="No financial data yet"
+          description="Start tracking your income and expenses by adding your first daily entry."
+          action={
+            <Button variant="adminPrimary" asChild>
+              <Link href="/admin/finance/daily">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Today's Entry
+              </Link>
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  // Use fallback data for partial data scenarios
   const data: FinancialSummary = summary || {
     today: { income: 0, expenses: 0, profit: 0 },
     thisWeek: { income: 0, expenses: 0, profit: 0 },
