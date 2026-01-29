@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/components/admin/auth-provider";
 import { AdminSidebar, MobileMenuButton } from "@/components/admin/sidebar";
+import { AdminTabs } from "@/components/admin/admin-tabs";
 import { ToastContainer } from "@/components/ui/toast";
-import { Button } from "@/components/ui/button";
-import { Loader2, User, LogOut } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
@@ -72,11 +72,16 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Sidebar - starts below header */}
+      {/* Tabs - sticky below header with backdrop blur */}
+      <div className="fixed top-16 left-0 right-0 z-30 bg-white/80 backdrop-blur-sm border-b border-neutral-200/60">
+        <AdminTabs />
+      </div>
+
+      {/* Sidebar - starts below header and tabs */}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main content */}
-      <div className="pt-16 lg:pl-64">
+      {/* Main content - account for header (4rem) + tabs (~3rem) */}
+      <div className="pt-28 lg:pl-64">
         <main className="p-4 lg:p-6">
           {children}
         </main>
