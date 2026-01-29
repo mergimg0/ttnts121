@@ -28,31 +28,33 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search")?.toLowerCase();
     const limit = parseInt(searchParams.get("limit") || "100", 10);
 
-    let query = adminDb
-      .collection("gds_students")
-      .orderBy("studentName", "asc");
-
-    // Apply filters directly in Firestore
-    if (day) {
-      query = query.where("day", "==", day);
-    }
-
-    if (ageGroup) {
-      query = query.where("ageGroup", "==", ageGroup);
-    }
-
-    if (status) {
-      query = query.where("status", "==", status);
-    }
-
-    const snapshot = await query.limit(limit).get();
+    // Fetch all and filter in memory to avoid composite index requirement
+    const snapshot = await adminDb.collection("gds_students").get();
 
     let students = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as GDSStudent[];
 
-    // Client-side search filtering (Firestore doesn't support partial text search)
+    // Apply filters in memory
+    if (day) {
+      students = students.filter((s) => s.day === day);
+    }
+
+    if (ageGroup) {
+      // Handle age group format variations (e.g., "Y1 - Y2" vs "Y1-Y2")
+      students = students.filter((s) => {
+        const normalizedFilter = ageGroup.replace(/\s+/g, "");
+        const normalizedValue = s.ageGroup?.replace(/\s+/g, "") || "";
+        return normalizedValue === normalizedFilter;
+      });
+    }
+
+    if (status) {
+      students = students.filter((s) => s.status === status);
+    }
+
+    // Client-side search filtering
     if (search) {
       students = students.filter(
         (student) =>
@@ -60,6 +62,14 @@ export async function GET(request: NextRequest) {
           student.parentName?.toLowerCase().includes(search) ||
           student.parentEmail?.toLowerCase().includes(search)
       );
+    }
+
+    // Sort by studentName
+    students.sort((a, b) => a.studentName.localeCompare(b.studentName));
+
+    // Apply limit
+    if (limit > 0) {
+      students = students.slice(0, limit);
     }
 
     return NextResponse.json({
