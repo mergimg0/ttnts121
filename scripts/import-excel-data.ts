@@ -30,6 +30,11 @@ import XLSX from "xlsx";
 import * as dotenv from "dotenv";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  walkRotaGrid,
+  countSlots,
+  RawRotaSlot,
+} from "./lib/excel-utils.js";
 
 // ES Module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -473,6 +478,168 @@ async function parseFixedRota(
 
     result.recordsCreated = 1;
     log(`Created template with ${slots.length} slots`, options.verbose);
+  } catch (error) {
+    result.errors.push(`Error parsing FIXED ROTA: ${error}`);
+  }
+
+  return result;
+}
+
+/**
+ * Parse Weekly Rota V2 - Uses grid walker for merged cell structure
+ */
+async function parseWeeklyRotaV2(
+  db: FirebaseFirestore.Firestore,
+  worksheet: XLSX.WorkSheet,
+  options: ImportOptions
+): Promise<ImportResult> {
+  const result: ImportResult = {
+    sheet: "Weekly rota",
+    collection: "timetable_slots",
+    recordsProcessed: 0,
+    recordsCreated: 0,
+    recordsSkipped: 0,
+    errors: [],
+  };
+
+  try {
+    const weekStart = getWeekStart(new Date());
+    const slots: RawRotaSlot[] = [];
+
+    // Use grid walker to extract all slots
+    for (const slot of walkRotaGrid(worksheet)) {
+      slots.push(slot);
+    }
+
+    result.recordsProcessed = slots.length;
+
+    if (slots.length === 0) {
+      log("No slots found in Weekly rota", options.verbose);
+      return result;
+    }
+
+    // Log slot counts for verification
+    const counts = countSlots(slots);
+    log(`Weekly rota slot counts: ${JSON.stringify(counts)}`, options.verbose, true);
+
+    const batch = db.batch();
+
+    for (const slot of slots) {
+      const slotDoc: Record<string, unknown> = {
+        dayOfWeek: slot.dayOfWeek,
+        dayName: slot.day,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        courtIndex: slot.colIndex,
+        slotType: slot.slotType,
+        isASCSlot: slot.isASCSlot,
+        weekStart,
+        sourceColumn: slot.column,
+        sourceRow: slot.row,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+
+      if (slot.studentName) slotDoc.studentName = slot.studentName;
+      if (slot.studentNames) slotDoc.studentNames = slot.studentNames;
+      if (slot.availableCoach) slotDoc.availableCoach = slot.availableCoach;
+
+      if (!options.dryRun) {
+        const docRef = db.collection("timetable_slots").doc();
+        batch.set(docRef, slotDoc);
+      }
+
+      result.recordsCreated++;
+      log(
+        `  Slot: ${slot.day} ${slot.startTime}-${slot.endTime} [${slot.column}]: ${slot.rawValue}`,
+        options.verbose,
+        true
+      );
+    }
+
+    if (!options.dryRun) {
+      await batch.commit();
+      log(`Committed ${result.recordsCreated} timetable slots`, options.verbose);
+    }
+  } catch (error) {
+    result.errors.push(`Error parsing Weekly rota: ${error}`);
+  }
+
+  return result;
+}
+
+/**
+ * Parse FIXED ROTA V2 - Uses grid walker for merged cell structure
+ */
+async function parseFixedRotaV2(
+  db: FirebaseFirestore.Firestore,
+  worksheet: XLSX.WorkSheet,
+  options: ImportOptions
+): Promise<ImportResult> {
+  const result: ImportResult = {
+    sheet: "FIXED ROTA",
+    collection: "timetable_templates",
+    recordsProcessed: 0,
+    recordsCreated: 0,
+    recordsSkipped: 0,
+    errors: [],
+  };
+
+  try {
+    const slots: RawRotaSlot[] = [];
+
+    // Use grid walker to extract all slots
+    for (const slot of walkRotaGrid(worksheet)) {
+      slots.push(slot);
+    }
+
+    result.recordsProcessed = slots.length;
+
+    if (slots.length === 0) {
+      log("No slots found in FIXED ROTA", options.verbose);
+      return result;
+    }
+
+    // Log slot counts for verification
+    const counts = countSlots(slots);
+    log(`FIXED ROTA slot counts: ${JSON.stringify(counts)}`, options.verbose, true);
+
+    // Convert to template slot format
+    const templateSlots = slots.map((slot) => {
+      const templateSlot: Record<string, unknown> = {
+        dayOfWeek: slot.dayOfWeek,
+        dayName: slot.day,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        courtIndex: slot.colIndex,
+        slotType: slot.slotType,
+        isASCSlot: slot.isASCSlot,
+        sourceColumn: slot.column,
+        sourceRow: slot.row,
+      };
+
+      if (slot.studentName) templateSlot.defaultStudentName = slot.studentName;
+      if (slot.studentNames) templateSlot.defaultStudentNames = slot.studentNames;
+      if (slot.availableCoach) templateSlot.availableCoach = slot.availableCoach;
+
+      return templateSlot;
+    });
+
+    const template = {
+      name: "Default Weekly Schedule",
+      description: "Imported from FIXED ROTA sheet",
+      isActive: true,
+      slots: templateSlots,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    };
+
+    if (!options.dryRun) {
+      await db.collection("timetable_templates").add(template);
+    }
+
+    result.recordsCreated = 1;
+    log(`Created template with ${templateSlots.length} slots`, options.verbose);
   } catch (error) {
     result.errors.push(`Error parsing FIXED ROTA: ${error}`);
   }
@@ -1373,11 +1540,11 @@ async function importExcelData(options: ImportOptions): Promise<void> {
   }[] = [
     {
       patterns: ["Weekly rota", "weekly rota", "WEEKLY ROTA"],
-      parser: parseWeeklyRota,
+      parser: parseWeeklyRotaV2,
     },
     {
       patterns: ["FIXED ROTA", "Fixed Rota", "fixed rota"],
-      parser: parseFixedRota,
+      parser: parseFixedRotaV2,
     },
     {
       patterns: ["Block Booking", "block booking", "BLOCK BOOKING"],
