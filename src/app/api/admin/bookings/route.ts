@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const paymentStatus = searchParams.get("paymentStatus");
 
-    let query = adminDb.collection("bookings").orderBy("createdAt", "desc");
+    const query = adminDb.collection("bookings").orderBy("createdAt", "desc");
 
     // Note: Firestore doesn't support multiple inequality filters
     // For production, you might want to use composite indexes

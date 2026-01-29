@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const location = searchParams.get("location");
     const serviceType = searchParams.get("serviceType");
 
-    let query = adminDb
+    const query = adminDb
       .collection("programs")
       .where("isActive", "==", true);
 

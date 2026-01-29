@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch bookings
-    let query = adminDb.collection("bookings").orderBy("createdAt", "desc");
+    const query = adminDb.collection("bookings").orderBy("createdAt", "desc");
     const snapshot = await query.get();
 
     let bookings = snapshot.docs.map((doc) => ({

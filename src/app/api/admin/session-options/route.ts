@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const sessionId = searchParams.get("sessionId");
     const activeOnly = searchParams.get("activeOnly") === "true";
 
-    let query: FirebaseFirestore.Query = adminDb
+    const query: FirebaseFirestore.Query = adminDb
       .collection("session_options")
       .orderBy("createdAt", "desc");
 

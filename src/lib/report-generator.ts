@@ -206,7 +206,7 @@ async function generateRevenueReport(
   dateRange: { start: Date; end: Date },
   filters?: ScheduledReportFilters
 ): Promise<Record<string, unknown>[]> {
-  let query: FirebaseFirestore.Query = adminDb
+  const query: FirebaseFirestore.Query = adminDb
     .collection("bookings")
     .where("createdAt", ">=", dateRange.start)
     .where("createdAt", "<=", dateRange.end)
@@ -274,7 +274,7 @@ async function generateSessionsReport(
   dateRange: { start: Date; end: Date },
   filters?: ScheduledReportFilters
 ): Promise<Record<string, unknown>[]> {
-  let query: FirebaseFirestore.Query = adminDb
+  const query: FirebaseFirestore.Query = adminDb
     .collection("sessions")
     .where("startDate", ">=", dateRange.start)
     .where("startDate", "<=", dateRange.end)

@@ -7,7 +7,9 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   LayoutDashboard,
   Calendar,
-  ClipboardCheck,
+  CalendarDays,
+  Clock,
+  PoundSterling,
   Menu,
   X,
   ArrowLeft,
@@ -24,6 +26,21 @@ const navItems = [
     label: "My Sessions",
     href: "/coach/sessions",
     icon: Calendar,
+  },
+  {
+    label: "Timetable",
+    href: "/coach/timetable",
+    icon: CalendarDays,
+  },
+  {
+    label: "Log Hours",
+    href: "/coach/hours",
+    icon: Clock,
+  },
+  {
+    label: "Earnings",
+    href: "/coach/earnings",
+    icon: PoundSterling,
   },
 ];
 

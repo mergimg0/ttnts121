@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Fetch bookings (only paid ones for attendance)
-    let query = adminDb
+    const query = adminDb
       .collection("bookings")
       .where("paymentStatus", "==", "paid")
       .orderBy("createdAt", "desc");

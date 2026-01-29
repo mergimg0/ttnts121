@@ -109,7 +109,7 @@ export function calculateDiscount(
   sessionIds: string[]
 ): number {
   // Determine the applicable amount (for session-specific coupons)
-  let applicableAmount = cartTotal;
+  const applicableAmount = cartTotal;
 
   // For session-specific coupons, we would need session prices
   // For now, apply to total cart (session-specific logic would require price lookup)

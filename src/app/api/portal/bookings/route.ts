@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       .orderBy("createdAt", "desc")
       .get();
 
-    let bookings = snapshot.docs.map((doc) => ({
+    const bookings = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as Booking[];

@@ -334,6 +334,63 @@ export function refundConfirmationEmail(data: {
   };
 }
 
+// Cancellation confirmation - sent when a booking is cancelled by customer
+export function cancellationConfirmationEmail(data: {
+  parentName: string;
+  childNames: string[];
+  sessionName: string;
+  sessionDate: Date | string;
+  refundAmount?: number; // in pence
+  refundPercentage?: number;
+  refundExplanation?: string;
+}): string {
+  const { parentName, childNames, sessionName, sessionDate: rawSessionDate, refundAmount, refundPercentage, refundExplanation } = data;
+
+  // Format session date
+  const sessionDate = rawSessionDate instanceof Date
+    ? rawSessionDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    : rawSessionDate;
+
+  const childrenList = childNames.join(", ");
+  const formattedRefund = refundAmount ? `£${(refundAmount / 100).toFixed(2)}` : null;
+
+  const refundSection = refundAmount && refundAmount > 0
+    ? `
+      <div class="highlight" style="background: #e3f2fd;">
+        <p><strong>Refund Amount:</strong> ${formattedRefund}${refundPercentage ? ` (${refundPercentage}% refund)` : ""}</p>
+        ${refundExplanation ? `<p style="font-size: 13px; color: #666;">${refundExplanation}</p>` : ""}
+        <p style="font-size: 13px; color: #666;">The refund will be credited to your original payment method within 5-10 business days.</p>
+      </div>
+    `
+    : `
+      <div class="highlight" style="background: #fff3cd;">
+        <p><strong>Refund:</strong> ${refundExplanation || "Not eligible for refund based on cancellation policy."}</p>
+      </div>
+    `;
+
+  return wrapTemplate(`
+    <div class="content">
+      <h2>Cancellation Confirmed</h2>
+      <p>Hi ${parentName},</p>
+      <p>We've received your cancellation request and your booking has been cancelled.</p>
+
+      <div class="highlight">
+        <p><strong>Session:</strong> ${sessionName}</p>
+        <p><strong>Date:</strong> ${sessionDate}</p>
+        <p><strong>Player(s):</strong> ${childrenList}</p>
+      </div>
+
+      ${refundSection}
+
+      <p>We're sorry to see you go! If your plans change, we'd love to have ${childrenList} back on the pitch. Feel free to book again anytime.</p>
+
+      <p>If you have any questions about this cancellation, please don't hesitate to get in touch.</p>
+
+      <p><strong>The ${SITE_CONFIG.shortName} Team</strong></p>
+    </div>
+  `);
+}
+
 // Checkout abandoned - sent when checkout session expires
 export function checkoutAbandonedEmail(data: {
   parentFirstName: string;

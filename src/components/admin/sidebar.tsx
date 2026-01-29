@@ -22,6 +22,13 @@ import {
   ShoppingCart,
   Tag,
   Percent,
+  Package,
+  Trophy,
+  Grid3X3,
+  UsersRound,
+  Clock,
+  PiggyBank,
+  UserMinus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,9 +54,44 @@ const navItems = [
     icon: CreditCard,
   },
   {
+    label: "Timetable",
+    href: "/admin/timetable",
+    icon: Grid3X3,
+  },
+  {
+    label: "Block Bookings",
+    href: "/admin/block-bookings",
+    icon: Package,
+  },
+  {
+    label: "GDS",
+    href: "/admin/gds",
+    icon: UsersRound,
+  },
+  {
     label: "Attendance",
     href: "/admin/attendance",
     icon: ClipboardCheck,
+  },
+  {
+    label: "Coach Hours",
+    href: "/admin/coach-hours",
+    icon: Clock,
+  },
+  {
+    label: "Challenges",
+    href: "/admin/challenges",
+    icon: Trophy,
+  },
+  {
+    label: "Finance",
+    href: "/admin/finance",
+    icon: PiggyBank,
+  },
+  {
+    label: "Retention",
+    href: "/admin/retention",
+    icon: UserMinus,
   },
   {
     label: "Waitlist",

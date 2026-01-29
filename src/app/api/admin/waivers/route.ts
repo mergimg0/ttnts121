@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const activeOnly = searchParams.get("activeOnly") === "true";
     const sessionId = searchParams.get("sessionId");
 
-    let query = adminDb.collection("waiver_templates").orderBy("createdAt", "desc");
+    const query = adminDb.collection("waiver_templates").orderBy("createdAt", "desc");
 
     const snapshot = await query.get();
 

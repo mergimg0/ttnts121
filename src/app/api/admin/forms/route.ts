@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const activeOnly = searchParams.get("active") === "true";
     const sessionId = searchParams.get("sessionId");
 
-    let query = adminDb
+    const query = adminDb
       .collection("form_templates")
       .orderBy("createdAt", "desc");
 
