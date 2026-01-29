@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AuthProvider, useAuth } from "@/components/admin/auth-provider";
 import { AdminSidebar, MobileMenuButton } from "@/components/admin/sidebar";
 import { AdminTabs } from "@/components/admin/admin-tabs";
+import { getTabFromPath } from "@/lib/admin-navigation";
 import { ToastContainer } from "@/components/ui/toast";
 import { Loader2, LogOut } from "lucide-react";
 
@@ -40,6 +41,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+
+  // Check if we're on Overview tab (no sidebar needed)
+  const isOverviewTab = getTabFromPath(pathname) === "overview";
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -81,7 +85,8 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content - account for header (4rem) + tabs (~3rem) */}
-      <div className="pt-28 lg:pl-64">
+      {/* No left padding on Overview tab (no sidebar) */}
+      <div className={`pt-28 ${isOverviewTab ? "" : "lg:pl-64"}`}>
         <main className="p-4 lg:p-6">
           {children}
         </main>

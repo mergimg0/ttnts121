@@ -28,6 +28,9 @@ export function AdminSidebar({
   const currentTab = activeTab || getTabFromPath(pathname);
   const tabConfig = adminTabs.find((t) => t.id === currentTab);
 
+  // Hide sidebar for Overview tab (only has 1 item - Dashboard)
+  const isOverviewTab = currentTab === "overview";
+
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
     if (isOpen) {
@@ -131,9 +134,12 @@ export function AdminSidebar({
   return (
     <>
       {/* Desktop Sidebar - positioned below fixed header and tabs */}
-      <aside className="hidden lg:block fixed left-0 top-28 z-20 h-[calc(100vh-7rem)] w-64 bg-white border-r border-neutral-200">
-        {sidebarContent}
-      </aside>
+      {/* Hidden on Overview tab since it only has Dashboard */}
+      {!isOverviewTab && (
+        <aside className="hidden lg:block fixed left-0 top-28 z-20 h-[calc(100vh-7rem)] w-64 bg-white border-r border-neutral-200">
+          {sidebarContent}
+        </aside>
+      )}
 
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
