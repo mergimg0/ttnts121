@@ -3,14 +3,13 @@ import { adminDb, adminAuth } from "@/lib/firebase-admin";
 import Stripe from "stripe";
 import { Booking, Session } from "@/types/booking";
 import { calculateRefund, DEFAULT_REFUND_POLICY } from "@/lib/refund-calculator";
-import { Resend } from "resend";
 import { cancellationConfirmationEmail } from "@/lib/email-templates";
+import { sendEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-12-15.clover",
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper to verify user from session
 async function verifyUserSession(request: NextRequest) {
@@ -208,8 +207,7 @@ export async function POST(
         refundExplanation: refundResult.reason,
       });
 
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "TTNTS <noreply@tabletennisluton.co.uk>",
+      await sendEmail({
         to: booking.parentEmail,
         subject: `Booking Cancellation Confirmed - ${session.name}`,
         html: emailHtml,
