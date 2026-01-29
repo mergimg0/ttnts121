@@ -43,24 +43,28 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build query
-    let query = adminDb
+    // Build query - fetch by weekStart only to avoid composite index requirement
+    const query = adminDb
       .collection(COLLECTION_NAME)
       .where("weekStart", "==", weekStart);
 
-    if (coachId) {
-      query = query.where("coachId", "==", coachId);
-    }
-
-    // Order by day of week, then start time for consistent display
-    query = query.orderBy("dayOfWeek", "asc").orderBy("startTime", "asc");
-
     const snapshot = await query.get();
 
-    const slots = snapshot.docs.map((doc) => ({
+    let slots = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as TimetableSlot[];
+
+    // Filter by coachId in memory if specified
+    if (coachId) {
+      slots = slots.filter((slot) => slot.coachId === coachId);
+    }
+
+    // Sort by day of week, then start time for consistent display
+    slots.sort((a, b) => {
+      if (a.dayOfWeek !== b.dayOfWeek) return a.dayOfWeek - b.dayOfWeek;
+      return a.startTime.localeCompare(b.startTime);
+    });
 
     return NextResponse.json({
       success: true,
