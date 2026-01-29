@@ -34,17 +34,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("activeOnly") === "true";
 
-    let query: FirebaseFirestore.Query = adminDb
+    // Fetch all and filter in memory to avoid composite index requirement
+    const query = adminDb
       .collection(COACHES_COLLECTION)
       .orderBy("name", "asc");
 
-    if (activeOnly) {
-      query = query.where("isActive", "==", true);
-    }
-
     const snapshot = await query.get();
 
-    const coaches = snapshot.docs.map((doc) => serializeCoach(doc));
+    let coaches = snapshot.docs.map((doc) => serializeCoach(doc));
+
+    // Filter for active only if requested
+    if (activeOnly) {
+      coaches = coaches.filter((coach) => coach.isActive);
+    }
 
     return NextResponse.json({ success: true, data: coaches });
   } catch (error) {

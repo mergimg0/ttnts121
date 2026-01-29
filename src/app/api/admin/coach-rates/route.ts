@@ -3,6 +3,39 @@ import { adminDb } from "@/lib/firebase-admin";
 import { CoachRate, CreateCoachRateInput } from "@/types/coach";
 import type { Timestamp } from "firebase-admin/firestore";
 
+// Helper to serialize Firestore timestamps
+function serializeTimestamp(value: unknown): Date | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date) return value;
+  if (typeof value === "object" && value !== null && "toDate" in value) {
+    return (value as Timestamp).toDate();
+  }
+  if (typeof value === "object" && value !== null && "_seconds" in value) {
+    // Already serialized timestamp object
+    const ts = value as { _seconds: number; _nanoseconds: number };
+    return new Date(ts._seconds * 1000 + ts._nanoseconds / 1000000);
+  }
+  return undefined;
+}
+
+function serializeRate(doc: FirebaseFirestore.DocumentSnapshot): CoachRate {
+  const data = doc.data();
+  if (!data) throw new Error("Document data is undefined");
+
+  return {
+    id: doc.id,
+    coachId: data.coachId,
+    coachName: data.coachName,
+    hourlyRate: data.hourlyRate,
+    effectiveFrom: serializeTimestamp(data.effectiveFrom) || new Date(),
+    effectiveUntil: serializeTimestamp(data.effectiveUntil),
+    notes: data.notes,
+    createdBy: data.createdBy,
+    createdAt: serializeTimestamp(data.createdAt) || new Date(),
+    updatedAt: serializeTimestamp(data.updatedAt) || new Date(),
+  };
+}
+
 // GET all coach rates (with optional filters)
 export async function GET(request: NextRequest) {
   try {
@@ -19,21 +52,15 @@ export async function GET(request: NextRequest) {
 
     const snapshot = await query.get();
 
-    let rates = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as CoachRate[];
+    let rates = snapshot.docs.map((doc) => serializeRate(doc));
 
     // Filter for active rates (no effectiveUntil or effectiveUntil > now)
     if (activeOnly) {
       const now = new Date();
       rates = rates.filter((rate) => {
         if (!rate.effectiveUntil) return true;
-        const untilDate =
-          rate.effectiveUntil instanceof Date
-            ? rate.effectiveUntil
-            : (rate.effectiveUntil as Timestamp).toDate();
-        return untilDate > now;
+        // effectiveUntil is already serialized to Date by serializeRate
+        return rate.effectiveUntil > now;
       });
     }
 
