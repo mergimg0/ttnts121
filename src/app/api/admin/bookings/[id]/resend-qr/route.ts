@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { sendEmail } from "@/lib/email";
 import { qrCodeResendEmail } from "@/lib/email-templates";
 import { generateBookingQRCode, QRCodeData } from "@/lib/qr-code";
@@ -10,6 +11,10 @@ interface RouteParams {
 
 // POST /api/admin/bookings/[id]/resend-qr - Resend QR code via email
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id: bookingId } = await params;
 

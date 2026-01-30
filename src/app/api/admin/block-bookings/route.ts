@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   BlockBooking,
   BlockBookingSummary,
@@ -45,6 +46,8 @@ function toSummary(booking: BlockBooking): BlockBookingSummary {
 // GET /api/admin/block-bookings - List all block bookings
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as BlockBookingStatus | null;
     const studentName = searchParams.get("studentName");
@@ -159,6 +162,8 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/block-bookings - Create a new block booking
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateBlockBookingInput = await request.json();
 
     // Validate required fields

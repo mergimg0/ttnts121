@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const snapshot = await adminDb
       .collection("waitlist")
       .orderBy("createdAt", "desc")
@@ -23,8 +26,10 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body = await request.json();
 
     const docRef = await adminDb.collection("waitlist").add({

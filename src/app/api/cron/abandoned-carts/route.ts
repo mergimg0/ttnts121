@@ -17,14 +17,20 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
-    // If CRON_SECRET is set, require authorization
-    if (cronSecret) {
-      if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
-        return NextResponse.json(
-          { success: false, error: "Unauthorized" },
-          { status: 401 }
-        );
-      }
+    // ALWAYS require CRON_SECRET - fail if not configured
+    if (!cronSecret) {
+      console.error("CRON_SECRET not configured");
+      return NextResponse.json(
+        { success: false, error: "Server misconfiguration" },
+        { status: 500 }
+      );
+    }
+
+    if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     console.log("Starting abandoned cart processing...");

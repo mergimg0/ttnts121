@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   AttendanceRecord,
   WeeklyAttendanceSummary,
@@ -21,6 +22,8 @@ const SESSION_TYPE_LABELS: Record<string, string> = {
 // GET weekly attendance summary
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const weekStart = searchParams.get("weekStart");
     const sessionType = searchParams.get("sessionType") as SessionType | null;

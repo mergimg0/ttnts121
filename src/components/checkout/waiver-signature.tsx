@@ -5,6 +5,7 @@ import { SignatureCanvas } from "@/components/admin/signature-canvas";
 import { WaiverTemplate } from "@/types/waiver";
 import { ChevronDown, ChevronUp, FileText, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface WaiverSignatureProps {
   waiver: WaiverTemplate;
@@ -116,7 +117,7 @@ export function WaiverSignature({
           <div className="max-h-60 overflow-y-auto border border-neutral-200 rounded-lg p-4 bg-neutral-50">
             <div
               className="prose prose-sm max-w-none text-neutral-700"
-              dangerouslySetInnerHTML={{ __html: waiver.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(waiver.content) }}
             />
           </div>
 

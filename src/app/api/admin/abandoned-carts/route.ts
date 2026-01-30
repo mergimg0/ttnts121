@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAbandonedCarts, getCartRecoveryMetrics } from "@/lib/cart-tracking";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { AbandonedCartsListResponse } from "@/types/abandoned-cart";
 
 type CartStatusFilter = "pending" | "email_sent" | "recovered" | "all";
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const rawStatus = searchParams.get("status") || "all";

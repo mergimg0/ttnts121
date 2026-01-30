@@ -14,6 +14,7 @@ import { auth, db } from "@/lib/firebase";
 import {
   signUp as authSignUp,
   signIn as authSignIn,
+  signInWithGoogle as authSignInWithGoogle,
   signOut as authSignOut,
   resetPassword as authResetPassword,
   sendVerificationEmail as authSendVerification,
@@ -30,6 +31,7 @@ interface AuthContextType {
 
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (data: RegisterFormData) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -112,6 +114,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
     }
   }, []);
+
+  // Sign in with Google
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      const firebaseUser = await authSignInWithGoogle();
+
+      // Check if user profile exists, create if not
+      const userDocRef = doc(db, "users", firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create new user profile from Google account info
+        const names = firebaseUser.displayName?.split(" ") || ["", ""];
+        const firstName = names[0] || "";
+        const lastName = names.slice(1).join(" ") || "";
+
+        const newUserDoc: Omit<User, "id"> = {
+          email: firebaseUser.email || "",
+          firstName,
+          lastName,
+          phone: firebaseUser.phoneNumber || undefined,
+          role: "customer",
+          children: [],
+          marketingConsent: false,
+          emailVerified: firebaseUser.emailVerified,
+          createdAt: serverTimestamp() as unknown as Date,
+          updatedAt: serverTimestamp() as unknown as Date,
+        };
+
+        await setDoc(userDocRef, newUserDoc);
+      }
+
+      // Fetch the user profile
+      const userProfile = await fetchUserProfile(firebaseUser);
+      setUser(userProfile);
+    } catch (err) {
+      const errorCode = (err as { code?: string }).code || "";
+      setError(getAuthErrorMessage(errorCode));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchUserProfile]);
 
   // Sign up a new user
   const signUp = useCallback(
@@ -251,6 +298,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     error,
     signIn,
+    signInWithGoogle,
     signUp,
     signOut,
     resetPassword,

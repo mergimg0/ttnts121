@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { RegisterFormData } from "@/types/user";
 import { Loader2, AlertCircle, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
@@ -242,7 +243,18 @@ export function RegisterForm() {
           )}
         </Button>
 
-        <p className="text-xs text-neutral-500 text-center">
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-neutral-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-4 text-neutral-500">or</span>
+          </div>
+        </div>
+
+        <GoogleSignInButton redirectTo="/account" />
+
+        <p className="text-xs text-neutral-500 text-center mt-6">
           By creating an account, you agree to our{" "}
           <Link href="/terms" className="text-sky-600 hover:underline">
             Terms of Service

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   WeeklyChallenge,
   ChallengeResult,
@@ -122,6 +123,8 @@ async function calculateLeaderboard(year?: number, limit: number = 10): Promise<
 // GET /api/admin/challenges - List challenges by year OR get specific week
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const weekStart = searchParams.get("weekStart");
 
@@ -194,6 +197,8 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/challenges - Handle various challenge actions
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body = await request.json();
     const { action, weekStart } = body;
 

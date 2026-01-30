@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { parseQRCodeData } from "@/lib/qr-code";
 import { QRValidationResponse } from "@/types/attendance";
 import { Booking } from "@/types/booking";
@@ -7,6 +8,8 @@ import { Booking } from "@/types/booking";
 // POST validate QR code and optionally check in
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body = await request.json();
     const { payload, sessionId, date, autoCheckin = false, checkedInBy } = body;
 

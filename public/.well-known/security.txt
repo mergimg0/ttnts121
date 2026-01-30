@@ -1,0 +1,11 @@
+# Security Policy for TTNTS121 Football Academy Booking System
+# https://securitytxt.org/
+
+Contact: mailto:security@example.com
+Expires: 2027-01-30T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://example.com/.well-known/security.txt
+
+# Security acknowledgements
+# We appreciate responsible disclosure of security vulnerabilities.
+# Please contact us via the email above if you discover any security issues.

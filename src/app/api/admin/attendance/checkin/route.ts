@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { AttendanceRecord } from "@/types/attendance";
 
 // POST check in a child
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body = await request.json();
     const { bookingId, sessionId, childName, date, method = "manual", checkedInBy, notes } = body;
 

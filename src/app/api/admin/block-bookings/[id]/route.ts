@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   BlockBooking,
   BlockBookingDetail,
@@ -46,6 +47,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
 
     const doc = await adminDb.collection(COLLECTION).doc(id).get();
@@ -93,6 +97,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: UpdateBlockBookingInput = await request.json();
 
@@ -250,6 +257,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const { searchParams } = new URL(request.url);
     const hardDelete = searchParams.get("hard") === "true";

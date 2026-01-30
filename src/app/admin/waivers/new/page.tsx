@@ -11,6 +11,7 @@ import { AdminPageHeader } from "@/components/admin/ui/admin-page-header";
 import { toast } from "@/components/ui/toast";
 import { ArrowLeft, Loader2, Save, Eye } from "lucide-react";
 import { Session } from "@/types/booking";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function NewWaiverPage() {
   const router = useRouter();
@@ -146,7 +147,7 @@ export default function NewWaiverPage() {
                 <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50 min-h-[200px]">
                   <div
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: formData.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.content) }}
                   />
                 </div>
               ) : (

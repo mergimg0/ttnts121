@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Authentication utilities for TTNTS121 Football Academy
+ *
+ * SECURITY NOTICE: This file contains security-sensitive authentication logic.
+ * For security concerns, please report to: security@example.com
+ * See: /.well-known/security.txt
+ */
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -7,9 +15,17 @@ import {
   confirmPasswordReset,
   verifyPasswordResetCode,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
   User as FirebaseUser,
 } from "firebase/auth";
 import { auth } from "./firebase";
+
+// Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: "select_account", // Always show account selection
+});
 
 /**
  * Sign up a new user with email and password
@@ -46,6 +62,14 @@ export async function signIn(
     password
   );
   return userCredential.user;
+}
+
+/**
+ * Sign in with Google
+ */
+export async function signInWithGoogle(): Promise<FirebaseUser> {
+  const result = await signInWithPopup(auth, googleProvider);
+  return result.user;
 }
 
 /**
@@ -124,6 +148,14 @@ export function getAuthErrorMessage(errorCode: string): string {
       return "This link has expired. Please request a new one.";
     case "auth/invalid-action-code":
       return "This link is invalid or has already been used.";
+    case "auth/popup-closed-by-user":
+      return "Sign-in was cancelled. Please try again.";
+    case "auth/popup-blocked":
+      return "Pop-up was blocked by your browser. Please allow pop-ups and try again.";
+    case "auth/account-exists-with-different-credential":
+      return "An account already exists with this email using a different sign-in method.";
+    case "auth/cancelled-popup-request":
+      return "Sign-in was cancelled. Please try again.";
     default:
       return "An error occurred. Please try again.";
   }

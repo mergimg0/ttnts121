@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { Resend } from "resend";
+import { escapeHtml } from "@/lib/sanitize";
 
 // Initialize Resend only when API key is available
 function getResendClient() {
@@ -66,13 +67,13 @@ export async function POST(request: NextRequest) {
           html: `
             <h2>New Contact Form Submission</h2>
             <p><strong>Date:</strong> ${new Date().toLocaleString("en-GB")}</p>
-            <p><strong>From:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
-            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>From:</strong> ${escapeHtml(firstName)} ${escapeHtml(lastName)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Phone:</strong> ${escapeHtml(phone || "Not provided")}</p>
+            <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
             <hr />
             <h3>Message:</h3>
-            <p>${message.replace(/\n/g, "<br>")}</p>
+            <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
           `,
         });
       } catch (emailError) {
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
           subject: "Thanks for contacting Take The Next Step 121",
           html: `
             <h2>Thanks for getting in touch!</h2>
-            <p>Hi ${firstName},</p>
+            <p>Hi ${escapeHtml(firstName)},</p>
             <p>We've received your message and will get back to you as soon as possible, usually within 24 hours.</p>
             <p>In the meantime, feel free to check out our sessions on our website or follow us on social media.</p>
             <p>Best regards,<br>The Take The Next Step 121 Team</p>

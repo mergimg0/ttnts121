@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   BlockBooking,
   RefundBlockBookingInput,
@@ -14,6 +15,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: Omit<RefundBlockBookingInput, "blockBookingId"> =
       await request.json();

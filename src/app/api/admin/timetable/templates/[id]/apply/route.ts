@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { TimetableTemplate, TemplateSlot } from "@/types/timetable";
 
 const TEMPLATES_COLLECTION = "timetable_templates";
@@ -22,6 +23,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const body: ApplyTemplateRequest = await request.json();

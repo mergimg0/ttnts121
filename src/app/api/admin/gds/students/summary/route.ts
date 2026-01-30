@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type { GDSDay, GDSAgeGroup } from "@/types/gds";
 
 interface AgeGroupSummary {
@@ -27,6 +28,9 @@ const DAYS: GDSDay[] = ["monday", "wednesday", "saturday"];
  * - day: monday | wednesday | saturday (optional - filter by day)
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const day = searchParams.get("day") as GDSDay | null;

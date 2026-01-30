@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Campaign, CreateCampaignInput } from "@/types/contact";
 
 // GET list campaigns
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -39,6 +43,9 @@ export async function GET(request: NextRequest) {
 
 // POST create new campaign
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateCampaignInput = await request.json();
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   FormTemplate,
   FormQuestion,
@@ -10,6 +11,8 @@ import { v4 as uuidv4 } from "uuid";
 // GET list form templates
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
     const sessionId = searchParams.get("sessionId");
@@ -72,6 +75,8 @@ export async function GET(request: NextRequest) {
 // POST create new form template
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateFormTemplateInput = await request.json();
 
     // Validate required fields

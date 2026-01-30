@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Contact, CreateContactInput } from "@/types/contact";
 
 // GET list contacts with filters
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.toLowerCase();
     const location = searchParams.get("location");
@@ -79,6 +82,8 @@ export async function GET(request: NextRequest) {
 // POST create new contact
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateContactInput = await request.json();
 
     // Validate email

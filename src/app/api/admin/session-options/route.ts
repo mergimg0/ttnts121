@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { SessionOption, CreateSessionOptionInput } from "@/types/session-option";
 
 // GET /api/admin/session-options - List all session options
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("sessionId");
@@ -54,6 +58,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/session-options - Create a new session option
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateSessionOptionInput = await request.json();
     const { name, description, price, sessionIds, maxQuantity, isRequired, isActive } = body;

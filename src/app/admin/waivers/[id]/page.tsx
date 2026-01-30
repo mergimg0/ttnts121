@@ -13,6 +13,7 @@ import { ArrowLeft, Loader2, Save, Eye, Trash2 } from "lucide-react";
 import { ConfirmDialog } from "@/components/admin/ui/confirm-dialog";
 import { WaiverTemplate } from "@/types/waiver";
 import { Session } from "@/types/booking";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function EditWaiverPage({
   params,
@@ -228,7 +229,7 @@ export default function EditWaiverPage({
                 <div className="border border-neutral-200 rounded-lg p-4 bg-neutral-50 min-h-[200px]">
                   <div
                     className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: formData.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.content) }}
                   />
                 </div>
               ) : (

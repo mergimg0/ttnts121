@@ -5,25 +5,40 @@ import { balanceReminderEmail } from "@/lib/email-templates";
 import { formatPrice, getDayName } from "@/lib/booking-utils";
 
 // Verify cron secret to prevent unauthorized access
-function verifyCronSecret(request: NextRequest): boolean {
+function verifyCronSecret(request: NextRequest): { valid: boolean; error?: NextResponse } {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  // If no cron secret is configured, allow in development
-  if (!cronSecret && process.env.NODE_ENV === "development") {
-    return true;
+  // ALWAYS require CRON_SECRET - fail if not configured
+  if (!cronSecret) {
+    console.error("CRON_SECRET not configured");
+    return {
+      valid: false,
+      error: NextResponse.json(
+        { success: false, error: "Server misconfiguration" },
+        { status: 500 }
+      ),
+    };
   }
 
-  return authHeader === `Bearer ${cronSecret}`;
+  if (authHeader !== `Bearer ${cronSecret}`) {
+    return {
+      valid: false,
+      error: NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      ),
+    };
+  }
+
+  return { valid: true };
 }
 
 export async function GET(request: NextRequest) {
   // Verify authorization
-  if (!verifyCronSecret(request)) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+  const authCheck = verifyCronSecret(request);
+  if (!authCheck.valid) {
+    return authCheck.error!;
   }
 
   try {

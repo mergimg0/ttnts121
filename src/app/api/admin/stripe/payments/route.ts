@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import type { PaymentRecord } from "@/types/stripe";
 import Stripe from "stripe";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '25'), 100);

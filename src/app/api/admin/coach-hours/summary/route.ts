@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   CoachHours,
   CoachMonthlySummary,
@@ -64,6 +65,9 @@ async function fetchPrevMonthHours(
 
 // GET monthly summary for all coaches or a specific coach
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get("month"); // Required: "2026-01" format

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Timestamp } from "firebase-admin/firestore";
 import {
   LostCustomer,
@@ -20,6 +21,8 @@ function toDate(value: Date | Timestamp | any): Date | null {
 // GET /api/admin/retention/metrics - Get retention metrics
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const year = searchParams.get("year");
     const month = searchParams.get("month");

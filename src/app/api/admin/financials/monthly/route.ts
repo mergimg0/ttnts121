@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   DailyFinancial,
   MonthlyFinancialSummary,
@@ -166,6 +167,10 @@ function findBestAndWorstDays(records: DailyFinancial[]): {
 
 // GET /api/admin/financials/monthly - Get monthly financial summary
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const month = searchParams.get("month"); // Format: "2026-01"

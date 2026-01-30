@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   DailyFinancial,
   WeeklyFinancialSummary,
@@ -102,6 +103,10 @@ function toDailySummary(record: DailyFinancial): DailyFinancialSummary {
 
 // GET /api/admin/financials/weekly - Get weekly financial summary
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const weekStart = searchParams.get("weekStart"); // Monday of the week (YYYY-MM-DD)

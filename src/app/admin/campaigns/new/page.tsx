@@ -11,6 +11,7 @@ import { AdminSelect } from "@/components/admin/ui/admin-select";
 import { ArrowLeft, Loader2, Users, Eye } from "lucide-react";
 import { LOCATIONS } from "@/lib/constants";
 import { Contact } from "@/types/contact";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -351,7 +352,7 @@ export default function NewCampaignPage() {
                   <hr className="my-2" />
                   <div
                     className="text-sm text-neutral-600 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: formData.body }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.body) }}
                   />
                 </div>
               )}

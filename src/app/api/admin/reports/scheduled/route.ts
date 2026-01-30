@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   ScheduledReport,
   CreateScheduledReportInput,
@@ -9,6 +10,9 @@ import {
  * GET /api/admin/reports/scheduled - List all scheduled reports
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
@@ -50,6 +54,9 @@ export async function GET(request: NextRequest) {
  * POST /api/admin/reports/scheduled - Create a new scheduled report
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateScheduledReportInput = await request.json();
     const {

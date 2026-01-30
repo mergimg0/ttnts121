@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   DailyFinancial,
   CreateDailyFinancialInput,
@@ -64,6 +65,10 @@ function buildExpenseBreakdown(
 
 // GET /api/admin/financials/daily - List daily financials with filters
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date"); // Single date
@@ -157,6 +162,10 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/financials/daily - Create a new daily financial record
 export async function POST(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateDailyFinancialInput = await request.json();
     const { date, income, expenses, paymentMethods, notes, loggedBy } = body;

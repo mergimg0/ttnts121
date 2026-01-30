@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Booking, Session, Program } from "@/types/booking";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
@@ -27,6 +28,10 @@ const SESSION_TYPE_MAP: Record<string, string> = {
 
 // GET export attendance (bookings grouped by session for attendance tracking)
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get("format") || "csv";

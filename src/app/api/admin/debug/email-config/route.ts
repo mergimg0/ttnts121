@@ -1,7 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { verifySuperAdmin } from "@/lib/admin-auth";
 
 // GET - Test email configuration
-export async function GET() {
+// SECURITY: Only available in development AND requires super-admin auth
+export async function GET(request: NextRequest) {
+  // Block in production
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { success: false, error: "Debug endpoints disabled in production" },
+      { status: 403 }
+    );
+  }
+
+  // Require super-admin authentication
+  const auth = await verifySuperAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const apiKey = process.env.RESEND_API_KEY;
     const fromEmail = process.env.EMAIL_FROM;

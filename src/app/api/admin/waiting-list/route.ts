@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   WaitingListEntry,
   CreateWaitingListInput,
@@ -18,6 +19,9 @@ const COLLECTION_NAME = "waiting_list";
  * - sortDir: "asc" | "desc" (optional, default "asc" for priority, "desc" for addedAt)
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as WaitingListStatus | null;
@@ -110,6 +114,9 @@ export async function GET(request: NextRequest) {
  * Request body: CreateWaitingListInput
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateWaitingListInput = await request.json();
 

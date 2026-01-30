@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Campaign, Contact } from "@/types/contact";
 import { LOCATIONS } from "@/lib/constants";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const statusConfig = {
   draft: { label: "Draft", variant: "neutral" as const, icon: Clock },
@@ -471,7 +472,7 @@ export default function CampaignDetailPage({
               <hr className="my-2" />
               <div
                 className="text-sm text-neutral-600 prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: formData.body }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.body) }}
               />
             </div>
           </AdminCard>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type {
   GDSStudent,
   CreateGDSStudentInput,
@@ -20,6 +21,9 @@ import type {
  * - limit: number (default 100)
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const day = searchParams.get("day") as GDSDay | null;
@@ -91,6 +95,9 @@ export async function GET(request: NextRequest) {
  * Create a new GDS student
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateGDSStudentInput = await request.json();
 

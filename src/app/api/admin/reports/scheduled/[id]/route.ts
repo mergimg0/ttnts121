@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   ScheduledReport,
   UpdateScheduledReportInput,
@@ -13,6 +14,9 @@ interface RouteParams {
  * GET /api/admin/reports/scheduled/[id] - Get a single scheduled report
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
 
@@ -47,6 +51,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * PUT /api/admin/reports/scheduled/[id] - Update a scheduled report
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const body: UpdateScheduledReportInput = await request.json();
@@ -169,6 +176,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  * DELETE /api/admin/reports/scheduled/[id] - Delete a scheduled report
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
 

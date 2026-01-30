@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { UpdateDiscountRuleInput } from "@/types/discount-rule";
 
 // GET single discount rule
@@ -8,6 +9,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const doc = await adminDb.collection("discountRules").doc(id).get();
 
@@ -37,6 +41,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: UpdateDiscountRuleInput = await request.json();
 
@@ -99,6 +106,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const docRef = adminDb.collection("discountRules").doc(id);
     const doc = await docRef.get();

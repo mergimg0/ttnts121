@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { FieldValue } from "firebase-admin/firestore";
 import {
   DailyFinancial,
@@ -11,6 +12,9 @@ import {
 
 // GET - Fetch daily entry for a specific date
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date");
@@ -54,6 +58,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new daily entry
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body = await request.json();
     const { date, income, expenses, notes } = body;
@@ -129,6 +136,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update existing daily entry
 export async function PUT(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body = await request.json();
     const { date, income, expenses, notes } = body;

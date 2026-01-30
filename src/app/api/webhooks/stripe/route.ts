@@ -41,6 +41,24 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Timestamp validation to prevent replay attacks (defense in depth)
+  const WEBHOOK_TOLERANCE_SECONDS = 300; // 5 minutes
+  const timestampMatch = signature.match(/t=(\d+)/);
+
+  if (timestampMatch) {
+    const webhookTimestamp = parseInt(timestampMatch[1], 10);
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const timeDifference = Math.abs(currentTimestamp - webhookTimestamp);
+
+    if (timeDifference > WEBHOOK_TOLERANCE_SECONDS) {
+      console.warn(`Webhook timestamp too old: ${timeDifference}s difference`);
+      return NextResponse.json(
+        { error: "Webhook timestamp outside tolerance window" },
+        { status: 400 }
+      );
+    }
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {

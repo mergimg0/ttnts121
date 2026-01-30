@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { google } from "googleapis";
 import { Resend } from "resend";
 import { SESSION_TYPES, LOCATIONS, AGE_GROUPS, PAYMENT_OPTIONS } from "@/lib/constants";
+import { secureAlphanumericCode } from "@/lib/secure-random";
 
 // Initialize Resend only when API key is available
 function getResendClient() {
@@ -25,7 +26,7 @@ async function getGoogleSheetsClient() {
 function generateBookingRef(): string {
   const date = new Date();
   const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}`;
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const random = secureAlphanumericCode(4);
   return `TTNTS-${dateStr}-${random}`;
 }
 

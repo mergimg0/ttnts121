@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
@@ -113,6 +114,17 @@ export function LoginForm() {
             "Sign in"
           )}
         </Button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-neutral-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-4 text-neutral-500">or</span>
+          </div>
+        </div>
+
+        <GoogleSignInButton redirectTo="/account" />
       </form>
 
       <div className="mt-6 text-center">

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { UpdateContactInput } from "@/types/contact";
 
 // GET single contact with consent logs
@@ -8,6 +9,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const doc = await adminDb.collection("contacts").doc(id).get();
 
@@ -54,6 +58,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: UpdateContactInput = await request.json();
 
@@ -121,6 +128,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
 
     // Check if contact exists

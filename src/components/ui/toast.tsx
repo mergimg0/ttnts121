@@ -28,7 +28,7 @@ function notifyListeners() {
 }
 
 export function toast(message: string, type: ToastType = "success", duration = 4000) {
-  const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const id = `toast-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
   toasts = [...toasts, { id, message, type, duration }];
   notifyListeners();
 

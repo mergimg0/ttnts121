@@ -1,14 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { sendEmail } from "@/lib/email";
 import { waitlistSpotAvailableEmail } from "@/lib/email-templates";
 import { formatPrice, getDayName } from "@/lib/booking-utils";
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { id } = await params;
 
     // Get the waitlist entry

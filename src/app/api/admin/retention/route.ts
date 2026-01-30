@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Timestamp } from "firebase-admin/firestore";
 import {
   LostCustomer,
@@ -22,6 +23,8 @@ function toDate(value: Date | Timestamp | any): Date {
 // GET /api/admin/retention - List lost customers with filters
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") as LostCustomerStatus | null;
     const lostReason = searchParams.get("lostReason") as LostReason | null;
@@ -158,6 +161,8 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/retention - Create a new lost customer record
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateLostCustomerInput = await request.json();
     const {
       studentName,

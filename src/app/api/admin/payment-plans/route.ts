@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { PaymentPlan, CreatePaymentPlanInput } from "@/types/payment-plan";
 
 // GET /api/admin/payment-plans - List all payment plans
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
@@ -59,6 +63,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/payment-plans - Create a new payment plan
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreatePaymentPlanInput = await request.json();
     const {

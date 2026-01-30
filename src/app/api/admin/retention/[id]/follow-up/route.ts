@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import {
   LostCustomer,
@@ -34,6 +35,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: FollowUpRequestBody = await request.json();
     const { method, notes, outcome, nextFollowUpDate, contactedBy, contactedByName } = body;
@@ -59,7 +63,7 @@ export async function POST(
     const existingData = doc.data() as LostCustomer;
 
     // Create follow-up entry
-    const followUpId = `fu_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const followUpId = `fu_${Date.now()}_${crypto.randomUUID().slice(0, 9)}`;
     const now = new Date();
 
     const followUpEntry: FollowUpEntry = {
@@ -129,6 +133,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
 
     const doc = await adminDb.collection("lost_customers").doc(id).get();

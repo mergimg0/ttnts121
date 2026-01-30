@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   TimetableTemplate,
   CreateTimetableTemplateInput,
@@ -15,6 +16,9 @@ const COLLECTION_NAME = "timetable_templates";
  * - activeOnly: boolean (optional) - filter to only active templates
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("activeOnly") === "true";
@@ -66,6 +70,9 @@ export async function GET(request: NextRequest) {
  * Request body: CreateTimetableTemplateInput
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateTimetableTemplateInput = await request.json();
 

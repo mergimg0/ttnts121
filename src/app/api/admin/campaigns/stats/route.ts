@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Campaign } from "@/types/contact";
 
 // GET email campaign statistics
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const snapshot = await adminDb.collection("campaigns").get();
     const campaigns = snapshot.docs.map((doc) => ({

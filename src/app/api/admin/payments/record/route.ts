@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { RecordPaymentInput, Payment, PaymentMethod } from "@/types/payment";
 
 // POST /api/admin/payments/record - Record a manual payment (cash/bank_transfer)
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: RecordPaymentInput = await request.json();
     const { bookingId, amount, method, notes, dateReceived } = body;
 

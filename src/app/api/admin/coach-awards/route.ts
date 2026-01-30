@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   CoachAward,
   CreateCoachAwardInput,
@@ -32,6 +33,9 @@ function buildAwardsQuery(coachId: string | null, awardType: string | null) {
 
 // GET all coach awards (with optional filters)
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const coachId = searchParams.get("coachId");
@@ -63,6 +67,9 @@ export async function GET(request: NextRequest) {
 
 // POST create new coach award
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateCoachAwardInput = await request.json();
 

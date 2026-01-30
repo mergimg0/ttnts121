@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type { GDSAttendance, UpdateGDSAttendanceInput } from "@/types/gds";
 
 /**
@@ -7,9 +8,12 @@ import type { GDSAttendance, UpdateGDSAttendanceInput } from "@/types/gds";
  * Get a single GDS attendance record
  */
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const doc = await adminDb.collection("gds_attendance").doc(id).get();
@@ -48,9 +52,12 @@ export async function GET(
  * - isCancelled/cancellationReason
  */
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const body: UpdateGDSAttendanceInput = await request.json();

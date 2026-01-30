@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type { GDSStudent, UpdateGDSStudentInput } from "@/types/gds";
 
 /**
@@ -7,9 +8,12 @@ import type { GDSStudent, UpdateGDSStudentInput } from "@/types/gds";
  * Get a single GDS student
  */
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const doc = await adminDb.collection("gds_students").doc(id).get();
@@ -41,9 +45,12 @@ export async function GET(
  * Update a GDS student
  */
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const body: UpdateGDSStudentInput = await request.json();
@@ -91,9 +98,12 @@ export async function PUT(
  * For hard delete, use ?hard=true query param
  */
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);

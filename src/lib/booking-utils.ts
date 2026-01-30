@@ -1,4 +1,5 @@
 import { Session, SessionFilters } from "@/types/booking";
+import { secureRandomInt } from "@/lib/secure-random";
 
 // Convert Firestore timestamp or Date to JS Date
 export function toDate(value: any): Date {
@@ -21,7 +22,7 @@ export function generateBookingRef(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let ref = "TTNTS-";
   for (let i = 0; i < 6; i++) {
-    ref += chars.charAt(Math.floor(Math.random() * chars.length));
+    ref += chars.charAt(secureRandomInt(0, chars.length));
   }
   return ref;
 }

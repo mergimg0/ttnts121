@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { UpdateCoachInput } from "@/types/coach";
 import type { Timestamp } from "firebase-admin/firestore";
 
@@ -32,6 +33,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const docRef = adminDb.collection(COACHES_COLLECTION).doc(id);
     const doc = await docRef.get();
@@ -62,6 +66,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const body: UpdateCoachInput = await request.json();
 
@@ -128,6 +135,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
+
     const { id } = await params;
     const docRef = adminDb.collection(COACHES_COLLECTION).doc(id);
     const doc = await docRef.get();

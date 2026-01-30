@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { unstable_cache } from "next/cache";
 import type { RevenueMetrics, PaymentRecord, FailedPayment, RefundRecord } from "@/types/stripe";
 import Stripe from "stripe";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 // Cache revenue calculation for 5 minutes
 const getRevenueMetrics = unstable_cache(
@@ -104,7 +105,11 @@ const getRevenueMetrics = unstable_cache(
   { revalidate: 300 } // 5 minutes
 );
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const [revenue, payments, refunds] = await Promise.all([
       getRevenueMetrics(),

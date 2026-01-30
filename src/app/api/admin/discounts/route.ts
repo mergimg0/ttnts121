@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { DiscountRule, CreateDiscountRuleInput } from "@/types/discount-rule";
 
 // GET all discount rules
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("active") === "true";
 
@@ -37,6 +40,8 @@ export async function GET(request: NextRequest) {
 // POST create new discount rule
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateDiscountRuleInput = await request.json();
 
     // Validate required fields

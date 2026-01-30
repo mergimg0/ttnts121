@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Program, CreateProgramInput } from "@/types/booking";
 
 // GET all programs
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const snapshot = await adminDb
       .collection("programs")
@@ -27,6 +31,9 @@ export async function GET() {
 
 // POST create new program
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateProgramInput = await request.json();
 

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { secureRandomString, secureRandomInt } from "@/lib/secure-random";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,7 +24,7 @@ export function formatTime(time: string): string {
 }
 
 export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${secureRandomString(9)}`;
 }
 
 export function calculateAge(dob: string): number {
@@ -39,6 +40,6 @@ export function calculateAge(dob: string): number {
 
 export function generateReferralCode(name: string): string {
   const cleanName = name.split(" ")[0].toUpperCase().replace(/[^A-Z]/g, "");
-  const randomNum = Math.floor(Math.random() * 900) + 100;
+  const randomNum = secureRandomInt(100, 1000);
   return `${cleanName}${randomNum}`;
 }

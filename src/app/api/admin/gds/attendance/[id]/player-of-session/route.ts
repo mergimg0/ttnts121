@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type { PlayerOfSessionAward, GDSAttendance } from "@/types/gds";
 
 interface AwardPlayerOfSessionBody {
@@ -19,9 +20,12 @@ interface AwardPlayerOfSessionBody {
  * 2. Increment the playerOfSessionCount on the student record (if studentId provided)
  */
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
     const body: AwardPlayerOfSessionBody = await request.json();

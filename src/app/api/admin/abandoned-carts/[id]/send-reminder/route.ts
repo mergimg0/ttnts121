@@ -4,11 +4,15 @@ import { sendEmail } from "@/lib/email";
 import { cartAbandonmentRecoveryEmail } from "@/lib/email-templates";
 import { formatPrice, getDayName } from "@/lib/booking-utils";
 import { toDate } from "@/lib/booking-utils";
+import { verifyAdmin } from "@/lib/admin-auth";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { id } = await params;
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { createPaymentLink } from "@/lib/stripe";
 import { sendEmail } from "@/lib/email";
 import { paymentLinkEmail } from "@/lib/email-templates";
@@ -7,6 +8,9 @@ import { CreatePaymentLinkInput, PaymentLink } from "@/types/payment";
 
 // GET /api/admin/payment-links - List all payment links
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // active, completed, expired, cancelled
@@ -46,6 +50,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/payment-links - Create a new payment link
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreatePaymentLinkInput = await request.json();
     const {

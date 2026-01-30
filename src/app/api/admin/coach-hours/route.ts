@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   CoachHours,
   CreateCoachHoursInput,
@@ -61,6 +62,9 @@ function buildHoursQuery(
 
 // GET coach hours (with filters for coachId and month)
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const coachId = searchParams.get("coachId");
@@ -95,6 +99,9 @@ export async function GET(request: NextRequest) {
 
 // POST create new coach hours entry
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateCoachHoursInput = await request.json();
 

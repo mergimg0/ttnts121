@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { CoachRate, CreateCoachRateInput } from "@/types/coach";
 import type { Timestamp } from "firebase-admin/firestore";
 
@@ -39,6 +40,8 @@ function serializeRate(doc: FirebaseFirestore.DocumentSnapshot): CoachRate {
 // GET all coach rates (with optional filters)
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const coachId = searchParams.get("coachId");
     const activeOnly = searchParams.get("activeOnly") === "true";
@@ -77,6 +80,8 @@ export async function GET(request: NextRequest) {
 // POST create new coach rate
 export async function POST(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const body: CreateCoachRateInput = await request.json();
 
     // Validate required fields

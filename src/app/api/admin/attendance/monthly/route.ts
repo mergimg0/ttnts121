@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { MonthlyAttendanceSummary, SessionType, AttendanceRecord } from "@/types/attendance";
 import { Session } from "@/types/booking";
 
 // GET monthly attendance summary
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const month = parseInt(searchParams.get("month") || String(new Date().getMonth() + 1));
     const year = parseInt(searchParams.get("year") || String(new Date().getFullYear()));

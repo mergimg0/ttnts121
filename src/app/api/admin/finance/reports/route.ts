@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { DocumentData, QueryDocumentSnapshot } from "firebase-admin/firestore";
 import {
   DailyFinancial,
@@ -7,6 +8,9 @@ import {
 } from "@/types/financials";
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");

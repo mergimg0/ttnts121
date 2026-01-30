@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Coupon, CreateCouponInput } from "@/types/coupon";
 
 // GET /api/admin/coupons - List all coupons
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // active, inactive, expired
@@ -63,6 +67,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/coupons - Create a new coupon
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateCouponInput = await request.json();
     const {

@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { stripe } from "@/lib/stripe";
 import { unstable_cache } from "next/cache";
+import { verifyAdmin } from "@/lib/admin-auth";
 import type { DashboardStats, Booking } from "@/types/booking";
 
 // Cache stats for 5 minutes
@@ -108,7 +109,10 @@ const getDashboardStats = unstable_cache(
   { revalidate: 300 } // 5 minutes
 );
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const stats = await getDashboardStats();
 

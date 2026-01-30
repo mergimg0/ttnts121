@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Session, CreateSessionInput } from "@/types/booking";
 
 // GET all sessions (with optional programId filter)
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const programId = searchParams.get("programId");
@@ -36,6 +40,9 @@ export async function GET(request: NextRequest) {
 
 // POST create new session
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateSessionInput = await request.json();
 

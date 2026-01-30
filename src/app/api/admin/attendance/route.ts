@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { AttendanceRecord, AttendanceSummary, SessionOccurrence, SessionType } from "@/types/attendance";
 import { Session } from "@/types/booking";
 
 // GET attendance records with filters
 export async function GET(request: NextRequest) {
   try {
+    const auth = await verifyAdmin(request);
+    if (!auth.authenticated) return auth.error!;
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("sessionId");
     const date = searchParams.get("date");

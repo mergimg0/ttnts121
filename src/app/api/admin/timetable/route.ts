@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import {
   TimetableSlot,
   CreateTimetableSlotInput,
@@ -16,6 +17,9 @@ const COLLECTION_NAME = "timetable_slots";
  * - coachId: string (optional) - filter by specific coach
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const weekStart = searchParams.get("weekStart");
@@ -96,6 +100,9 @@ export async function GET(request: NextRequest) {
  * Request body: CreateTimetableSlotInput
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const body: CreateTimetableSlotInput = await request.json();
 

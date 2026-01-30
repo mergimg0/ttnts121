@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { verifyAdmin } from "@/lib/admin-auth";
 import { Booking } from "@/types/booking";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
@@ -23,6 +24,10 @@ function formatPrice(pence: number): string {
 
 // GET export bookings
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await verifyAdmin(request);
+  if (!auth.authenticated) return auth.error!;
+
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get("format") || "csv";

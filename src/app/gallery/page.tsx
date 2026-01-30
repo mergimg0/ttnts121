@@ -16,6 +16,10 @@ function InstagramEmbed({ shortcode, onClose }: { shortcode: string; onClose: ()
 
   useEffect(() => {
     // Load Instagram embed script
+    // NOTE: SRI (Subresource Integrity) cannot be applied here because Instagram's
+    // embed.js is dynamically generated and changes frequently. The script content
+    // varies based on Instagram's releases, making a stable hash impossible.
+    // Security is maintained via CSP which restricts script sources.
     const script = document.createElement("script");
     script.src = "https://www.instagram.com/embed.js";
     script.async = true;
