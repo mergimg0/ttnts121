@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useCoachAuth } from "@/components/coach/auth-provider";
+import { PermissionGate } from "@/components/coach/permission-gate";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,14 @@ import {
 } from "@/types/timetable";
 
 export default function CoachTimetablePage() {
+  return (
+    <PermissionGate permission="canViewTimetable">
+      <CoachTimetableContent />
+    </PermissionGate>
+  );
+}
+
+function CoachTimetableContent() {
   const { user } = useCoachAuth();
   const [weekStart, setWeekStart] = useState<string>(() =>
     getWeekStart(new Date())

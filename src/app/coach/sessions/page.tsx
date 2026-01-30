@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCoachAuth } from "@/components/coach/auth-provider";
+import { PermissionGate } from "@/components/coach/permission-gate";
 import { AdminCard } from "@/components/admin/ui/admin-card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Calendar, MapPin, Clock, Users } from "lucide-react";
@@ -13,6 +14,14 @@ interface SessionWithProgram extends Session {
 }
 
 export default function CoachSessionsPage() {
+  return (
+    <PermissionGate permission="canViewSessions">
+      <CoachSessionsContent />
+    </PermissionGate>
+  );
+}
+
+function CoachSessionsContent() {
   const { user } = useCoachAuth();
   const [sessions, setSessions] = useState<SessionWithProgram[]>([]);
   const [loading, setLoading] = useState(true);
