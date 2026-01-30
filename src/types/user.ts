@@ -22,6 +22,33 @@ export interface UserChild {
   authorizedContacts?: AuthorizedContact[];
 }
 
+// Coach permissions - controls what coaches can access in the coach portal
+export interface CoachPermissions {
+  canLogHours: boolean;        // Can log their own hours (default: true)
+  canViewEarnings: boolean;    // Can view their earnings (default: true)
+  canViewSessions: boolean;    // Can view assigned sessions (default: false)
+  canViewTimetable: boolean;   // Can view timetable (default: false)
+  canMarkAttendance: boolean;  // Can mark attendance (default: false)
+}
+
+// Default permissions for new/restricted coaches
+export const DEFAULT_COACH_PERMISSIONS: CoachPermissions = {
+  canLogHours: true,
+  canViewEarnings: true,
+  canViewSessions: false,
+  canViewTimetable: false,
+  canMarkAttendance: false,
+};
+
+// Full permissions for trusted coaches
+export const FULL_COACH_PERMISSIONS: CoachPermissions = {
+  canLogHours: true,
+  canViewEarnings: true,
+  canViewSessions: true,
+  canViewTimetable: true,
+  canMarkAttendance: true,
+};
+
 // User - Customer, Admin, or Coach account
 export interface User {
   id: string;                    // Firebase Auth UID
@@ -32,6 +59,9 @@ export interface User {
   role: 'customer' | 'admin' | 'coach';
   // Sessions assigned to this coach (only for role: 'coach')
   assignedSessions?: string[];
+  // Coach permissions (only for role: 'coach')
+  // If undefined, defaults to FULL_COACH_PERMISSIONS for backward compatibility
+  coachPermissions?: CoachPermissions;
   // Children linked to this account
   children: UserChild[];
   // Preferences
