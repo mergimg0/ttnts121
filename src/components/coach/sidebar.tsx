@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
@@ -15,32 +15,47 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCoachAuth } from "./auth-provider";
+import { CoachPermissions } from "@/types/user";
 
-const navItems = [
+interface NavItem {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  alwaysShow?: boolean;
+  permission?: keyof CoachPermissions;
+}
+
+const navItems: NavItem[] = [
   {
     label: "Dashboard",
     href: "/coach",
     icon: LayoutDashboard,
+    alwaysShow: true,
   },
   {
     label: "My Sessions",
     href: "/coach/sessions",
     icon: Calendar,
+    permission: "canViewSessions",
   },
   {
     label: "Timetable",
     href: "/coach/timetable",
     icon: CalendarDays,
+    permission: "canViewTimetable",
   },
   {
     label: "Log Hours",
     href: "/coach/hours",
     icon: Clock,
+    alwaysShow: true, // canLogHours is always true
   },
   {
     label: "Earnings",
     href: "/coach/earnings",
     icon: PoundSterling,
+    permission: "canViewEarnings",
   },
 ];
 
@@ -51,6 +66,14 @@ interface CoachSidebarProps {
 
 export function CoachSidebar({ isOpen, onClose }: CoachSidebarProps) {
   const pathname = usePathname();
+  const { hasCoachPermission } = useCoachAuth();
+
+  // Filter nav items based on permissions
+  const visibleNavItems = useMemo(() => {
+    return navItems.filter(item =>
+      item.alwaysShow || (item.permission && hasCoachPermission(item.permission))
+    );
+  }, [hasCoachPermission]);
 
   // Lock body scroll when mobile sidebar is open
   useEffect(() => {
@@ -84,7 +107,7 @@ export function CoachSidebar({ isOpen, onClose }: CoachSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive =
             pathname === item.href ||
             (item.href !== "/coach" && pathname?.startsWith(item.href));

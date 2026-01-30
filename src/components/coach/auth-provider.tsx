@@ -5,7 +5,7 @@ import { User as FirebaseUser, onAuthStateChanged, signInWithEmailAndPassword, s
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useRouter, usePathname } from "next/navigation";
-import { User } from "@/types/user";
+import { User, CoachPermissions, FULL_COACH_PERMISSIONS } from "@/types/user";
 
 interface CoachAuthContextType {
   firebaseUser: FirebaseUser | null;
@@ -13,6 +13,7 @@ interface CoachAuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  hasCoachPermission: (permission: keyof CoachPermissions) => boolean;
 }
 
 const CoachAuthContext = createContext<CoachAuthContextType | null>(null);
@@ -105,8 +106,18 @@ export function CoachAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Check if user has a specific coach permission
+  const hasCoachPermission = (permission: keyof CoachPermissions): boolean => {
+    if (!user) return false;
+    // Admins always have full permissions
+    if (user.role === "admin") return true;
+    // If coach has no permissions set, grant full access (backward compatibility)
+    const permissions = user.coachPermissions || FULL_COACH_PERMISSIONS;
+    return permissions[permission] ?? false;
+  };
+
   return (
-    <CoachAuthContext.Provider value={{ firebaseUser, user, loading, login, logout }}>
+    <CoachAuthContext.Provider value={{ firebaseUser, user, loading, login, logout, hasCoachPermission }}>
       {children}
     </CoachAuthContext.Provider>
   );
