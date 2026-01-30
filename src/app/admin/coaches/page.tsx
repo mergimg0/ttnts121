@@ -22,7 +22,9 @@ import {
   Loader2,
   AlertCircle,
   RotateCcw,
+  Shield,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function CoachesPage() {
   // State
@@ -483,6 +485,18 @@ export default function CoachesPage() {
                       <Edit2 className="h-3.5 w-3.5 mr-1.5" />
                       Edit
                     </Button>
+                    {coach.userId && (
+                      <Link href={`/admin/coaches/${coach.userId}/permissions`}>
+                        <Button
+                          variant="adminSecondary"
+                          size="sm"
+                          className="text-sky-600 hover:text-sky-700"
+                        >
+                          <Shield className="h-3.5 w-3.5 mr-1.5" />
+                          Permissions
+                        </Button>
+                      </Link>
+                    )}
                     {coach.isActive ? (
                       <Button
                         variant="adminSecondary"
@@ -585,6 +599,15 @@ export default function CoachesPage() {
                       >
                         <Edit2 className="h-4 w-4" />
                       </button>
+                      {coach.userId && (
+                        <Link
+                          href={`/admin/coaches/${coach.userId}/permissions`}
+                          className="p-1.5 rounded-lg hover:bg-sky-50 text-neutral-500 hover:text-sky-600"
+                          title="Manage Permissions"
+                        >
+                          <Shield className="h-4 w-4" />
+                        </Link>
+                      )}
                       {coach.isActive ? (
                         <button
                           onClick={() => handleDeactivate(coach)}

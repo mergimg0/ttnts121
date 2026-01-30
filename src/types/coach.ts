@@ -16,6 +16,7 @@ export interface Coach {
   hourlyRate?: number; // Current default rate in pence
   sessionRate?: number; // Per-session rate in pence (optional)
   isActive: boolean;
+  userId?: string; // Link to users collection (for coaches with portal access)
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
 }

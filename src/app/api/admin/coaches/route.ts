@@ -19,6 +19,7 @@ function serializeCoach(doc: FirebaseFirestore.DocumentSnapshot): Coach {
     hourlyRate: data.hourlyRate || null,
     sessionRate: data.sessionRate || null,
     isActive: data.isActive ?? true,
+    userId: data.userId || undefined,
     createdAt: data.createdAt instanceof Object && "toDate" in data.createdAt
       ? (data.createdAt as Timestamp).toDate()
       : data.createdAt,
