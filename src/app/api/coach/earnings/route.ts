@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb, adminAuth } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
+import { checkCoachPermission } from "@/lib/coach-permissions";
 
 interface HoursEntry {
   id: string;
@@ -19,76 +20,17 @@ interface PaymentRecord {
   reference?: string;
 }
 
-// Helper to get userId from request
-async function getUserId(request: NextRequest): Promise<string | null> {
-  const authHeader = request.headers.get("authorization");
-  let userId: string | null = null;
-
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      userId = decodedToken.uid;
-    } catch {
-      // Token verification failed
-    }
-  }
-
-  if (!userId) {
-    const sessionCookie = request.cookies.get("session")?.value;
-    if (sessionCookie) {
-      try {
-        const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
-        userId = decodedClaims.uid;
-      } catch {
-        // Session cookie invalid
-      }
-    }
-  }
-
-  // For development/testing
-  if (!userId) {
-    const { searchParams } = new URL(request.url);
-    userId = searchParams.get("userId");
-  }
-
-  return userId;
-}
-
-// Helper to verify coach role and get user data
-async function verifyCoachRole(userId: string): Promise<{ valid: boolean; userData?: Record<string, unknown> }> {
-  const userDoc = await adminDb.collection("users").doc(userId).get();
-
-  if (!userDoc.exists) {
-    return { valid: false };
-  }
-
-  const userData = userDoc.data();
-  if (userData?.role !== "coach" && userData?.role !== "admin") {
-    return { valid: false };
-  }
-
-  return { valid: true, userData };
-}
-
 // GET earnings for a year
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getUserId(request);
+    // Check permission to view earnings
+    const { allowed, error, userId, userData } = await checkCoachPermission(
+      request,
+      "canViewEarnings"
+    );
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const { valid, userData } = await verifyCoachRole(userId);
-    if (!valid) {
-      return NextResponse.json(
-        { success: false, error: "Not authorized as coach" },
-        { status: 403 }
-      );
+    if (!allowed) {
+      return error!;
     }
 
     const { searchParams } = new URL(request.url);

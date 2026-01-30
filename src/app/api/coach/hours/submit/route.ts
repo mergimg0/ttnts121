@@ -1,72 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb, adminAuth } from "@/lib/firebase-admin";
-
-// Helper to get userId from request
-async function getUserId(request: NextRequest): Promise<string | null> {
-  const authHeader = request.headers.get("authorization");
-  let userId: string | null = null;
-
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      userId = decodedToken.uid;
-    } catch {
-      // Token verification failed
-    }
-  }
-
-  if (!userId) {
-    const sessionCookie = request.cookies.get("session")?.value;
-    if (sessionCookie) {
-      try {
-        const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
-        userId = decodedClaims.uid;
-      } catch {
-        // Session cookie invalid
-      }
-    }
-  }
-
-  // For development/testing
-  if (!userId) {
-    const { searchParams } = new URL(request.url);
-    userId = searchParams.get("userId");
-  }
-
-  return userId;
-}
-
-// Helper to verify coach role
-async function verifyCoachRole(userId: string): Promise<boolean> {
-  const userDoc = await adminDb.collection("users").doc(userId).get();
-
-  if (!userDoc.exists) {
-    return false;
-  }
-
-  const userData = userDoc.data();
-  return userData?.role === "coach" || userData?.role === "admin";
-}
+import { adminDb } from "@/lib/firebase-admin";
+import { checkCoachPermission } from "@/lib/coach-permissions";
 
 // POST submit all draft entries for a month
 export async function POST(request: NextRequest) {
   try {
-    const userId = await getUserId(request);
+    // Check permission to log hours (submitting is part of logging workflow)
+    const { allowed, error, userId } = await checkCoachPermission(
+      request,
+      "canLogHours"
+    );
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const valid = await verifyCoachRole(userId);
-    if (!valid) {
-      return NextResponse.json(
-        { success: false, error: "Not authorized as coach" },
-        { status: 403 }
-      );
+    if (!allowed) {
+      return error!;
     }
 
     const body = await request.json();

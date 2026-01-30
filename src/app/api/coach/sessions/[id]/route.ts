@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb, adminAuth } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
 import { Session, Booking } from "@/types/booking";
+import { checkCoachPermission } from "@/lib/coach-permissions";
 
 // GET single session with bookings for coach view
 export async function GET(
@@ -10,64 +11,14 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Get the authorization token from headers
-    const authHeader = request.headers.get("authorization");
-    let userId: string | null = null;
+    // Check permission to view sessions
+    const { allowed, error, userId, userData } = await checkCoachPermission(
+      request,
+      "canViewSessions"
+    );
 
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      try {
-        const decodedToken = await adminAuth.verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch {
-        // Token verification failed
-      }
-    }
-
-    // If no token, try to get user from cookie
-    if (!userId) {
-      const sessionCookie = request.cookies.get("session")?.value;
-      if (sessionCookie) {
-        try {
-          const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
-          userId = decodedClaims.uid;
-        } catch {
-          // Session cookie invalid
-        }
-      }
-    }
-
-    // For development/testing
-    if (!userId) {
-      const { searchParams } = new URL(request.url);
-      userId = searchParams.get("userId");
-    }
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Get user profile to verify role
-    const userDoc = await adminDb.collection("users").doc(userId).get();
-
-    if (!userDoc.exists) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    const userData = userDoc.data();
-
-    // Allow admin or coach role
-    if (userData?.role !== "coach" && userData?.role !== "admin") {
-      return NextResponse.json(
-        { success: false, error: "Not authorized as coach" },
-        { status: 403 }
-      );
+    if (!allowed) {
+      return error!;
     }
 
     // Get the session
@@ -84,10 +35,10 @@ export async function GET(
 
     // For coaches (not admins), verify they're assigned to this session
     if (userData?.role === "coach") {
-      const assignedSessions = userData?.assignedSessions || [];
+      const assignedSessions = (userData?.assignedSessions as string[]) || [];
       const isAssigned =
         assignedSessions.includes(id) ||
-        (session.coaches && session.coaches.includes(userId));
+        (session.coaches && session.coaches.includes(userId!));
 
       if (!isAssigned) {
         return NextResponse.json(

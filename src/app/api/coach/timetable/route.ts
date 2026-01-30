@@ -1,68 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb, adminAuth } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
 import { TimetableSlot } from "@/types/timetable";
+import { checkCoachPermission } from "@/lib/coach-permissions";
 
 // GET coach's timetable slots for a specific week
 export async function GET(request: NextRequest) {
   try {
-    // Get the authorization token from headers
-    const authHeader = request.headers.get("authorization");
-    let userId: string | null = null;
+    // Check permission to view timetable
+    const { allowed, error, userId, userData } = await checkCoachPermission(
+      request,
+      "canViewTimetable"
+    );
 
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      try {
-        const decodedToken = await adminAuth.verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch {
-        // Token verification failed
-      }
-    }
-
-    // If no token, try to get user from cookie
-    if (!userId) {
-      const sessionCookie = request.cookies.get("session")?.value;
-      if (sessionCookie) {
-        try {
-          const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
-          userId = decodedClaims.uid;
-        } catch {
-          // Session cookie invalid
-        }
-      }
-    }
-
-    // For development/testing, also check for userId in query params
-    if (!userId) {
-      const { searchParams } = new URL(request.url);
-      userId = searchParams.get("userId");
-    }
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Get user profile to verify role
-    const userDoc = await adminDb.collection("users").doc(userId).get();
-
-    if (!userDoc.exists) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    const userData = userDoc.data();
-
-    // Allow admin or coach role
-    if (userData?.role !== "coach" && userData?.role !== "admin") {
-      return NextResponse.json(
-        { success: false, error: "Not authorized as coach" },
-        { status: 403 }
-      );
+    if (!allowed) {
+      return error!;
     }
 
     // Get weekStart from query params
