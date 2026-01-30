@@ -7,44 +7,59 @@ import {
   CoachDayEntry,
 } from "@/types/coach";
 
-// Helper to build summary query
-function buildSummaryQuery(
+// Fetch all hours and filter in memory to avoid composite index requirement
+async function fetchHoursInRange(
   coachId: string | null,
   monthStart: string,
   monthEnd: string
-) {
+): Promise<CoachHours[]> {
+  // Fetch all coach_hours and filter in memory
+  const snapshot = await adminDb.collection("coach_hours").get();
+
+  let allHours = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  })) as CoachHours[];
+
+  // Filter by date range
+  allHours = allHours.filter(
+    (h) => h.date >= monthStart && h.date <= monthEnd
+  );
+
+  // Filter by coach if specified
   if (coachId) {
-    return adminDb
-      .collection("coach_hours")
-      .where("coachId", "==", coachId)
-      .where("date", ">=", monthStart)
-      .where("date", "<=", monthEnd)
-      .orderBy("date", "asc");
+    allHours = allHours.filter((h) => h.coachId === coachId);
   }
-  return adminDb
-    .collection("coach_hours")
-    .where("date", ">=", monthStart)
-    .where("date", "<=", monthEnd)
-    .orderBy("date", "asc");
+
+  // Sort by date
+  allHours.sort((a, b) => a.date.localeCompare(b.date));
+
+  return allHours;
 }
 
-// Helper to build previous month query
-function buildPrevMonthQuery(
+// Fetch previous month hours for comparison
+async function fetchPrevMonthHours(
   coachId: string | null,
   prevMonthStart: string,
   prevMonthEnd: string
-) {
-  if (coachId) {
-    return adminDb
-      .collection("coach_hours")
-      .where("coachId", "==", coachId)
-      .where("date", ">=", prevMonthStart)
-      .where("date", "<=", prevMonthEnd);
-  }
-  return adminDb
-    .collection("coach_hours")
-    .where("date", ">=", prevMonthStart)
-    .where("date", "<=", prevMonthEnd);
+): Promise<Map<string, number>> {
+  const snapshot = await adminDb.collection("coach_hours").get();
+
+  const prevHoursByCoach = new Map<string, number>();
+
+  snapshot.docs.forEach((doc) => {
+    const data = doc.data();
+    // Filter by date range
+    if (data.date >= prevMonthStart && data.date <= prevMonthEnd) {
+      // Filter by coach if specified
+      if (!coachId || data.coachId === coachId) {
+        const existing = prevHoursByCoach.get(data.coachId) || 0;
+        prevHoursByCoach.set(data.coachId, existing + (data.hoursWorked || 0));
+      }
+    }
+  });
+
+  return prevHoursByCoach;
 }
 
 // GET monthly summary for all coaches or a specific coach
@@ -78,14 +93,8 @@ export async function GET(request: NextRequest) {
     const monthStart = `${month}-01`;
     const monthEnd = `${month}-${daysInMonth.toString().padStart(2, "0")}`;
 
-    // Build and execute query
-    const query = buildSummaryQuery(coachId, monthStart, monthEnd);
-    const snapshot = await query.get();
-
-    const allHours = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as CoachHours[];
+    // Fetch hours for the month (filtered in memory to avoid composite index)
+    const allHours = await fetchHoursInRange(coachId, monthStart, monthEnd);
 
     // Group hours by coach
     const hoursByCoach = new Map<string, CoachHours[]>();
@@ -103,15 +112,12 @@ export async function GET(request: NextRequest) {
     const prevMonthStart = `${prevMonthStr}-01`;
     const prevMonthEnd = `${prevMonthStr}-${prevDaysInMonth.toString().padStart(2, "0")}`;
 
-    // Fetch previous month hours for comparison
-    const prevQuery = buildPrevMonthQuery(coachId, prevMonthStart, prevMonthEnd);
-    const prevSnapshot = await prevQuery.get();
-    const prevHoursByCoach = new Map<string, number>();
-    prevSnapshot.docs.forEach((doc) => {
-      const data = doc.data();
-      const existing = prevHoursByCoach.get(data.coachId) || 0;
-      prevHoursByCoach.set(data.coachId, existing + (data.hoursWorked || 0));
-    });
+    // Fetch previous month hours for comparison (filtered in memory)
+    const prevHoursByCoach = await fetchPrevMonthHours(
+      coachId,
+      prevMonthStart,
+      prevMonthEnd
+    );
 
     // Build summaries for each coach
     const summaries: CoachMonthlySummary[] = [];

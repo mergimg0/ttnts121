@@ -94,7 +94,7 @@ export function HoursGrid({ month, summaries, onCellClick, loading = false }: Ho
                   <div className="font-semibold">{day.dayNum}</div>
                 </th>
               ))}
-              <th className="py-3 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400 min-w-[100px]">
+              <th className="sticky right-0 z-10 bg-white py-3 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-neutral-400 min-w-[100px] shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                 Total
               </th>
             </tr>
@@ -161,7 +161,7 @@ export function HoursGrid({ month, summaries, onCellClick, loading = false }: Ho
                 })}
 
                 {/* Total */}
-                <td className="py-3 px-4 text-right">
+                <td className="sticky right-0 z-10 bg-white group-hover:bg-neutral-50/30 transition-colors py-3 px-4 text-right shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                   <span className="font-semibold text-neutral-900 tabular-nums">
                     {formatHours(summary.totalHours)}
                   </span>
@@ -195,7 +195,7 @@ export function HoursGrid({ month, summaries, onCellClick, loading = false }: Ho
                   </td>
                 );
               })}
-              <td className="py-3 px-4 text-right font-bold text-neutral-900 tabular-nums">
+              <td className="sticky right-0 z-10 bg-neutral-50/50 py-3 px-4 text-right font-bold text-neutral-900 tabular-nums shadow-[-4px_0_8px_-4px_rgba(0,0,0,0.1)]">
                 {formatHours(summaries.reduce((sum, s) => sum + s.totalHours, 0))}
               </td>
             </tr>
