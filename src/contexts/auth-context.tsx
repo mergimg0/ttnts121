@@ -19,7 +19,7 @@ import {
   sendVerificationEmail as authSendVerification,
   getAuthErrorMessage,
 } from "@/lib/auth";
-import { User, RegisterFormData } from "@/types/user";
+import { User, RegisterFormData, CoachPermissions, FULL_COACH_PERMISSIONS } from "@/types/user";
 
 interface AuthContextType {
   // State
@@ -37,6 +37,10 @@ interface AuthContextType {
   clearError: () => void;
   refreshUser: () => Promise<void>;
   getIdToken: () => Promise<string | null>;
+
+  // Coach permissions
+  hasCoachPermission: (permission: keyof CoachPermissions) => boolean;
+  getCoachPermissions: () => CoachPermissions;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -222,6 +226,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [firebaseUser]);
 
+  // Get coach permissions with backward compatibility
+  // Admins always have full permissions, coaches without permissions field get full access
+  const getCoachPermissions = useCallback((): CoachPermissions => {
+    if (!user) return FULL_COACH_PERMISSIONS;
+    if (user.role === "admin") return FULL_COACH_PERMISSIONS;
+    if (user.role !== "coach") return FULL_COACH_PERMISSIONS;
+    // If coach has no permissions set, grant full access (backward compatibility)
+    return user.coachPermissions || FULL_COACH_PERMISSIONS;
+  }, [user]);
+
+  // Check if user has a specific coach permission
+  const hasCoachPermission = useCallback(
+    (permission: keyof CoachPermissions): boolean => {
+      const permissions = getCoachPermissions();
+      return permissions[permission] ?? false;
+    },
+    [getCoachPermissions]
+  );
+
   const value: AuthContextType = {
     user,
     firebaseUser,
@@ -235,6 +258,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     clearError,
     refreshUser,
     getIdToken,
+    hasCoachPermission,
+    getCoachPermissions,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
